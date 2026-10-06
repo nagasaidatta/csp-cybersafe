@@ -11,7 +11,7 @@ interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
-  const { saveProfile, refreshProfile } = useAuth();
+  const { user, saveProfile, refreshProfile } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [registerStep, setRegisterStep] = useState<RegisterStep>(1);
@@ -38,6 +38,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  // If user verifies email via confirmation link or OTP in another window/tab,
+  // automatically advance to Step 3 (Set Password)
+  useEffect(() => {
+    if (user && mode === 'register' && registerStep < 3) {
+      setRegisterStep(3);
+      setSuccessMessage(t('otpVerifiedSuccess'));
+      setErrorMessage(null);
+    }
+  }, [user, mode, registerStep, t]);
 
   const startCooldown = () => {
     setCooldownRemaining(30);
@@ -207,11 +217,26 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
+      // 1. Try with type: 'email' (standard for signInWithOtp)
+      let verifyResult = await supabase.auth.verifyOtp({
         email: cleanEmail,
         token: cleanOtp,
         type: 'email',
       });
+
+      // 2. If it fails, fallback to type: 'signup' (if Supabase treated it as new signup)
+      if (verifyResult.error) {
+        const signupResult = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanOtp,
+          type: 'signup',
+        });
+        if (!signupResult.error) {
+          verifyResult = signupResult;
+        }
+      }
+
+      const { data, error } = verifyResult;
 
       if (error) {
         const msg = error.message.toLowerCase();
@@ -583,6 +608,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         {t('btnResendOtp')}
                       </button>
                     )}
+                  </div>
+
+                  {/* Supabase Email template guidance */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600 leading-normal">
+                    <span className="font-semibold text-slate-800 block mb-0.5">Tip:</span>
+                    If your email contains a "Confirm email address" button, you can click it to confirm directly, or configure Supabase's template to display the 6-digit code.
                   </div>
                 </form>
               )}

@@ -50,7 +50,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
         {/* Four Exact Awareness Statistics */}
         <div className="mt-16 sm:mt-20 pt-12 border-t border-slate-200">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Stat 1 */}
             <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
               <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center mb-4">

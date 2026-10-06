@@ -48,6 +48,16 @@ export interface Translations {
   step2Desc: string;
   step3Desc: string;
   passwordRequirement: string;
+  pwdStrengthLabel: string;
+  pwdStrengthWeak: string;
+  pwdStrengthMedium: string;
+  pwdStrengthStrong: string;
+  pwdRuleMinLength: string;
+  pwdRuleUppercase: string;
+  pwdRuleLowercase: string;
+  pwdRuleNumber: string;
+  pwdRuleSymbol: string;
+  errPasswordNotStrong: string;
 
   // Auth Feedback / Errors
   errInvalidEmail: string;
@@ -210,6 +220,16 @@ export const translations: Record<Language, Translations> = {
     step2Desc: 'Enter the 6-digit OTP sent to your email address.',
     step3Desc: 'Create a secure password to complete your registration.',
     passwordRequirement: 'Password must be at least 8 characters long.',
+    pwdStrengthLabel: 'Password Strength',
+    pwdStrengthWeak: 'Weak',
+    pwdStrengthMedium: 'Medium',
+    pwdStrengthStrong: 'Strong',
+    pwdRuleMinLength: '8 characters',
+    pwdRuleUppercase: 'Use uppercase',
+    pwdRuleLowercase: 'Use lowercase',
+    pwdRuleNumber: 'Use numbers',
+    pwdRuleSymbol: 'Use symbols',
+    errPasswordNotStrong: 'Password must be strong to create an account.',
 
     errInvalidEmail: 'Please enter a valid email address.',
     errExistingEmail: 'This email is already registered. Please log in instead.',
@@ -382,6 +402,16 @@ export const translations: Record<Language, Translations> = {
     step2Desc: 'మీ ఈమెయిల్‌కు పంపిన 6-అంకెల OTPని నమోదు చేయండి.',
     step3Desc: 'నమోదు పూర్తి చేయడానికి సురక్షిత పాస్‌వర్డ్‌ను సృష్టించండి.',
     passwordRequirement: 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు కలిగి ఉండాలి.',
+    pwdStrengthLabel: 'పాస్‌వర్డ్ బలం',
+    pwdStrengthWeak: 'బలహీనమైనది',
+    pwdStrengthMedium: 'మధ్యస్థం',
+    pwdStrengthStrong: 'బలమైనది',
+    pwdRuleMinLength: '8 అక్షరాలు',
+    pwdRuleUppercase: 'పెద్ద అక్షరం (A-Z) ఉపయోగించండి',
+    pwdRuleLowercase: 'చిన్న అక్షరం (a-z) ఉపయోగించండి',
+    pwdRuleNumber: 'సంఖ్యలను ఉపయోగించండి',
+    pwdRuleSymbol: 'ప్రత్యేక చిహ్నాలను ఉపయోగించండి',
+    errPasswordNotStrong: 'ఖాతాను సృష్టించడానికి పాస్‌వర్డ్ బలంగా ఉండాలి.',
 
     errInvalidEmail: 'సరైన ఈమెయిల్ చిరునామాను నమోదు చేయండి.',
     errExistingEmail: 'ఈ ఈమెయిల్ ఇప్పటికే నమోదై ఉంది. దయచేసి లాగిన్ అవ్వండి.',
@@ -554,6 +584,16 @@ export const translations: Record<Language, Translations> = {
     step2Desc: 'अपने ईमेल पर भेजा गया 6-अंकों का OTP दर्ज करें।',
     step3Desc: 'पंजीकरण पूरा करने के लिए एक सुरक्षित पासवर्ड बनाएं।',
     passwordRequirement: 'पासवर्ड कम से कम 8 वर्णों का होना चाहिए।',
+    pwdStrengthLabel: 'पासवर्ड की मजबूती',
+    pwdStrengthWeak: 'कमजोर',
+    pwdStrengthMedium: 'मध्यम',
+    pwdStrengthStrong: 'मजबूत',
+    pwdRuleMinLength: '8 वर्ण',
+    pwdRuleUppercase: 'बड़ा अक्षर (A-Z) का प्रयोग करें',
+    pwdRuleLowercase: 'छोटा अक्षर (a-z) का प्रयोग करें',
+    pwdRuleNumber: 'संख्याओं का प्रयोग करें',
+    pwdRuleSymbol: 'चिह्नों का प्रयोग करें',
+    errPasswordNotStrong: 'खाता बनाने के लिए पासवर्ड मजबूत होना चाहिए।',
 
     errInvalidEmail: 'कृपया एक मान्य ईमेल पता दर्ज करें।',
     errExistingEmail: 'यह ईमेल पहले से पंजीकृत है। कृपया लॉग इन करें।',

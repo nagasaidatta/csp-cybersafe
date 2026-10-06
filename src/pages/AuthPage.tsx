@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Lock, Mail, User, KeyRound, AlertCircle, CheckCircle2, Shield, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, User, KeyRound, AlertCircle, CheckCircle2, Circle, Shield, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -23,6 +23,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
 
+  // Password Visibility Toggles
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   // Status & Feedback
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -38,6 +43,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  // If user is logged in and on login mode, navigate to home immediately
+  useEffect(() => {
+    if (user && mode === 'login') {
+      onNavigate('home');
+    }
+  }, [user, mode, onNavigate]);
 
   // If user verifies email via confirmation link or OTP in another window/tab,
   // automatically advance to Step 3 (Set Password)
@@ -83,6 +95,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     setConfirmPassword('');
   };
 
+  // Real-time password criteria & strength evaluation
+  const pwdCriteria = {
+    minLength: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    symbol: /[^A-Za-z0-9]/.test(password),
+  };
+
+  const fulfilledCount = Object.values(pwdCriteria).filter(Boolean).length;
+  const isStrong = fulfilledCount === 5;
+  const isMedium = password.length > 0 && fulfilledCount >= 3 && fulfilledCount < 5;
+  const isWeak = password.length > 0 && fulfilledCount < 3;
+
   // -------------------------------------------------------------
   // LOGIN SUBMIT (Email + Password only)
   // -------------------------------------------------------------
@@ -127,7 +153,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
 
       if (data.user) {
         await refreshProfile();
-        onNavigate('modules');
+        setSuccessMessage(t('loginSuccess'));
+        onNavigate('home');
       }
     } catch {
       setErrorMessage(t('errNetwork'));
@@ -165,6 +192,34 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
 
     setLoading(true);
     try {
+      // 1. PRE-CHECK: Check if account already exists with this email before sending OTP
+      try {
+        const { data: rpcExists, error: rpcErr } = await supabase.rpc('check_email_exists', {
+          check_email: cleanEmail,
+        });
+
+        if (!rpcErr && rpcExists === true) {
+          setErrorMessage(t('errExistingEmail'));
+          setLoading(false);
+          return;
+        }
+
+        const { data: profileExists, error: profErr } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .eq('email', cleanEmail)
+          .maybeSingle();
+
+        if (!profErr && profileExists) {
+          setErrorMessage(t('errExistingEmail'));
+          setLoading(false);
+          return;
+        }
+      } catch (checkErr) {
+        console.warn('Pre-check email note:', checkErr);
+      }
+
+      // 2. Only if no existing account was found, proceed to send OTP
       const { error } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: {
@@ -270,8 +325,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     e.preventDefault();
     clearMessages();
 
-    if (password.length < 8) {
-      setErrorMessage(t('errPasswordLength'));
+    if (!isStrong) {
+      setErrorMessage(t('errPasswordNotStrong'));
       return;
     }
 
@@ -376,10 +431,21 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2.5"
+              className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-sm flex items-start justify-between gap-2.5"
             >
-              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
-              <div className="leading-snug">{errorMessage}</div>
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
+                <div className="leading-snug">{errorMessage}</div>
+              </div>
+              {mode === 'register' && errorMessage === t('errExistingEmail') && (
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('login')}
+                  className="font-bold underline text-blue-700 hover:text-blue-900 shrink-0 text-xs sm:text-sm whitespace-nowrap"
+                >
+                  {t('tabLogin')}
+                </button>
+              )}
             </div>
           )}
 
@@ -426,13 +492,21 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   </div>
                   <input
                     id="login-password"
-                    type="password"
+                    type={showLoginPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t('passwordPlaceholder')}
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                    className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                    aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -635,17 +709,158 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       </div>
                       <input
                         id="reg-pwd"
-                        type="password"
+                        type={showRegPassword ? 'text' : 'password'}
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder={t('passwordPlaceholder')}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                        aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {t('passwordRequirement')}
-                    </p>
+
+                    {/* Real-time Password Strength Meter & Criteria Checklist */}
+                    <div className="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2.5 text-xs">
+                      {/* Strength Label and Badge */}
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-700">
+                          {t('pwdStrengthLabel')}:
+                        </span>
+                        {password.length > 0 ? (
+                          <span
+                            className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
+                              isStrong
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : isMedium
+                                ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                                : 'bg-red-100 text-red-800 border border-red-300'
+                            }`}
+                          >
+                            {isStrong
+                              ? t('pwdStrengthStrong')
+                              : isMedium
+                              ? t('pwdStrengthMedium')
+                              : t('pwdStrengthWeak')}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[11px] font-medium">—</span>
+                        )}
+                      </div>
+
+                      {/* 3-segment Strength Bar */}
+                      <div className="grid grid-cols-3 gap-1.5 h-1.5 w-full">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            password.length === 0
+                              ? 'bg-slate-200'
+                              : isWeak
+                              ? 'bg-red-500'
+                              : isMedium
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
+                          }`}
+                        />
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            isMedium
+                              ? 'bg-amber-500'
+                              : isStrong
+                              ? 'bg-emerald-500'
+                              : 'bg-slate-200'
+                          }`}
+                        />
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            isStrong ? 'bg-emerald-500' : 'bg-slate-200'
+                          }`}
+                        />
+                      </div>
+
+                      {/* Realtime 5 Criteria Checklist */}
+                      <div className="pt-2 border-t border-slate-200 space-y-1.5">
+                        <div
+                          className={`flex items-center gap-2 transition-colors ${
+                            pwdCriteria.minLength
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-slate-500'
+                          }`}
+                        >
+                          {pwdCriteria.minLength ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          )}
+                          <span>{t('pwdRuleMinLength')}</span>
+                        </div>
+
+                        <div
+                          className={`flex items-center gap-2 transition-colors ${
+                            pwdCriteria.uppercase
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-slate-500'
+                          }`}
+                        >
+                          {pwdCriteria.uppercase ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          )}
+                          <span>{t('pwdRuleUppercase')}</span>
+                        </div>
+
+                        <div
+                          className={`flex items-center gap-2 transition-colors ${
+                            pwdCriteria.lowercase
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-slate-500'
+                          }`}
+                        >
+                          {pwdCriteria.lowercase ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          )}
+                          <span>{t('pwdRuleLowercase')}</span>
+                        </div>
+
+                        <div
+                          className={`flex items-center gap-2 transition-colors ${
+                            pwdCriteria.number
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-slate-500'
+                          }`}
+                        >
+                          {pwdCriteria.number ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          )}
+                          <span>{t('pwdRuleNumber')}</span>
+                        </div>
+
+                        <div
+                          className={`flex items-center gap-2 transition-colors ${
+                            pwdCriteria.symbol
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-slate-500'
+                          }`}
+                        >
+                          {pwdCriteria.symbol ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          )}
+                          <span>{t('pwdRuleSymbol')}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
@@ -658,24 +873,56 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       </div>
                       <input
                         id="reg-confirm-pwd"
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder={t('confirmPasswordPlaceholder')}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
+                    {confirmPassword.length > 0 && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+                        {password === confirmPassword ? (
+                          <span className="text-emerald-600 font-medium flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Passwords match
+                          </span>
+                        ) : (
+                          <span className="text-red-600 font-medium flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            {t('errPasswordMismatch')}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-2">
                     <button
                       type="submit"
-                      disabled={loading}
-                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
+                      disabled={loading || !isStrong || password !== confirmPassword}
+                      className={`w-full py-2.5 px-4 text-sm font-semibold rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        isStrong && password === confirmPassword && !loading
+                          ? 'text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-600 cursor-pointer'
+                          : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
+                      }`}
                     >
                       {loading ? 'Setting Password...' : t('btnSetPassword')}
                     </button>
+                    {!isStrong && password.length > 0 && (
+                      <p className="mt-1.5 text-xs text-center text-slate-500">
+                        {t('errPasswordNotStrong')}
+                      </p>
+                    )}
                   </div>
                 </form>
               )}

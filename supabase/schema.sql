@@ -34,6 +34,13 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Allow email existence check during registration
+CREATE POLICY "Allow public email check"
+  ON public.profiles
+  FOR SELECT
+  TO anon
+  USING (true);
+
 
 -- 2. Create 'module_progress' table
 CREATE TABLE IF NOT EXISTS public.module_progress (
@@ -70,3 +77,21 @@ CREATE POLICY "Users can update own module progress"
 -- Optional: Performance Index on module_progress
 CREATE INDEX IF NOT EXISTS idx_module_progress_user
   ON public.module_progress (user_id);
+
+-- 3. Helper RPC to check if an email already exists in auth.users or profiles
+CREATE OR REPLACE FUNCTION public.check_email_exists(check_email TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM auth.users WHERE LOWER(email) = LOWER(TRIM(check_email))
+  ) OR EXISTS (
+    SELECT 1 FROM public.profiles WHERE LOWER(email) = LOWER(TRIM(check_email))
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.check_email_exists(TEXT) TO anon, authenticated;

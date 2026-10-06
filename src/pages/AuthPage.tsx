@@ -174,9 +174,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       });
 
       if (error) {
-        if (error.message.toLowerCase().includes('rate limit') || error.status === 429) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes('rate limit') || error.status === 429) {
           setErrorMessage(t('errOtpRateLimit'));
-        } else if (error.message.toLowerCase().includes('network')) {
+        } else if (msg.includes('magic link') || msg.includes('sending')) {
+          setErrorMessage(
+            'Failed to send verification email. If you enabled Custom SMTP (e.g. Resend), ensure your credentials are correct or test with the email you signed up with on Resend. Alternatively, toggle Custom SMTP OFF in Supabase Settings.'
+          );
+        } else if (msg.includes('network')) {
           setErrorMessage(t('errNetwork'));
         } else {
           setErrorMessage(error.message || t('errAuthFailed'));

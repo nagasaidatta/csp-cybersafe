@@ -260,7 +260,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     const cleanOtp = otp.trim();
     const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanOtp || cleanOtp.length < 6) {
+    if (!cleanOtp || cleanOtp.length < 8) {
       setErrorMessage(t('errInvalidOtp'));
       return;
     }
@@ -682,12 +682,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         {t('btnResendOtp')}
                       </button>
                     )}
-                  </div>
-
-                  {/* Supabase Email template guidance */}
-                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600 leading-normal">
-                    <span className="font-semibold text-slate-800 block mb-0.5">Tip:</span>
-                    If your email contains a "Confirm email address" button, you can click it to confirm directly, or configure Supabase's template to display the 6-digit code.
                   </div>
                 </form>
               )}

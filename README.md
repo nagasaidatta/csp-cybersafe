@@ -22,7 +22,7 @@ Built with **React**, **TypeScript**, **Tailwind CSS**, and **Supabase Auth & Da
    - **Registration**: Strictly sequenced 4-step verified registration:
      - **Step 1**: Name + Email $\to$ Built-in Supabase Email OTP (`signInWithOtp`).
      - **30-Second Cooldown**: Reliable UI timer preventing rate-limiting on Resend OTP.
-     - **Step 2**: 6-digit OTP verification via Supabase Auth (`verifyOtp`).
+     - **Step 2**: 8-digit OTP verification via Supabase Auth (`verifyOtp`).
      - **Step 3**: Password setup via Supabase Auth (`updateUser`).
      - **Step 4**: Non-sensitive profile persistence in the `profiles` table (`id`, `name`, `email`, `created_at`).
    - Passwords and OTPs are never stored in custom database tables, cookies, or local storage.

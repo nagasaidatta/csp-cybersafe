@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <p className="font-semibold text-white text-sm">
-                Cyber Safe - Online Scam Awareness Portal
+                {t('homeHeading')}
               </p>
               <p className="text-xs text-slate-400">
                 {t('footerNotice')}

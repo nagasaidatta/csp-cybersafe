@@ -98,7 +98,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate }) => {
               </div>
               <div>
                 <p className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                  Result
+                  {t('quizResultHeading')}
                 </p>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
                   {t('yourScore')}: {score}/{quizQuestions.length}
@@ -192,12 +192,12 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate }) => {
                     {isCorrect ? (
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        Correct
+                        {t('correctBadge')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-100 px-2.5 py-1 rounded">
                         <XCircle className="w-3.5 h-3.5 text-red-600" />
-                        Incorrect
+                        {t('incorrectBadge')}
                       </span>
                     )}
                   </span>

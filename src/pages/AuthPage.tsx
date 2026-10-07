@@ -381,7 +381,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Back to Portal Home</span>
+        <span>{t('backToHome')}</span>
       </button>
 
       {/* Supabase Notice if not configured */}
@@ -516,7 +516,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   disabled={loading}
                   className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
                 >
-                  {loading ? 'Processing...' : t('btnLogin')}
+                  {loading ? t('processing') : t('btnLogin')}
                 </button>
               </div>
             </form>
@@ -535,7 +535,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   >
                     1
                   </span>
-                  <span className="text-xs font-medium text-slate-700">Account</span>
+                  <span className="text-xs font-medium text-slate-700">{t('stepAccount')}</span>
                 </div>
                 <div className="w-6 h-px bg-slate-300"></div>
                 <div className="flex items-center gap-2">
@@ -546,7 +546,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   >
                     2
                   </span>
-                  <span className="text-xs font-medium text-slate-700">Verify OTP</span>
+                  <span className="text-xs font-medium text-slate-700">{t('stepVerify')}</span>
                 </div>
                 <div className="w-6 h-px bg-slate-300"></div>
                 <div className="flex items-center gap-2">
@@ -557,7 +557,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   >
                     3
                   </span>
-                  <span className="text-xs font-medium text-slate-700">Password</span>
+                  <span className="text-xs font-medium text-slate-700">{t('stepPassword')}</span>
                 </div>
               </div>
 
@@ -615,7 +615,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
                     >
                       {loading
-                        ? 'Sending...'
+                        ? t('sending')
                         : otpRequested && cooldownRemaining > 0
                         ? t('cooldownText', { seconds: cooldownRemaining })
                         : otpRequested
@@ -662,7 +662,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       disabled={loading}
                       className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
                     >
-                      {loading ? 'Verifying...' : t('btnVerifyOtp')}
+                      {loading ? t('verifying') : t('btnVerifyOtp')}
                     </button>
                   </div>
 
@@ -888,7 +888,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         {password === confirmPassword ? (
                           <span className="text-emerald-600 font-medium flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            Passwords match
+                            {t('passwordsMatch')}
                           </span>
                         ) : (
                           <span className="text-red-600 font-medium flex items-center gap-1">
@@ -910,7 +910,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                           : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
                       }`}
                     >
-                      {loading ? 'Setting Password...' : t('btnSetPassword')}
+                      {loading ? t('settingPassword') : t('btnSetPassword')}
                     </button>
                     {!isStrong && password.length > 0 && (
                       <p className="mt-1.5 text-xs text-center text-slate-500">
@@ -928,7 +928,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       {/* Security badge notice */}
       <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
         <Shield className="w-4 h-4 text-slate-400" />
-        <span>End-to-End Secure Supabase Authentication</span>
+        <span>{t('secureAuthNotice')}</span>
       </div>
     </div>
   );

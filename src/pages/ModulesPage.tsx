@@ -159,7 +159,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
             {isAllCompleted ? (
               <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
-                All modules completed! The quiz is now unlocked.
+                {t('allModulesCompletedNotice')}
               </span>
             ) : (
               <span>{t('btnTakeQuizDisabledNotice')}</span>
@@ -217,7 +217,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
                 {isCompleted && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 self-start sm:self-auto">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Completed</span>
+                    <span>{t('badgeCompleted')}</span>
                   </span>
                 )}
               </div>
@@ -253,7 +253,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
                           <Play className="w-8 h-8 fill-white ml-1" />
                         </button>
                         <span className="relative z-10 mt-3 text-xs font-semibold text-white bg-black/60 px-3 py-1 rounded">
-                          Click to Play Video
+                          {t('clickToPlayVideo')}
                         </span>
                       </div>
                     )}
@@ -305,7 +305,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
                     ) : (
                       <>
                         <Circle className="w-4 h-4 text-white" />
-                        <span>{updatingModule === item.id ? 'Saving...' : t('btnComplete')}</span>
+                        <span>{updatingModule === item.id ? t('saving') : t('btnComplete')}</span>
                       </>
                     )}
                   </button>
@@ -320,8 +320,8 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
       <div className="mt-12 text-center p-6 bg-slate-100 rounded-lg border border-slate-300">
         <p className="text-sm text-slate-700 mb-4 font-medium">
           {isAllCompleted
-            ? 'Ready to test your knowledge? Take the 10-question scam awareness quiz.'
-            : `${totalModules - completedCount} more module(s) to complete before taking the quiz.`}
+            ? t('quizReadyPrompt')
+            : t('quizRemainingPrompt', { remaining: totalModules - completedCount })}
         </p>
         <button
           type="button"

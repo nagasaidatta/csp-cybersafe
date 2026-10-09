@@ -95,6 +95,8 @@ export interface Translations {
   transcriptLabel: string;
   btnCompleted: string;
   btnComplete: string;
+  btnMarkIncomplete: string;
+  btnCompletedTooltip: string;
   btnTakeQuiz: string;
   btnTakeQuizDisabledNotice: string;
   allModulesCompletedNotice: string;
@@ -284,6 +286,8 @@ export const translations: Record<Language, Translations> = {
     transcriptLabel: 'Transcript',
     btnCompleted: 'Completed Module',
     btnComplete: 'Complete Module',
+    btnMarkIncomplete: 'Click to Uncomplete',
+    btnCompletedTooltip: 'Click to unmark as completed',
     btnTakeQuiz: 'Take Quiz',
     btnTakeQuizDisabledNotice: 'Complete all 4 modules to unlock the quiz.',
     allModulesCompletedNotice: 'All modules completed! The quiz is now unlocked.',
@@ -485,6 +489,8 @@ export const translations: Record<Language, Translations> = {
     transcriptLabel: 'ట్రాన్స్‌క్రిప్ట్',
     btnCompleted: 'పూర్తయిన మాడ్యూల్',
     btnComplete: 'మాడ్యూల్ పూర్తి చేయండి',
+    btnMarkIncomplete: 'అసంపూర్ణంగా గుర్తించండి',
+    btnCompletedTooltip: 'పూర్తయినట్లు గుర్తును తీసివేయడానికి క్లిక్ చేయండి',
     btnTakeQuiz: 'క్విజ్ ప్రారంభించండి',
     btnTakeQuizDisabledNotice: 'క్విజ్ తెరవడానికి మొత్తం 4 మాడ్యూళ్లను పూర్తి చేయండి.',
     allModulesCompletedNotice: 'అన్ని మాడ్యూల్స్ పూర్తయ్యాయి! క్విజ్ అన్‌లాక్ చేయబడింది.',
@@ -686,6 +692,8 @@ export const translations: Record<Language, Translations> = {
     transcriptLabel: 'प्रतिलेख (Transcript)',
     btnCompleted: 'पूर्ण किया गया मॉड्यूल',
     btnComplete: 'मॉड्यूल पूरा करें',
+    btnMarkIncomplete: 'अपूर्ण करने के लिए क्लिक करें',
+    btnCompletedTooltip: 'पूर्ण किए गए को हटाने के लिए क्लिक करें',
     btnTakeQuiz: 'प्रश्नोत्तरी शुरू करें',
     btnTakeQuizDisabledNotice: 'प्रश्नोत्तरी अनलॉक करने के लिए सभी 4 मॉड्यूल पूरे करें।',
     allModulesCompletedNotice: 'सभी मॉड्यूल पूरे हो गए! प्रश्नोत्तरी अब अनलॉक हो गई है।',

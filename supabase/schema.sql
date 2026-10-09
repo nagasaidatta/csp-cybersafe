@@ -55,21 +55,15 @@ CREATE TABLE IF NOT EXISTS public.module_progress (
 ALTER TABLE public.module_progress ENABLE ROW LEVEL SECURITY;
 
 -- Module Progress RLS Policies: Authenticated users can only access & mutate their own progress
-CREATE POLICY "Users can view own module progress"
-  ON public.module_progress
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can view own module progress" ON public.module_progress;
+DROP POLICY IF EXISTS "Users can insert own module progress" ON public.module_progress;
+DROP POLICY IF EXISTS "Users can update own module progress" ON public.module_progress;
+DROP POLICY IF EXISTS "Users can delete own module progress" ON public.module_progress;
+DROP POLICY IF EXISTS "Users can manage own module progress" ON public.module_progress;
 
-CREATE POLICY "Users can insert own module progress"
+CREATE POLICY "Users can manage own module progress"
   ON public.module_progress
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own module progress"
-  ON public.module_progress
-  FOR UPDATE
+  FOR ALL
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);

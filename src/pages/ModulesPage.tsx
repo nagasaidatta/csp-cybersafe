@@ -17,18 +17,21 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
   const [completedModules, setCompletedModules] = useState<Record<number, boolean>>({});
   const [updatingModule, setUpdatingModule] = useState<number | null>(null);
   const [activeVideoId, setActiveVideoId] = useState<Record<number, boolean>>({});
+  const [syncNote, setSyncNote] = useState<string | null>(null);
 
-  // 1. Single query to fetch module progress on initial load
+  // 1. Fetch module progress on initial load with cache preservation
   const loadProgress = useCallback(async () => {
     if (!user) {
       return;
     }
 
     // Check localStorage cache first for fast display
-    const cached = localStorage.getItem(`cyber_safe_progress_${user.id}`);
-    if (cached) {
+    const cachedStr = localStorage.getItem(`cyber_safe_progress_${user.id}`);
+    let cachedMap: Record<number, boolean> = {};
+    if (cachedStr) {
       try {
-        setCompletedModules(JSON.parse(cached));
+        cachedMap = JSON.parse(cachedStr) || {};
+        setCompletedModules(cachedMap);
       } catch {
         // ignore parse error
       }
@@ -46,7 +49,12 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
 
       if (error) {
         console.warn('Progress load note:', error.message);
-      } else if (data) {
+        // Do NOT overwrite local progress if database query errored
+        return;
+      }
+
+      if (data && data.length > 0) {
+        // Database has records: reflect verified state
         const progressMap: Record<number, boolean> = {};
         data.forEach((row: { module_id: number; completed: boolean }) => {
           if (row.completed) {
@@ -55,6 +63,34 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         });
         setCompletedModules(progressMap);
         localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify(progressMap));
+      } else if (data && data.length === 0) {
+        // If DB returned 0 records but the user has local progress,
+        // proactively sync the locally completed modules so progress is NOT lost!
+        const cachedCompletedIds = Object.keys(cachedMap)
+          .map(Number)
+          .filter((id) => cachedMap[id]);
+
+        if (cachedCompletedIds.length > 0) {
+          for (const mid of cachedCompletedIds) {
+            try {
+              await supabase.from('module_progress').upsert(
+                {
+                  user_id: user.id,
+                  module_id: mid,
+                  completed: true,
+                  completed_at: new Date().toISOString(),
+                },
+                { onConflict: 'user_id,module_id' }
+              );
+            } catch (syncErr) {
+              console.warn('Initial sync note for module', mid, syncErr);
+            }
+          }
+        } else {
+          // Fresh user with 0 completed modules
+          setCompletedModules({});
+          localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify({}));
+        }
       }
     } catch (err) {
       console.error('Error fetching progress:', err);
@@ -65,38 +101,87 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
     loadProgress();
   }, [loadProgress]);
 
-  // 2. Mark module completed
-  const handleCompleteModule = async (moduleId: number) => {
-    if (completedModules[moduleId] || updatingModule === moduleId || !user) {
+  // 2. Toggle module completion (Completed <-> Uncompleted)
+  const handleToggleModule = async (moduleId: number) => {
+    if (updatingModule === moduleId || !user) {
       return;
     }
 
-    setUpdatingModule(moduleId);
+    const currentStatus = Boolean(completedModules[moduleId]);
+    const nextStatus = !currentStatus;
 
-    // Optimistically update local state immediately
-    const nextCompleted = { ...completedModules, [moduleId]: true };
+    setUpdatingModule(moduleId);
+    setSyncNote(null);
+
+    // Optimistically update local state & localStorage immediately
+    const nextCompleted = { ...completedModules, [moduleId]: nextStatus };
     setCompletedModules(nextCompleted);
     localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify(nextCompleted));
 
     if (isSupabaseConfigured) {
       try {
-        const { error } = await supabase
+        let saveSucceeded = false;
+        let lastError: any = null;
+
+        // Primary strategy: Upsert with onConflict
+        const { error: upsertErr } = await supabase
           .from('module_progress')
           .upsert(
             {
               user_id: user.id,
               module_id: moduleId,
-              completed: true,
+              completed: nextStatus,
               completed_at: new Date().toISOString(),
             },
             { onConflict: 'user_id,module_id' }
           );
 
-        if (error) {
-          console.warn('Database note on module progress save:', error.message);
+        if (!upsertErr) {
+          saveSucceeded = true;
+        } else {
+          lastError = upsertErr;
+          console.warn('Upsert note, trying fallback update/insert:', upsertErr.message);
+
+          // Fallback Strategy: Direct update
+          const { data: updateData, error: updateErr } = await supabase
+            .from('module_progress')
+            .update({
+              completed: nextStatus,
+              completed_at: new Date().toISOString(),
+            })
+            .eq('user_id', user.id)
+            .eq('module_id', moduleId)
+            .select();
+
+          if (!updateErr && updateData && updateData.length > 0) {
+            saveSucceeded = true;
+          } else {
+            if (updateErr) lastError = updateErr;
+            // Fallback Strategy: Row doesn't exist yet, direct insert
+            const { error: insertErr } = await supabase
+              .from('module_progress')
+              .insert({
+                user_id: user.id,
+                module_id: moduleId,
+                completed: nextStatus,
+                completed_at: new Date().toISOString(),
+              });
+
+            if (!insertErr) {
+              saveSucceeded = true;
+            } else {
+              lastError = insertErr;
+            }
+          }
+        }
+
+        if (!saveSucceeded && lastError) {
+          console.error('Failed to persist module progress to database:', lastError);
+          setSyncNote('Progress saved locally. Database sync will retry on next action.');
         }
       } catch (err) {
         console.error('Failed to persist module progress:', err);
+        setSyncNote('Progress saved locally. Database sync will retry on next action.');
       }
     }
 
@@ -119,6 +204,21 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
           {t('homeDescription')}
         </p>
       </div>
+
+      {/* Sync / Connectivity Notice */}
+      {syncNote && (
+        <div className="mb-6 p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center justify-between shadow-sm">
+          <span>{syncNote}</span>
+          <button
+            type="button"
+            onClick={() => setSyncNote(null)}
+            className="text-amber-700 hover:text-amber-900 font-bold ml-2 text-sm px-1"
+            aria-label="Dismiss note"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Progress Bar Card */}
       <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm mb-10">
@@ -285,27 +385,38 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
                   </ul>
                 </div>
 
-                {/* Complete Module Button */}
-                <div className="pt-2 flex justify-end">
+                {/* Module Completion Toggle Button */}
+                <div className="pt-2 flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2.5">
+                  {isCompleted && (
+                    <span className="text-xs text-slate-500 font-medium select-none">
+                      {t('btnCompletedTooltip')}
+                    </span>
+                  )}
                   <button
                     type="button"
-                    disabled={isCompleted || updatingModule === item.id}
-                    onClick={() => handleCompleteModule(item.id)}
-                    className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    disabled={updatingModule === item.id}
+                    onClick={() => handleToggleModule(item.id)}
+                    title={isCompleted ? t('btnCompletedTooltip') : t('btnComplete')}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 ${
                       isCompleted
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 cursor-default'
+                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 hover:border-emerald-400 cursor-pointer'
                         : 'bg-blue-700 hover:bg-blue-800 text-white focus:ring-blue-600 cursor-pointer'
-                    }`}
+                    } ${updatingModule === item.id ? 'opacity-70 cursor-wait' : ''}`}
                   >
-                    {isCompleted ? (
+                    {updatingModule === item.id ? (
                       <>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
+                        <span>{t('saving')}</span>
+                      </>
+                    ) : isCompleted ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{t('btnCompleted')}</span>
                       </>
                     ) : (
                       <>
-                        <Circle className="w-4 h-4 text-white" />
-                        <span>{updatingModule === item.id ? t('saving') : t('btnComplete')}</span>
+                        <Circle className="w-4 h-4 text-white shrink-0" />
+                        <span>{t('btnComplete')}</span>
                       </>
                     )}
                   </button>

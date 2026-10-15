@@ -7,6 +7,8 @@ import { HomePage } from './pages/HomePage';
 import { AuthPage } from './pages/AuthPage';
 import { ModulesPage } from './pages/ModulesPage';
 import { QuizPage } from './pages/QuizPage';
+import { LinkSafetyPage } from './pages/LinkSafetyPage';
+import { MessageSafetyPage } from './pages/MessageSafetyPage';
 import { ViewState } from './types';
 
 const AppContent: React.FC = () => {
@@ -38,7 +40,10 @@ const AppContent: React.FC = () => {
         {currentView === 'quiz' && (
           user ? <QuizPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} />
         )}
+        {currentView === 'link-safety' && <LinkSafetyPage onNavigate={handleNavigate} />}
+        {currentView === 'message-safety' && <MessageSafetyPage onNavigate={handleNavigate} />}
       </main>
+
 
       {/* Portal Footer */}
       <Footer />

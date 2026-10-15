@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Shield, Globe, LogOut, User, ChevronDown } from 'lucide-react';
+import { Shield, Globe, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { Language, ViewState } from '../types';
@@ -9,14 +9,16 @@ interface NavbarProps {
   onNavigate: (view: ViewState) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
   const { language, setLanguage, t } = useLanguage();
   const { user, profile, signOut } = useAuth();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const langRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -25,6 +27,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
       }
       if (userRef.current && !userRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -46,11 +51,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200">
+    <header className="sticky top-0 z-40 bg-white border-b border-slate-200" ref={mobileMenuRef}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Portal Name & Shield Icon */}
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => {
+            onNavigate('home');
+            setMobileMenuOpen(false);
+          }}
           className="flex items-center gap-2.5 text-left group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded"
           aria-label="Cyber Safe Home"
         >
@@ -64,7 +72,33 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           </div>
         </button>
 
-        {/* Right Controls: Language Selector + Auth State */}
+        {/* Desktop Navigation Items */}
+        <nav className="hidden md:flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
+          <button
+            type="button"
+            onClick={() => onNavigate('link-safety')}
+            className={`px-3 py-1.5 text-sm font-semibold rounded transition-colors ${
+              currentView === 'link-safety'
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-slate-700 hover:text-blue-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navLinkSafety')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate('message-safety')}
+            className={`px-3 py-1.5 text-sm font-semibold rounded transition-colors ${
+              currentView === 'message-safety'
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-slate-700 hover:text-blue-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navMessageSafety')}
+          </button>
+        </nav>
+
+        {/* Right Controls: Language Selector + Auth State + Mobile Menu Toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Language Selector */}
           <div className="relative" ref={langRef}>
@@ -73,6 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
               onClick={() => setLangMenuOpen(!langMenuOpen)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-300 rounded hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
               aria-expanded={langMenuOpen}
+
               aria-haspopup="true"
               aria-label="Select Language"
             >
@@ -145,14 +180,76 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           ) : (
             <button
               type="button"
-              onClick={() => onNavigate('auth')}
+              onClick={() => {
+                onNavigate('auth');
+                setMobileMenuOpen(false);
+              }}
               className="px-4 py-1.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1"
             >
               {t('login')}
             </button>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-1.5 text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5 text-slate-700" /> : <Menu className="w-5 h-5 text-slate-700" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-2.5 space-y-1 shadow-sm animate-in fade-in">
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate('home');
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full text-left px-3.5 py-2 text-sm font-medium rounded transition-colors ${
+              currentView === 'home'
+                ? 'bg-blue-50 text-blue-700 font-semibold'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navHome')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate('link-safety');
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full text-left px-3.5 py-2 text-sm font-medium rounded transition-colors ${
+              currentView === 'link-safety'
+                ? 'bg-blue-50 text-blue-700 font-semibold'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navLinkSafety')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate('message-safety');
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full text-left px-3.5 py-2 text-sm font-medium rounded transition-colors ${
+              currentView === 'message-safety'
+                ? 'bg-blue-50 text-blue-700 font-semibold'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navMessageSafety')}
+          </button>
+        </div>
+      )}
     </header>
   );
 };

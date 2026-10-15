@@ -31,6 +31,31 @@ export interface QuizQuestionItem {
   correctIndex: number; // 0 or 1
 }
 
-export type ViewState = 'home' | 'auth' | 'modules' | 'quiz';
+export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety';
 export type AuthMode = 'login' | 'register';
 export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2: OTP verification, 3: Password setup
+
+export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical' | 'Unknown';
+
+export interface LinkSafetyResult {
+  submittedUrl: string;
+  classification: string;
+  riskLevel: RiskLevel;
+  categories: string[];
+  explanation: string;
+  evidence: string[];
+  limitations: string;
+  cachedAt?: number;
+}
+
+export interface MessageSafetyResult {
+  classification: 'Likely Scam' | 'Suspicious' | 'No Strong Scam Indicators Detected' | 'Unable to Verify';
+  riskLevel: RiskLevel;
+  scamCategories: string[];
+  suspiciousPhrases: string[];
+  explanation: string;
+  recommendations: string[];
+  limitations: string;
+  cachedAt?: number;
+}
+

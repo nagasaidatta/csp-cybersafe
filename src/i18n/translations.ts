@@ -6,6 +6,73 @@ export interface Translations {
   login: string;
   logout: string;
   greeting: string;
+  navHome: string;
+  navLinkSafety: string;
+  navMessageSafety: string;
+
+  // Link Safety Checker
+  lsBadge: string;
+  lsTitle: string;
+  lsDesc: string;
+  lsInputLabel: string;
+  lsInputPlaceholder: string;
+  lsCooldownNote: string;
+  lsBtnCheck: string;
+  lsBtnChecking: string;
+  lsLoadingTitle: string;
+  lsLoading1: string;
+  lsLoading2: string;
+  lsLoading3: string;
+  lsLoading4: string;
+  lsLoading5: string;
+  lsReportTitle: string;
+  lsCachedBadge: string;
+  lsRequestFresh: string;
+  lsSubmittedUrl: string;
+  lsDetectedCategories: string;
+  lsSummaryTitle: string;
+  lsEvidenceTitle: string;
+  lsLimitationsTitle: string;
+  lsLimitationsNote: string;
+
+  // Message Safety Checker
+  msBadge: string;
+  msTitle: string;
+  msDesc: string;
+  msInputLabel: string;
+  msInputPlaceholder: string;
+  msPrivacyNote: string;
+  msBtnCheck: string;
+  msBtnChecking: string;
+  msLoadingTitle: string;
+  msLoading1: string;
+  msLoading2: string;
+  msLoading3: string;
+  msLoading4: string;
+  msReportTitle: string;
+  msClassification: string;
+  msCategoriesTitle: string;
+  msPhrasesTitle: string;
+  msFindingsTitle: string;
+  msRecommendationsTitle: string;
+  msOtpWarning: string;
+
+  // Common Checker Strings
+  riskCritical: string;
+  riskHigh: string;
+  riskMedium: string;
+  riskLow: string;
+  riskUnknown: string;
+  cooldownWait: string;
+  analysisError: string;
+  errUrlEmpty: string;
+  errUrlLong: string;
+  errUrlScheme: string;
+  errUrlInvalid: string;
+  errMessageEmpty: string;
+  errMessageLong: string;
+  recently: string;
+  minsAgo: string;
 
   // Home Page
   homeHeading: string;
@@ -201,6 +268,73 @@ export const translations: Record<Language, Translations> = {
     login: 'Login',
     logout: 'Logout',
     greeting: 'Welcome',
+    navHome: 'Home',
+    navLinkSafety: 'Link Safety',
+    navMessageSafety: 'Message Safety',
+
+    // Link Safety Checker
+    lsBadge: 'AI-Assisted Threat Intelligence',
+    lsTitle: 'Link Safety Checker',
+    lsDesc: 'Verify websites and suspicious URLs before clicking. Our analyzer checks domain heuristics, phishing tactics, brand replica patterns, and scam signatures.',
+    lsInputLabel: 'Website or Link URL',
+    lsInputPlaceholder: 'e.g. sbi-kyc-update.com or https://example.com',
+    lsCooldownNote: '1 fresh analysis allowed every 30 seconds • No login required',
+    lsBtnCheck: 'Check Link Safety',
+    lsBtnChecking: 'Analyzing...',
+    lsLoadingTitle: 'Evaluating Link Security',
+    lsLoading1: 'Validating and normalizing submitted URL...',
+    lsLoading2: 'Evaluating domain structure and brand indicators...',
+    lsLoading3: 'Checking for suspicious phishing and fraud patterns...',
+    lsLoading4: 'Evaluating potential security risks...',
+    lsLoading5: 'Preparing your security assessment...',
+    lsReportTitle: 'Analysis Report',
+    lsCachedBadge: 'Cached Result ({time})',
+    lsRequestFresh: 'Request Fresh Analysis',
+    lsSubmittedUrl: 'Submitted URL',
+    lsDetectedCategories: 'Detected Categories',
+    lsSummaryTitle: 'Summary & Explanation',
+    lsEvidenceTitle: 'Observable Evidence & Risk Indicators',
+    lsLimitationsTitle: 'Important Scope & Limitations',
+    lsLimitationsNote: 'Note: Do not enter financial credentials or sensitive passwords on unverified domains.',
+
+    // Message Safety Checker
+    msBadge: 'AI-Assisted Fraud Detection',
+    msTitle: 'Message Safety Checker',
+    msDesc: 'Paste suspicious SMS alerts, WhatsApp forwards, lottery claims, or payment requests. Our analyzer checks for social engineering, financial lures, urgency pressure, and scam patterns.',
+    msInputLabel: 'Suspicious Message Text',
+    msInputPlaceholder: 'Paste the suspicious SMS, WhatsApp message, email, or alert text here...',
+    msPrivacyNote: 'Message content is processed securely and never persisted • No login required',
+    msBtnCheck: 'Check Message Safety',
+    msBtnChecking: 'Analyzing...',
+    msLoadingTitle: 'Evaluating Message Content',
+    msLoading1: 'Analyzing message content and structure...',
+    msLoading2: 'Looking for suspicious urgency and fraud language...',
+    msLoading3: 'Evaluating possible scam indicators...',
+    msLoading4: 'Preparing your security assessment...',
+    msReportTitle: 'Assessment Report',
+    msClassification: 'Overall Classification',
+    msCategoriesTitle: 'Detected Scam Category',
+    msPhrasesTitle: 'Suspicious Indicators & Phrases',
+    msFindingsTitle: 'Detailed Findings',
+    msRecommendationsTitle: 'Recommended Precautions',
+    msOtpWarning: 'Never share your banking OTP, MPIN, or passwords with anyone, even if the caller claims to represent bank officials or police.',
+
+    // Common Checker Strings
+    riskCritical: 'Critical Risk',
+    riskHigh: 'High Risk',
+    riskMedium: 'Medium Risk',
+    riskLow: 'Low Risk',
+    riskUnknown: 'Unknown Risk',
+    cooldownWait: 'Please wait {seconds} seconds before checking again.',
+    analysisError: 'Analysis Error',
+    errUrlEmpty: 'Please enter a website URL to analyze.',
+    errUrlLong: 'URL exceeds maximum length of 2048 characters.',
+    errUrlScheme: 'Unsupported URL protocol. Only standard HTTP and HTTPS links are allowed.',
+    errUrlInvalid: 'Please enter a valid website URL (e.g. example.com or https://example.com).',
+    errMessageEmpty: 'Please paste or type a suspicious message to analyze.',
+    errMessageLong: 'Message exceeds the maximum length of 5000 characters.',
+    recently: 'recently',
+    minsAgo: '{mins} min{plural} ago',
 
     homeHeading: 'Cyber Safe - Online Scam Awareness Portal',
     homeSubheading: 'Stay Safe Online',
@@ -404,6 +538,73 @@ export const translations: Record<Language, Translations> = {
     login: 'లాగిన్',
     logout: 'లాగౌట్',
     greeting: 'స్వాగతం',
+    navHome: 'హోమ్',
+    navLinkSafety: 'లింక్ భద్రత',
+    navMessageSafety: 'సందేశ భద్రత',
+
+    // Link Safety Checker
+    lsBadge: 'AI-సహాయక ముప్పు సమాచారం',
+    lsTitle: 'లింక్ భద్రతా తనిఖీ',
+    lsDesc: 'క్లిక్ చేయడానికి ముందు వెబ్‌సైట్‌లు మరియు అనుమానాస్పద URLలను తనిఖీ చేయండి. మా విశ్లేషణ వ్యవస్థ డొమైన్ లక్షణాలు, ఫిషింగ్ పద్ధతులు మరియు స్కామ్ నమూనాలను తనిఖీ చేస్తుంది.',
+    lsInputLabel: 'వెబ్‌సైట్ లేదా లింక్ URL',
+    lsInputPlaceholder: 'ఉదా: sbi-kyc-update.com లేదా https://example.com',
+    lsCooldownNote: 'ప్రతి 30 సెకన్లకు 1 సారి మాత్రమే తనిఖీ అనుమతించబడుతుంది • లాగిన్ అవసరం లేదు',
+    lsBtnCheck: 'లింక్ భద్రతను తనిఖీ చేయండి',
+    lsBtnChecking: 'విశ్లేషిస్తోంది...',
+    lsLoadingTitle: 'లింక్ భద్రతను అంచనా వేస్తోంది',
+    lsLoading1: 'సమర్పించిన URLని ధృవీకరిస్తోంది...',
+    lsLoading2: 'డొమైన్ నిర్మాణం మరియు బ్రాండ్ సూచికలను అంచనా వేస్తోంది...',
+    lsLoading3: 'అనుమానాస్పద ఫిషింగ్ మరియు మోసపూరిత నమూనాలను తనిఖీ చేస్తోంది...',
+    lsLoading4: 'సంభావ్య భద్రతా ప్రమాదాలను అంచనా వేస్తోంది...',
+    lsLoading5: 'మీ భద్రతా నివేదికను సిద్ధం చేస్తోంది...',
+    lsReportTitle: 'విశ్లేషణ నివేదిక',
+    lsCachedBadge: 'కాష్ చేయబడిన ఫలితం ({time})',
+    lsRequestFresh: 'కొత్త విశ్లేషణను అభ్యర్థించండి',
+    lsSubmittedUrl: 'సమర్పించిన URL',
+    lsDetectedCategories: 'గుర్తించిన వర్గాలు',
+    lsSummaryTitle: 'సారాంశం & వివరణ',
+    lsEvidenceTitle: 'పరిశీలించదగిన ఆధారాలు & ప్రమాద సూచికలు',
+    lsLimitationsTitle: 'ముఖ్యమైన పరిమితులు',
+    lsLimitationsNote: 'గమనిక: ధృవీకరించని డొమైన్‌లలో బ్యాంకింగ్ వివరాలు లేదా పాస్‌వర్డ్‌లను నమోదు చేయవద్దు.',
+
+    // Message Safety Checker
+    msBadge: 'AI-సహాయక మోసం గుర్తింపు',
+    msTitle: 'సందేశ భద్రతా తనిఖీ',
+    msDesc: 'అనుమానాస్పద SMS హెచ్చరికలు, వాట్సాప్ సందేశాలు, లాటరీ లేదా చెల్లింపు అభ్యర్థనలను ఇక్కడ పేస్ట్ చేయండి. మా విశ్లేషణ సామాజిక ఇంజనీరింగ్, ఆర్థిక ఎరలు మరియు మోసాల నమూనాలను తనిఖీ చేస్తుంది.',
+    msInputLabel: 'అనుమానాస్పద సందేశం పాఠం',
+    msInputPlaceholder: 'అనుమానాస్పద SMS, వాట్సాప్ సందేశం లేదా ఈమెయిల్ ఇక్కడ పేస్ట్ చేయండి...',
+    msPrivacyNote: 'సందేశం సురక్షితంగా విశ్లేషించబడుతుంది మరియు నిల్వ చేయబడదు • లాగిన్ అవసరం లేదు',
+    msBtnCheck: 'సందేశ భద్రతను తనిఖీ చేయండి',
+    msBtnChecking: 'విశ్లేషిస్తోంది...',
+    msLoadingTitle: 'సందేశ కంటెంట్‌ను అంచనా వేస్తోంది',
+    msLoading1: 'సందేశ కంటెంట్ మరియు నిర్మాణాన్ని విశ్లేషిస్తోంది...',
+    msLoading2: 'అనుమానాస్పద తొందరపాటు మరియు మోసపూరిత భాష కోసం శోధిస్తోంది...',
+    msLoading3: 'సంభావ్య మోసాల సూచికలను అంచనా వేస్తోంది...',
+    msLoading4: 'మీ భద్రతా నివేదికను సిద్ధం చేస్తోంది...',
+    msReportTitle: 'మూల్యాంకన నివేదిక',
+    msClassification: 'మొత్తం వర్గీకరణ',
+    msCategoriesTitle: 'గుర్తించిన మోసం వర్గం',
+    msPhrasesTitle: 'అనుమానాస్పద పదాలు & సూచికలు',
+    msFindingsTitle: 'వివరణాత్మక ఫలితాలు',
+    msRecommendationsTitle: 'సిఫార్సు చేయబడిన జాగ్రత్తలు',
+    msOtpWarning: 'బ్యాంక్ అధికారులు లేదా పోలీసులు అని చెప్పుకున్నప్పటికీ మీ బ్యాంకింగ్ OTP, MPIN లేదా పాస్‌వర్డ్‌లను ఎవరితోనూ పంచుకోవద్దు.',
+
+    // Common Checker Strings
+    riskCritical: 'తీవ్రమైన ప్రమాదం',
+    riskHigh: 'అధిక ప్రమాదం',
+    riskMedium: 'మధ్యస్థ ప్రమాదం',
+    riskLow: 'తక్కువ ప్రమాదం',
+    riskUnknown: 'తెలియని ప్రమాదం',
+    cooldownWait: 'దయచేసి మళ్లీ తనిఖీ చేయడానికి ముందు {seconds} సెకన్లు వేచి ఉండండి.',
+    analysisError: 'విశ్లేషణ లోపం',
+    errUrlEmpty: 'దయచేసి విశ్లేషించడానికి ఒక వెబ్‌సైట్ URLని నమోదు చేయండి.',
+    errUrlLong: 'URL గరిష్టంగా 2048 అక్షరాల పరిమితిని మించిపోయింది.',
+    errUrlScheme: 'మద్దతు లేని URL ప్రోటోకాల్. HTTP మరియు HTTPS లింక్‌లు మాత్రమే అనుమతించబడతాయి.',
+    errUrlInvalid: 'దయచేసి సరైన వెబ్‌సైట్ URLని నమోదు చేయండి (ఉదా: example.com లేదా https://example.com).',
+    errMessageEmpty: 'దయచేసి విశ్లేషించడానికి ఒక అనుమానాస్పద సందేశాన్ని టైప్ చేయండి లేదా పేస్ట్ చేయండి.',
+    errMessageLong: 'సందేశం గరిష్టంగా 5000 అక్షరాల పరిమితిని మించిపోయింది.',
+    recently: 'ఇటీవల',
+    minsAgo: '{mins} నిమిషాల క్రితం',
 
     homeHeading: 'సైబర్ సేఫ్ - ఆన్‌లైన్ స్కామ్ అవగాహన పోర్టల్',
     homeSubheading: 'ఆన్‌లైన్‌లో సురక్షితంగా ఉండండి',
@@ -607,6 +808,73 @@ export const translations: Record<Language, Translations> = {
     login: 'लॉग इन',
     logout: 'लॉग आउट',
     greeting: 'स्वागत है',
+    navHome: 'होम',
+    navLinkSafety: 'लिंक सुरक्षा',
+    navMessageSafety: 'संदेश सुरक्षा',
+
+    // Link Safety Checker
+    lsBadge: 'एआई-सहायक खतरा खुफिया',
+    lsTitle: 'लिंक सुरक्षा चेकर',
+    lsDesc: 'क्लिक करने से पहले वेबसाइटों और संदिग्ध लिंक की जांच करें। हमारा विश्लेषक डोमेन विशेषताओं, फ़िशिंग और स्कैम पैटर्न की जांच करता है।',
+    lsInputLabel: 'वेबसाइट या लिंक URL',
+    lsInputPlaceholder: 'उदा. sbi-kyc-update.com या https://example.com',
+    lsCooldownNote: 'हर 30 सेकंड में 1 नई जांच की अनुमति है • लॉगिन की आवश्यकता नहीं है',
+    lsBtnCheck: 'लिंक सुरक्षा जांचें',
+    lsBtnChecking: 'विश्लेषण हो रहा है...',
+    lsLoadingTitle: 'लिंक सुरक्षा का मूल्यांकन हो रहा है',
+    lsLoading1: 'जमा किए गए URL को सत्यापित किया जा रहा है...',
+    lsLoading2: 'डोमेन संरचना और ब्रांड संकेतकों का मूल्यांकन किया जा रहा है...',
+    lsLoading3: 'संदिग्ध फ़िशिंग और धोखाधड़ी पैटर्न की जांच की जा रही है...',
+    lsLoading4: 'संभावित सुरक्षा जोखिमों का मूल्यांकन किया जा रहा है...',
+    lsLoading5: 'आपकी सुरक्षा रिपोर्ट तैयार की जा रही है...',
+    lsReportTitle: 'विश्लेषण रिपोर्ट',
+    lsCachedBadge: 'कैश किया गया परिणाम ({time})',
+    lsRequestFresh: 'नया विश्लेषण अनुरोध करें',
+    lsSubmittedUrl: 'जमा किया गया URL',
+    lsDetectedCategories: 'पहचाने गए वर्ग',
+    lsSummaryTitle: 'सारांश और विवरण',
+    lsEvidenceTitle: 'अवलोकन योग्य प्रमाण और जोखिम संकेतक',
+    lsLimitationsTitle: 'महत्वपूर्ण सीमाएं',
+    lsLimitationsNote: 'नोट: असत्यापित डोमेन पर वित्तीय क्रेडेंशियल्स या पासवर्ड दर्ज न करें।',
+
+    // Message Safety Checker
+    msBadge: 'एआई-सहायक धोखाधड़ी पहचान',
+    msTitle: 'संदेश सुरक्षा चेकर',
+    msDesc: 'संदिग्ध एसएमएस, व्हाट्सएप फॉरवर्ड, लॉटरी दावों या भुगतान अनुरोधों को यहां पेस्ट करें। हमारा विश्लेषक वित्तीय लालच, तात्कालिकता और धोखाधड़ी पैटर्न की जांच करता है।',
+    msInputLabel: 'संदिग्ध संदेश पाठ',
+    msInputPlaceholder: 'संदिग्ध एसएमएस, व्हाट्सएप संदेश या ईमेल यहां पेस्ट करें...',
+    msPrivacyNote: 'संदेश सुरक्षित रूप से संसाधित होता है और कभी संग्रहीत नहीं होता • लॉगिन की आवश्यकता नहीं है',
+    msBtnCheck: 'संदेश सुरक्षा जांचें',
+    msBtnChecking: 'विश्लेषण हो रहा है...',
+    msLoadingTitle: 'संदेश सामग्री का मूल्यांकन हो रहा है',
+    msLoading1: 'संदेश सामग्री और संरचना का विश्लेषण हो रहा है...',
+    msLoading2: 'संदिग्ध तात्कालिकता और धोखाधड़ी की भाषा की तलाश हो रही है...',
+    msLoading3: 'संभावित स्कैम संकेतकों का मूल्यांकन हो रहा है...',
+    msLoading4: 'आपकी सुरक्षा रिपोर्ट तैयार की जा रही है...',
+    msReportTitle: 'मूल्यांकन रिपोर्ट',
+    msClassification: 'समग्र वर्गीकरण',
+    msCategoriesTitle: 'पहचाने गए स्कैम वर्ग',
+    msPhrasesTitle: 'संदिग्ध शब्द और संकेतक',
+    msFindingsTitle: 'विस्तृत निष्कर्ष',
+    msRecommendationsTitle: 'अनुशंसित सावधानियां',
+    msOtpWarning: 'बैंक अधिकारी या पुलिस होने का दावा करने पर भी अपना बैंकिंग ओटीपी, एमपीआईएन या पासवर्ड किसी के साथ साझा न करें।',
+
+    // Common Checker Strings
+    riskCritical: 'गंभीर जोखिम',
+    riskHigh: 'उच्च जोखिम',
+    riskMedium: 'मध्यम जोखिम',
+    riskLow: 'कम जोखिम',
+    riskUnknown: 'अज्ञात जोखिम',
+    cooldownWait: 'कृपया दोबारा जांच करने से पहले {seconds} सेकंड प्रतीक्षा करें।',
+    analysisError: 'विश्लेषण त्रुटि',
+    errUrlEmpty: 'कृपया विश्लेषण के लिए वेबसाइट URL दर्ज करें।',
+    errUrlLong: 'URL 2048 अक्षरों की अधिकतम सीमा से अधिक है।',
+    errUrlScheme: 'असमर्थित URL प्रोटोकॉल। केवल HTTP और HTTPS लिंक की अनुमति है।',
+    errUrlInvalid: 'कृपया मान्य वेबसाइट URL दर्ज करें (उदा. example.com या https://example.com)।',
+    errMessageEmpty: 'कृपया विश्लेषण के लिए एक संदिग्ध संदेश पेस्ट करें या लिखें।',
+    errMessageLong: 'संदेश 5000 अक्षरों की अधिकतम सीमा से अधिक है।',
+    recently: 'हाल ही में',
+    minsAgo: '{mins} मिनट पहले',
 
     homeHeading: 'साइबर सेफ - ऑनलाइन स्कैम जागरूकता पोर्टल',
     homeSubheading: 'ऑनलाइन सुरक्षित रहें',

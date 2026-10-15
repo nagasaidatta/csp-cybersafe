@@ -96,7 +96,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
           >
             {t('navMessageSafety')}
           </button>
+          <button
+            type="button"
+            onClick={() => onNavigate('password-checker')}
+            className={`px-3 py-1.5 text-sm font-semibold rounded transition-colors ${
+              currentView === 'password-checker'
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-slate-700 hover:text-blue-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navPasswordChecker')}
+          </button>
         </nav>
+
 
         {/* Right Controls: Language Selector + Auth State + Mobile Menu Toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -247,6 +259,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             }`}
           >
             {t('navMessageSafety')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate('password-checker');
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full text-left px-3.5 py-2 text-sm font-medium rounded transition-colors ${
+              currentView === 'password-checker'
+                ? 'bg-blue-50 text-blue-700 font-semibold'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {t('navPasswordChecker')}
           </button>
         </div>
       )}

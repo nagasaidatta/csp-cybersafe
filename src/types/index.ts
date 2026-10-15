@@ -31,7 +31,7 @@ export interface QuizQuestionItem {
   correctIndex: number; // 0 or 1
 }
 
-export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety';
+export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker';
 export type AuthMode = 'login' | 'register';
 export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2: OTP verification, 3: Password setup
 

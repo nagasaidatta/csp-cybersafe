@@ -9,6 +9,7 @@ import { ModulesPage } from './pages/ModulesPage';
 import { QuizPage } from './pages/QuizPage';
 import { LinkSafetyPage } from './pages/LinkSafetyPage';
 import { MessageSafetyPage } from './pages/MessageSafetyPage';
+import { PasswordCheckerPage } from './pages/PasswordCheckerPage';
 import { ViewState } from './types';
 
 const AppContent: React.FC = () => {
@@ -42,6 +43,7 @@ const AppContent: React.FC = () => {
         )}
         {currentView === 'link-safety' && <LinkSafetyPage onNavigate={handleNavigate} />}
         {currentView === 'message-safety' && <MessageSafetyPage onNavigate={handleNavigate} />}
+        {currentView === 'password-checker' && <PasswordCheckerPage onNavigate={handleNavigate} />}
       </main>
 
 

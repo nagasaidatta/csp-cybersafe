@@ -9,6 +9,7 @@ export interface Translations {
   navHome: string;
   navLinkSafety: string;
   navMessageSafety: string;
+  navPasswordChecker: string;
 
   // Link Safety Checker
   lsBadge: string;
@@ -73,6 +74,28 @@ export interface Translations {
   errMessageLong: string;
   recently: string;
   minsAgo: string;
+
+  // Password Checker
+  pwdCheckerBadge: string;
+  pwdCheckerTitle: string;
+  pwdCheckerDesc: string;
+  pwdInputLabel: string;
+  pwdPlaceholder: string;
+  pwdCriteriaTitle: string;
+  pwdCritMinLength: string;
+  pwdCritUppercase: string;
+  pwdCritLowercase: string;
+  pwdCritNumber: string;
+  pwdCritSymbol: string;
+  pwdStrongBannerTitle: string;
+  pwdStrongBannerDesc: string;
+  pwdSuggestionsTitle: string;
+  pwdViewAllSuggestions: string;
+  pwdHideAllSuggestions: string;
+  pwdScoreVeryStrong: string;
+  pwdScoreStrong: string;
+  pwdScoreMedium: string;
+  pwdScoreWeak: string;
 
   // Home Page
   homeHeading: string;
@@ -271,6 +294,7 @@ export const translations: Record<Language, Translations> = {
     navHome: 'Home',
     navLinkSafety: 'Link Safety',
     navMessageSafety: 'Message Safety',
+    navPasswordChecker: 'Password Checker',
 
     // Link Safety Checker
     lsBadge: 'AI-Assisted Threat Intelligence',
@@ -335,6 +359,28 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'Message exceeds the maximum length of 5000 characters.',
     recently: 'recently',
     minsAgo: '{mins} min{plural} ago',
+
+    // Password Checker
+    pwdCheckerBadge: 'Real-Time Cryptographic Evaluation',
+    pwdCheckerTitle: 'Password Strength Checker',
+    pwdCheckerDesc: 'Test your passwords in real-time with instant criteria verification.',
+    pwdInputLabel: 'Enter Password to Test',
+    pwdPlaceholder: 'Type a password (e.g. MySecret#2026)',
+    pwdCriteriaTitle: 'Password Requirements',
+    pwdCritMinLength: 'At least 8 characters',
+    pwdCritUppercase: 'Uppercase letter (A-Z)',
+    pwdCritLowercase: 'Lowercase letter (a-z)',
+    pwdCritNumber: 'Number (0-9)',
+    pwdCritSymbol: 'Special symbol (!@#$%^&*...)',
+    pwdStrongBannerTitle: 'Password is Strong!',
+    pwdStrongBannerDesc: 'Here are targeted suggestions to advance your security even further:',
+    pwdSuggestionsTitle: 'Security Recommendations',
+    pwdViewAllSuggestions: 'View All 30 Predefined Security Suggestions',
+    pwdHideAllSuggestions: 'Hide Suggestions List',
+    pwdScoreVeryStrong: 'Very Strong',
+    pwdScoreStrong: 'Strong',
+    pwdScoreMedium: 'Medium',
+    pwdScoreWeak: 'Weak',
 
     homeHeading: 'Cyber Safe - Online Scam Awareness Portal',
     homeSubheading: 'Stay Safe Online',
@@ -541,6 +587,7 @@ export const translations: Record<Language, Translations> = {
     navHome: 'హోమ్',
     navLinkSafety: 'లింక్ భద్రత',
     navMessageSafety: 'సందేశ భద్రత',
+    navPasswordChecker: 'పాస్‌వర్డ్ తనిఖీ',
 
     // Link Safety Checker
     lsBadge: 'AI-సహాయక ముప్పు సమాచారం',
@@ -605,6 +652,28 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'సందేశం గరిష్టంగా 5000 అక్షరాల పరిమితిని మించిపోయింది.',
     recently: 'ఇటీవల',
     minsAgo: '{mins} నిమిషాల క్రితం',
+
+    // Password Checker
+    pwdCheckerBadge: 'రియల్-టైమ్ భద్రతా మూల్యాంకనం',
+    pwdCheckerTitle: 'పాస్‌వర్డ్ బలం తనిఖీ',
+    pwdCheckerDesc: 'తక్షణ నిబంధనల పరిశీలనతో మీ పాస్‌వర్డ్‌లను నిజ సమయంలో పరీక్షించండి.',
+    pwdInputLabel: 'పరీక్షించడానికి పాస్‌వర్డ్‌ను నమోదు చేయండి',
+    pwdPlaceholder: 'పాస్‌వర్డ్‌ను టైప్ చేయండి (ఉదా: MySecret#2026)',
+    pwdCriteriaTitle: 'పాస్‌వర్డ్ అవసరాలు',
+    pwdCritMinLength: 'కనీసం 8 అక్షరాలు',
+    pwdCritUppercase: 'పెద్ద అక్షరం (A-Z)',
+    pwdCritLowercase: 'చిన్న అక్షరం (a-z)',
+    pwdCritNumber: 'సంఖ్య (0-9)',
+    pwdCritSymbol: 'ప్రత్యేక చిహ్నం (!@#$%^&*...)',
+    pwdStrongBannerTitle: 'పాస్‌వర్డ్ బలంగా ఉంది!',
+    pwdStrongBannerDesc: 'మీ భద్రతను మరింత పెంచడానికి లక్ష్య సూచనలు ఇక్కడ ఉన్నాయి:',
+    pwdSuggestionsTitle: 'భద్రతా సూచనలు',
+    pwdViewAllSuggestions: 'మొత్తం 30 భద్రతా సూచనలను చూడండి',
+    pwdHideAllSuggestions: 'సూచనల జాబితాను దాచండి',
+    pwdScoreVeryStrong: 'చాలా బలంగా ఉంది',
+    pwdScoreStrong: 'బలంగా ఉంది',
+    pwdScoreMedium: 'మధ్యస్థం',
+    pwdScoreWeak: 'బలహీనం',
 
     homeHeading: 'సైబర్ సేఫ్ - ఆన్‌లైన్ స్కామ్ అవగాహన పోర్టల్',
     homeSubheading: 'ఆన్‌లైన్‌లో సురక్షితంగా ఉండండి',
@@ -811,6 +880,7 @@ export const translations: Record<Language, Translations> = {
     navHome: 'होम',
     navLinkSafety: 'लिंक सुरक्षा',
     navMessageSafety: 'संदेश सुरक्षा',
+    navPasswordChecker: 'पासवर्ड चेकर',
 
     // Link Safety Checker
     lsBadge: 'एआई-सहायक खतरा खुफिया',
@@ -875,6 +945,28 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'संदेश 5000 अक्षरों की अधिकतम सीमा से अधिक है।',
     recently: 'हाल ही में',
     minsAgo: '{mins} मिनट पहले',
+
+    // Password Checker
+    pwdCheckerBadge: 'रीयल-टाइम सुरक्षा मूल्यांकन',
+    pwdCheckerTitle: 'पासवर्ड मजबूती चेकर',
+    pwdCheckerDesc: 'तात्कालिक मानदंडों के साथ रीयल-टाइम में अपने पासवर्ड की जांच करें।',
+    pwdInputLabel: 'जांच के लिए पासवर्ड दर्ज करें',
+    pwdPlaceholder: 'पासवर्ड टाइप करें (उदा. MySecret#2026)',
+    pwdCriteriaTitle: 'पासवर्ड आवश्यकताएं',
+    pwdCritMinLength: 'कम से कम 8 अक्षर',
+    pwdCritUppercase: 'बड़ा अक्षर (A-Z)',
+    pwdCritLowercase: 'छोटा अक्षर (a-z)',
+    pwdCritNumber: 'संख्या (0-9)',
+    pwdCritSymbol: 'विशेष प्रतीक (!@#$%^&*...)',
+    pwdStrongBannerTitle: 'पासवर्ड मजबूत है!',
+    pwdStrongBannerDesc: 'सुरक्षा को और बढ़ाने के लिए सुझाव:',
+    pwdSuggestionsTitle: 'सुरक्षा सुझाव',
+    pwdViewAllSuggestions: 'सभी 30 सुरक्षा सुझाव देखें',
+    pwdHideAllSuggestions: 'सुझाव सूची छिपाएं',
+    pwdScoreVeryStrong: 'बहुत मजबूत',
+    pwdScoreStrong: 'मजबूत',
+    pwdScoreMedium: 'मध्यम',
+    pwdScoreWeak: 'कमजोर',
 
     homeHeading: 'साइबर सेफ - ऑनलाइन स्कैम जागरूकता पोर्टल',
     homeSubheading: 'ऑनलाइन सुरक्षित रहें',

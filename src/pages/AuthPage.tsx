@@ -399,15 +399,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       )}
 
       {/* Main Card */}
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Auth Tabs: Login vs Register */}
-        <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50">
+        <div className="grid grid-cols-2 border-b border-slate-200/80 bg-slate-50/80">
           <button
             type="button"
             onClick={() => handleTabChange('login')}
-            className={`py-3.5 text-center text-sm font-semibold transition-colors ${
+            className={`py-3.5 text-center text-sm font-bold transition-all ${
               mode === 'login'
-                ? 'bg-white text-blue-700 border-b-2 border-blue-700'
+                ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -416,9 +416,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           <button
             type="button"
             onClick={() => handleTabChange('register')}
-            className={`py-3.5 text-center text-sm font-semibold transition-colors ${
+            className={`py-3.5 text-center text-sm font-bold transition-all ${
               mode === 'register'
-                ? 'bg-white text-blue-700 border-b-2 border-blue-700'
+                ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -426,12 +426,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 sm:p-7">
           {/* Error & Success Alerts */}
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-sm flex items-start justify-between gap-2.5"
+              className="mb-5 p-3.5 rounded-xl bg-red-50/90 border border-red-200 text-red-900 text-sm flex items-start justify-between gap-2.5"
             >
               <div className="flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
@@ -452,7 +452,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           {successMessage && (
             <div
               role="status"
-              className="mb-5 p-3 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-start gap-2.5"
+              className="mb-5 p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200 text-emerald-900 text-sm flex items-start gap-2.5"
             >
               <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" />
               <div className="leading-snug">{successMessage}</div>
@@ -466,7 +466,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                 <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="login-email">
                   {t('emailLabel')}
                 </label>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Mail className="w-4 h-4" />
                   </div>
@@ -477,7 +477,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('emailPlaceholder')}
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                   />
                 </div>
               </div>
@@ -486,7 +486,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                 <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="login-password">
                   {t('passwordLabel')}
                 </label>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Lock className="w-4 h-4" />
                   </div>
@@ -497,7 +497,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t('passwordPlaceholder')}
-                    className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                    className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                   />
                   <button
                     type="button"
@@ -514,7 +514,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
+                  className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-60"
                 >
                   {loading ? t('processing') : t('btnLogin')}
                 </button>
@@ -526,45 +526,45 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           {mode === 'register' && (
             <div>
               {/* Step Indicators */}
-              <div className="flex items-center justify-between mb-6 border-b border-slate-200 pb-3">
+              <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-3.5">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      registerStep >= 1 ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600'
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      registerStep >= 1 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     1
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{t('stepAccount')}</span>
+                  <span className={`text-xs ${registerStep >= 1 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>{t('stepAccount')}</span>
                 </div>
-                <div className="w-6 h-px bg-slate-300"></div>
+                <div className={`flex-1 mx-2 h-0.5 rounded-full ${registerStep >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      registerStep >= 2 ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600'
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      registerStep >= 2 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     2
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{t('stepVerify')}</span>
+                  <span className={`text-xs ${registerStep >= 2 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>{t('stepVerify')}</span>
                 </div>
-                <div className="w-6 h-px bg-slate-300"></div>
+                <div className={`flex-1 mx-2 h-0.5 rounded-full ${registerStep === 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      registerStep === 3 ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-600'
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      registerStep === 3 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     3
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{t('stepPassword')}</span>
+                  <span className={`text-xs ${registerStep === 3 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>{t('stepPassword')}</span>
                 </div>
               </div>
 
               {/* STEP 1: INITIAL REGISTRATION (Name, Email -> Get OTP) */}
               {registerStep === 1 && (
                 <form onSubmit={handleGetOtp} className="space-y-4">
-                  <div className="text-xs text-slate-600 mb-2">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed">
                     {t('step1Desc')}
                   </div>
 
@@ -572,7 +572,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="reg-name">
                       {t('nameLabel')}
                     </label>
-                    <div className="relative">
+                    <div className="relative flex items-center">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <User className="w-4 h-4" />
                       </div>
@@ -583,7 +583,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder={t('namePlaceholder')}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                       />
                     </div>
                   </div>
@@ -592,7 +592,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="reg-email">
                       {t('emailLabel')}
                     </label>
-                    <div className="relative">
+                    <div className="relative flex items-center">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <Mail className="w-4 h-4" />
                       </div>
@@ -603,7 +603,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={t('emailPlaceholder')}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                       />
                     </div>
                   </div>
@@ -612,7 +612,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={loading || cooldownRemaining > 0}
-                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
+                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-60"
                     >
                       {loading
                         ? t('sending')
@@ -629,7 +629,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
               {/* STEP 2: OTP VERIFICATION */}
               {registerStep === 2 && (
                 <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div className="text-xs text-slate-600 mb-2">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed">
                     {t('step2Desc')} <strong>{email}</strong>
                   </div>
 
@@ -637,7 +637,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="reg-otp">
                       {t('otpLabel')}
                     </label>
-                    <div className="relative">
+                    <div className="relative flex items-center">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <KeyRound className="w-4 h-4" />
                       </div>
@@ -651,7 +651,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         value={otp}
                         onChange={(e) => setOtp(e.target.value)}
                         placeholder={t('otpPlaceholder')}
-                        className="w-full pl-9 pr-3 py-2 text-sm font-mono tracking-widest border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-3 py-2.5 text-sm font-mono tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                       />
                     </div>
                   </div>
@@ -660,7 +660,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-60"
+                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-60"
                     >
                       {loading ? t('verifying') : t('btnVerifyOtp')}
                     </button>
@@ -689,7 +689,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
               {/* STEP 3: PASSWORD SETUP */}
               {registerStep === 3 && (
                 <form onSubmit={handleSetPassword} className="space-y-4">
-                  <div className="text-xs text-slate-600 mb-2">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed">
                     {t('step3Desc')}
                   </div>
 
@@ -697,7 +697,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="reg-pwd">
                       {t('passwordLabel')}
                     </label>
-                    <div className="relative">
+                    <div className="relative flex items-center">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <Lock className="w-4 h-4" />
                       </div>
@@ -708,7 +708,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder={t('passwordPlaceholder')}
-                        className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                       />
                       <button
                         type="button"
@@ -721,7 +721,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     </div>
 
                     {/* Real-time Password Strength Meter & Criteria Checklist */}
-                    <div className="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2.5 text-xs">
+                    <div className="mt-3 p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-2.5 text-xs">
                       {/* Strength Label and Badge */}
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-slate-700">
@@ -729,7 +729,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         </span>
                         {password.length > 0 ? (
                           <span
-                            className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
+                            className={`px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ${
                               isStrong
                                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                                 : isMedium
@@ -778,11 +778,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       </div>
 
                       {/* Realtime 5 Criteria Checklist */}
-                      <div className="pt-2 border-t border-slate-200 space-y-1.5">
+                      <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
                         <div
                           className={`flex items-center gap-2 transition-colors ${
                             pwdCriteria.minLength
-                              ? 'text-emerald-700 font-medium'
+                              ? 'text-emerald-800 font-medium'
                               : 'text-slate-500'
                           }`}
                         >
@@ -797,7 +797,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         <div
                           className={`flex items-center gap-2 transition-colors ${
                             pwdCriteria.uppercase
-                              ? 'text-emerald-700 font-medium'
+                              ? 'text-emerald-800 font-medium'
                               : 'text-slate-500'
                           }`}
                         >
@@ -812,7 +812,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         <div
                           className={`flex items-center gap-2 transition-colors ${
                             pwdCriteria.lowercase
-                              ? 'text-emerald-700 font-medium'
+                              ? 'text-emerald-800 font-medium'
                               : 'text-slate-500'
                           }`}
                         >
@@ -827,7 +827,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         <div
                           className={`flex items-center gap-2 transition-colors ${
                             pwdCriteria.number
-                              ? 'text-emerald-700 font-medium'
+                              ? 'text-emerald-800 font-medium'
                               : 'text-slate-500'
                           }`}
                         >
@@ -842,7 +842,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         <div
                           className={`flex items-center gap-2 transition-colors ${
                             pwdCriteria.symbol
-                              ? 'text-emerald-700 font-medium'
+                              ? 'text-emerald-800 font-medium'
                               : 'text-slate-500'
                           }`}
                         >
@@ -861,7 +861,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="reg-confirm-pwd">
                       {t('confirmPasswordLabel')}
                     </label>
-                    <div className="relative">
+                    <div className="relative flex items-center">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <Lock className="w-4 h-4" />
                       </div>
@@ -872,7 +872,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder={t('confirmPasswordPlaceholder')}
-                        className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 bg-white"
+                        className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
                       />
                       <button
                         type="button"
@@ -884,16 +884,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                       </button>
                     </div>
                     {confirmPassword.length > 0 && (
-                      <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+                      <div className="mt-2 flex items-center gap-1.5 text-xs">
                         {password === confirmPassword ? (
-                          <span className="text-emerald-600 font-medium flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            {t('passwordsMatch')}
+                          <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{t('passwordsMatch')}</span>
                           </span>
                         ) : (
-                          <span className="text-red-600 font-medium flex items-center gap-1">
-                            <AlertCircle className="w-3.5 h-3.5" />
-                            {t('errPasswordMismatch')}
+                          <span className="text-red-700 font-semibold flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 text-red-600" />
+                            <span>{t('errPasswordMismatch')}</span>
                           </span>
                         )}
                       </div>
@@ -904,10 +904,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={loading || !isStrong || password !== confirmPassword}
-                      className={`w-full py-2.5 px-4 text-sm font-semibold rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      className={`w-full py-2.5 px-4 text-sm font-semibold rounded-xl shadow-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
                         isStrong && password === confirmPassword && !loading
-                          ? 'text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-600 cursor-pointer'
-                          : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
+                          ? 'text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 focus-visible:ring-blue-600 cursor-pointer hover:shadow'
+                          : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                       }`}
                     >
                       {loading ? t('settingPassword') : t('btnSetPassword')}

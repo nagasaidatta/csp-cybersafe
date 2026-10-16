@@ -11,10 +11,17 @@ import {
   XCircle,
   AlertOctagon,
   Quote,
-  CheckSquare
+  CheckSquare,
+  ArrowLeft
 } from 'lucide-react';
 import { MessageSafetyResult, RiskLevel, ViewState } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import {
+  translateClassification,
+  translateCategory,
+  getLocalizedExplanation,
+  getLocalizedRecommendations
+} from '../i18n/translations';
 import {
   computeSha256,
   getCachedMessageResult,
@@ -25,7 +32,7 @@ interface MessageSafetyPageProps {
   onNavigate: (view: ViewState) => void;
 }
 
-export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
+export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate }) => {
   const { t, language } = useLanguage();
 
   const [messageInput, setMessageInput] = useState('');
@@ -100,7 +107,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
       const res = await fetch('/api/check-message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed, language })
+        body: JSON.stringify({ message: trimmed })
       });
 
       const data = await res.json();
@@ -112,7 +119,6 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
 
       const freshResult: MessageSafetyResult = data.result;
       setResult(freshResult);
-      // Cache using SHA-256 hash key only (no raw text stored)
       setCachedMessageResult(msgHash, freshResult);
     } catch {
       setErrorMessage(t('errNetwork'));
@@ -170,31 +176,57 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
   return (
     <div className="py-10 sm:py-14 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-700 transition-colors cursor-pointer group"
+          >
+            <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+            <span>{t('navHome')}</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-100 shadow-2xs">
             <MessageSquare className="w-3.5 h-3.5" />
-            {t('msBadge')}
+            <span>{t('msBadge')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {t('msTitle')}
           </h1>
-          <p className="mt-3 text-base text-slate-600 leading-relaxed">
+          <p className="mt-3 text-base text-slate-600 leading-relaxed max-w-xl mx-auto">
             {t('msDesc')}
           </p>
         </div>
 
         {/* Input Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-lg border border-slate-200 shadow-sm max-w-3xl mx-auto">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 shadow-sm max-w-3xl mx-auto">
           <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label htmlFor="message-input" className="block text-sm font-semibold text-slate-800">
                   {t('msInputLabel')}
                 </label>
-                <span className="text-xs text-slate-400">
-                  {messageInput.length} / 5000
-                </span>
+                <div className="flex items-center gap-3">
+                  {messageInput && !isLoading && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMessageInput('');
+                        setErrorMessage(null);
+                      }}
+                      className="text-xs text-slate-500 hover:text-slate-800 font-medium underline focus:outline-none"
+                    >
+                      {t('btnClear')}
+                    </button>
+                  )}
+                  <span className="text-xs text-slate-400 font-mono">
+                    {messageInput.length} / 5000
+                  </span>
+                </div>
               </div>
               <textarea
                 id="message-input"
@@ -206,7 +238,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
                 }}
                 placeholder={t('msInputPlaceholder')}
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm transition-colors disabled:bg-slate-50 disabled:text-slate-500 resize-y"
+                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm transition-all hover:border-slate-400 disabled:bg-slate-50 disabled:text-slate-500 resize-y shadow-2xs"
               />
             </div>
 
@@ -214,7 +246,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
             {errorMessage && (
               <div
                 role="alert"
-                className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 text-red-800 rounded text-sm animate-in fade-in"
+                className="flex items-start gap-2.5 p-3.5 bg-red-50/90 border border-red-200 text-red-900 rounded-xl text-sm animate-in fade-in"
               >
                 <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
                 <div className="flex-1">
@@ -225,11 +257,11 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
             )}
 
             {/* Submit Action */}
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-1">
               <button
                 type="submit"
                 disabled={isLoading || !messageInput.trim()}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -251,9 +283,9 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
         {isLoading && (
           <div
             aria-live="polite"
-            className="mt-8 bg-white p-8 rounded-lg border border-blue-200 shadow-sm max-w-3xl mx-auto text-center animate-in fade-in"
+            className="mt-8 bg-white p-8 rounded-2xl border border-blue-100 shadow-sm max-w-3xl mx-auto text-center animate-in fade-in"
           >
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 text-blue-700 mb-4 animate-pulse motion-reduce:animate-none">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 mb-4 animate-pulse motion-reduce:animate-none">
               <ShieldAlert className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-bold text-slate-900">{t('msLoadingTitle')}</h3>
@@ -268,15 +300,15 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
 
         {/* Structured Results Display */}
         {result && !isLoading && (
-          <div className="mt-8 bg-white rounded-lg border border-slate-200 shadow-sm max-w-3xl mx-auto overflow-hidden animate-in fade-in">
+          <div className="mt-8 bg-white rounded-2xl border border-slate-200/90 shadow-sm max-w-3xl mx-auto overflow-hidden animate-in fade-in">
             {/* Top Bar with Cached Badge & Refresh */}
-            <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div className="bg-slate-50/80 px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                   {t('msReportTitle')}
                 </span>
                 {isCachedResult && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-slate-200 text-slate-700">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-200/80 text-slate-700">
                     <Clock className="w-3 h-3" />
                     {t('lsCachedBadge', { time: formatMinutesAgo(result.cachedAt) })}
                   </span>
@@ -286,7 +318,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
                 <button
                   type="button"
                   onClick={() => handleSubmit(undefined, true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 focus:outline-none"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 focus:outline-none transition-colors"
                 >
                   <RefreshCw className="w-3 h-3" />
                   <span>{t('lsRequestFresh')}</span>
@@ -298,11 +330,11 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
               {/* Primary Classification & Risk Badge */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-100">
                 <div className="space-y-1">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                     {t('msClassification')}
                   </span>
-                  <h2 className="text-2xl font-extrabold text-slate-900 pt-1">
-                    {result.classification}
+                  <h2 className="text-2xl font-extrabold text-slate-900 pt-1 tracking-tight">
+                    {translateClassification(result.classification, language)}
                   </h2>
                 </div>
                 <div className="shrink-0">{getRiskBadge(result.riskLevel)}</div>
@@ -311,16 +343,16 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
               {/* Detected Scam Categories */}
               {result.scamCategories && result.scamCategories.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2.5">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2.5">
                     {t('msCategoriesTitle')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {result.scamCategories.map((cat, i) => (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded bg-slate-100 text-slate-800 text-xs font-medium border border-slate-200"
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-medium border border-slate-200/70"
                       >
-                        {cat}
+                        {translateCategory(cat, language)}
                       </span>
                     ))}
                   </div>
@@ -330,14 +362,14 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
               {/* Suspicious Phrases / Indicators */}
               {result.suspiciousPhrases && result.suspiciousPhrases.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2.5">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2.5">
                     {t('msPhrasesTitle')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {result.suspiciousPhrases.map((phrase, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 text-xs font-medium"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200/80 text-xs font-medium shadow-2xs"
                       >
                         <Quote className="w-3 h-3 text-amber-600 shrink-0" />
                         <span>"{phrase}"</span>
@@ -349,25 +381,25 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
 
               {/* Explanation of findings */}
               <div>
-                <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
                   {t('msFindingsTitle')}
                 </h4>
-                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-md border border-slate-200">
-                  {result.explanation}
+                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50/80 p-4 rounded-xl border border-slate-200/70">
+                  {getLocalizedExplanation(result, language)}
                 </p>
               </div>
 
               {/* Recommended Precautions Checklist */}
-              {result.recommendations && result.recommendations.length > 0 && (
+              {getLocalizedRecommendations(result, language).length > 0 && (
                 <div>
-                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2.5">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2.5">
                     {t('msRecommendationsTitle')}
                   </h4>
                   <div className="space-y-2">
-                    {result.recommendations.map((rec, i) => (
+                    {getLocalizedRecommendations(result, language).map((rec, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-2.5 p-3 rounded-md bg-emerald-50/50 border border-emerald-100 text-sm text-slate-800"
+                        className="flex items-start gap-2.5 p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-100 text-sm text-slate-800"
                       >
                         <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                         <span>{rec}</span>
@@ -376,8 +408,6 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = () => {
                   </div>
                 </div>
               )}
-
-
             </div>
           </div>
         )}

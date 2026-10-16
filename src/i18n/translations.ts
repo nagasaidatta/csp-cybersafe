@@ -10,6 +10,9 @@ export interface Translations {
   navLinkSafety: string;
   navMessageSafety: string;
   navPasswordChecker: string;
+  navModules: string;
+  btnBack: string;
+  btnForward: string;
 
   // Link Safety Checker
   lsBadge: string;
@@ -74,6 +77,8 @@ export interface Translations {
   errMessageLong: string;
   recently: string;
   minsAgo: string;
+  btnClear: string;
+  clearUrlAria: string;
 
   // Password Checker
   pwdCheckerBadge: string;
@@ -101,6 +106,16 @@ export interface Translations {
   homeHeading: string;
   homeSubheading: string;
   homeDescription: string;
+  homeHeroTitle: string;
+  homeHeroDesc: string;
+  homeExploreTools: string;
+  homeToolsTitle: string;
+  homeToolsSubtitle: string;
+  homeAwarenessTitle: string;
+  homeHelpTitle: string;
+  homeHelpDesc: string;
+  homeCallHelpline: string;
+  homeReportPortal: string;
   stat1Value: string;
   stat1Label: string;
   stat2Value: string;
@@ -110,6 +125,16 @@ export interface Translations {
   stat4Value: string;
   stat4Label: string;
   startLearning: string;
+  homeTrustBadge: string;
+  homeHowItWorksTitle: string;
+  homeStep1Title: string;
+  homeStep1Desc: string;
+  homeStep2Title: string;
+  homeStep2Desc: string;
+  homeStep3Title: string;
+  homeStep3Desc: string;
+  homeModulesBannerTitle: string;
+  homeModulesBannerDesc: string;
 
   // Auth Page / Tabs
   tabLogin: string;
@@ -178,6 +203,7 @@ export interface Translations {
 
   // Modules Page
   modulesTitle: string;
+  modulesSubtitle: string;
   progressTitle: string;
   progressCompleted: string;
   moduleLabel: string;
@@ -187,10 +213,14 @@ export interface Translations {
   btnComplete: string;
   btnMarkIncomplete: string;
   btnCompletedTooltip: string;
+  btnPrevModule: string;
+  btnNextModule: string;
   btnTakeQuiz: string;
   btnTakeQuizDisabledNotice: string;
   allModulesCompletedNotice: string;
   clickToPlayVideo: string;
+  viewFullTranscript: string;
+  hideTranscript: string;
   saving: string;
   quizReadyPrompt: string;
   quizRemainingPrompt: string;
@@ -237,6 +267,7 @@ export interface Translations {
   quizResultHeading: string;
   correctBadge: string;
   incorrectBadge: string;
+  unattemptedBadge: string;
 
   // Quiz Questions & Options
   q1Question: string;
@@ -295,11 +326,14 @@ export const translations: Record<Language, Translations> = {
     navLinkSafety: 'Link Safety',
     navMessageSafety: 'Message Safety',
     navPasswordChecker: 'Password Checker',
+    navModules: 'Modules',
+    btnBack: 'Go back to previous page',
+    btnForward: 'Go forward to next page',
 
     // Link Safety Checker
     lsBadge: 'AI-Assisted Threat Intelligence',
     lsTitle: 'Link Safety Checker',
-    lsDesc: 'Verify websites and suspicious URLs before clicking. Our analyzer checks domain heuristics, phishing tactics, brand replica patterns, and scam signatures.',
+    lsDesc: 'Verify websites and suspicious links before clicking. Detect domain spoofing, fake login pages, and phishing traps.',
     lsInputLabel: 'Website or Link URL',
     lsInputPlaceholder: 'e.g. sbi-kyc-update.com or https://example.com',
     lsCooldownNote: '1 fresh analysis allowed every 30 seconds • No login required',
@@ -324,7 +358,7 @@ export const translations: Record<Language, Translations> = {
     // Message Safety Checker
     msBadge: 'AI-Assisted Fraud Detection',
     msTitle: 'Message Safety Checker',
-    msDesc: 'Paste suspicious SMS alerts, WhatsApp forwards, lottery claims, or payment requests. Our analyzer checks for social engineering, financial lures, urgency pressure, and scam patterns.',
+    msDesc: 'Analyze suspicious SMS, WhatsApp forwards, and emails. Detect urgency pressure, lottery lures, and OTP fraud.',
     msInputLabel: 'Suspicious Message Text',
     msInputPlaceholder: 'Paste the suspicious SMS, WhatsApp message, email, or alert text here...',
     msPrivacyNote: 'Message content is processed securely and never persisted • No login required',
@@ -359,11 +393,13 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'Message exceeds the maximum length of 5000 characters.',
     recently: 'recently',
     minsAgo: '{mins} min{plural} ago',
+    btnClear: 'Clear',
+    clearUrlAria: 'Clear URL',
 
     // Password Checker
     pwdCheckerBadge: 'Real-Time Cryptographic Evaluation',
     pwdCheckerTitle: 'Password Strength Checker',
-    pwdCheckerDesc: 'Test your passwords in real-time with instant criteria verification.',
+    pwdCheckerDesc: 'Evaluate your password strength in real-time. Check entropy, complexity criteria, and instant security tips.',
     pwdInputLabel: 'Enter Password to Test',
     pwdPlaceholder: 'Type a password (e.g. MySecret#2026)',
     pwdCriteriaTitle: 'Password Requirements',
@@ -385,6 +421,16 @@ export const translations: Record<Language, Translations> = {
     homeHeading: 'Cyber Safe - Online Scam Awareness Portal',
     homeSubheading: 'Stay Safe Online',
     homeDescription: 'Learn about phishing attacks, OTP scams, password security and safe online practices.',
+    homeHeroTitle: 'Stay Safe in a Digital World',
+    homeHeroDesc: 'Check suspicious links, analyze scam messages, and strengthen your passwords with simple online security tools.',
+    homeExploreTools: 'Explore Security Tools',
+    homeToolsTitle: 'Your Security Tools',
+    homeToolsSubtitle: 'Quick checks to help you stay safer online.',
+    homeAwarenessTitle: 'Cyber Threat Awareness',
+    homeHelpTitle: 'Need Help With Cyber Fraud?',
+    homeHelpDesc: 'If you suspect financial cyber fraud, contact the cybercrime helpline promptly or use the official reporting portal.',
+    homeCallHelpline: 'Call 1930',
+    homeReportPortal: 'Report Cybercrime',
     stat1Value: '80%',
     stat1Label: 'Phishing attacks happen through emails.',
     stat2Value: 'Thousands',
@@ -394,6 +440,16 @@ export const translations: Record<Language, Translations> = {
     stat4Value: 'Cyber Crime Helpline',
     stat4Label: '1930',
     startLearning: 'Start Learning',
+    homeTrustBadge: 'Public Cybersecurity & Scam Defense',
+    homeHowItWorksTitle: 'How Cyber Safe Protects You',
+    homeStep1Title: '1. Paste Link, Message or Password',
+    homeStep1Desc: 'Enter suspicious links, paste forwarded texts, or evaluate a password safely in real-time.',
+    homeStep2Title: '2. Instant Threat Analysis',
+    homeStep2Desc: 'Our intelligent scanner checks for phishing signatures, deceptive lookalikes, and scam urgency lures.',
+    homeStep3Title: '3. Actionable Safety Guidance',
+    homeStep3Desc: 'Receive a clear threat classification, identified fraud tactics, and practical steps to stay protected.',
+    homeModulesBannerTitle: 'Build Your Cyber Resilience Skills',
+    homeModulesBannerDesc: 'Take our 4 interactive awareness modules with curated videos, core takeaways, and short quizzes.',
 
     tabLogin: 'Login',
     tabRegister: 'Register New User',
@@ -459,6 +515,7 @@ export const translations: Record<Language, Translations> = {
     loginSuccess: 'Logged in successfully.',
 
     modulesTitle: 'Cybersecurity Learning Modules',
+    modulesSubtitle: 'Master essential digital safety skills through step-by-step interactive lessons and practical safety guides.',
     progressTitle: 'Module Progress',
     progressCompleted: '{completed}/4 completed ({percent}%)',
     moduleLabel: 'Module',
@@ -468,10 +525,14 @@ export const translations: Record<Language, Translations> = {
     btnComplete: 'Complete Module',
     btnMarkIncomplete: 'Click to Uncomplete',
     btnCompletedTooltip: 'Click to unmark as completed',
+    btnPrevModule: 'Previous Module',
+    btnNextModule: 'Next Module',
     btnTakeQuiz: 'Take Quiz',
     btnTakeQuizDisabledNotice: 'Complete all 4 modules to unlock the quiz.',
     allModulesCompletedNotice: 'All modules completed! The quiz is now unlocked.',
     clickToPlayVideo: 'Click to Play Video',
+    viewFullTranscript: 'Read Full Transcript',
+    hideTranscript: 'Hide Transcript',
     saving: 'Saving...',
     quizReadyPrompt: 'Ready to test your knowledge? Take the 10-question scam awareness quiz.',
     quizRemainingPrompt: '{remaining} more module(s) to complete before taking the quiz.',
@@ -533,6 +594,7 @@ export const translations: Record<Language, Translations> = {
     quizResultHeading: 'Result',
     correctBadge: 'Correct',
     incorrectBadge: 'Incorrect',
+    unattemptedBadge: 'Unanswered',
 
     q1Question: 'Someone asks for an OTP claiming to be SBI.',
     q1Opt1: 'Share OTP',
@@ -588,11 +650,14 @@ export const translations: Record<Language, Translations> = {
     navLinkSafety: 'లింక్ భద్రత',
     navMessageSafety: 'సందేశ భద్రత',
     navPasswordChecker: 'పాస్‌వర్డ్ తనిఖీ',
+    navModules: 'మాడ్యూల్స్',
+    btnBack: 'మునుపటి పేజీకి వెళ్లండి',
+    btnForward: 'తదుపరి పేజీకి వెళ్లండి',
 
     // Link Safety Checker
     lsBadge: 'AI-సహాయక ముప్పు సమాచారం',
     lsTitle: 'లింక్ భద్రతా తనిఖీ',
-    lsDesc: 'క్లిక్ చేయడానికి ముందు వెబ్‌సైట్‌లు మరియు అనుమానాస్పద URLలను తనిఖీ చేయండి. మా విశ్లేషణ వ్యవస్థ డొమైన్ లక్షణాలు, ఫిషింగ్ పద్ధతులు మరియు స్కామ్ నమూనాలను తనిఖీ చేస్తుంది.',
+    lsDesc: 'క్లిక్ చేయడానికి ముందు వెబ్‌సైట్‌లు మరియు లింక్‌లను తనిఖీ చేయండి. నకిలీ లాగిన్ పేజీలు మరియు ఫిషింగ్ ట్రాప్‌లను గుర్తించండి.',
     lsInputLabel: 'వెబ్‌సైట్ లేదా లింక్ URL',
     lsInputPlaceholder: 'ఉదా: sbi-kyc-update.com లేదా https://example.com',
     lsCooldownNote: 'ప్రతి 30 సెకన్లకు 1 సారి మాత్రమే తనిఖీ అనుమతించబడుతుంది • లాగిన్ అవసరం లేదు',
@@ -617,7 +682,7 @@ export const translations: Record<Language, Translations> = {
     // Message Safety Checker
     msBadge: 'AI-సహాయక మోసం గుర్తింపు',
     msTitle: 'సందేశ భద్రతా తనిఖీ',
-    msDesc: 'అనుమానాస్పద SMS హెచ్చరికలు, వాట్సాప్ సందేశాలు, లాటరీ లేదా చెల్లింపు అభ్యర్థనలను ఇక్కడ పేస్ట్ చేయండి. మా విశ్లేషణ సామాజిక ఇంజనీరింగ్, ఆర్థిక ఎరలు మరియు మోసాల నమూనాలను తనిఖీ చేస్తుంది.',
+    msDesc: 'అనుమానాస్పద SMS, వాట్సాప్ సందేశాలను విశ్లేషించండి. అత్యవసర ఒత్తిడి, లాటరీ ఎరలు మరియు OTP మోసాలను గుర్తించండి.',
     msInputLabel: 'అనుమానాస్పద సందేశం పాఠం',
     msInputPlaceholder: 'అనుమానాస్పద SMS, వాట్సాప్ సందేశం లేదా ఈమెయిల్ ఇక్కడ పేస్ట్ చేయండి...',
     msPrivacyNote: 'సందేశం సురక్షితంగా విశ్లేషించబడుతుంది మరియు నిల్వ చేయబడదు • లాగిన్ అవసరం లేదు',
@@ -652,11 +717,13 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'సందేశం గరిష్టంగా 5000 అక్షరాల పరిమితిని మించిపోయింది.',
     recently: 'ఇటీవల',
     minsAgo: '{mins} నిమిషాల క్రితం',
+    btnClear: 'క్లియర్ చేయండి',
+    clearUrlAria: 'URL క్లియర్ చేయండి',
 
     // Password Checker
     pwdCheckerBadge: 'రియల్-టైమ్ భద్రతా మూల్యాంకనం',
     pwdCheckerTitle: 'పాస్‌వర్డ్ బలం తనిఖీ',
-    pwdCheckerDesc: 'తక్షణ నిబంధనల పరిశీలనతో మీ పాస్‌వర్డ్‌లను నిజ సమయంలో పరీక్షించండి.',
+    pwdCheckerDesc: 'మీ పాస్‌వర్డ్ బలాన్ని నిజ సమయంలో అంచనా వేయండి. ఎంట్రోపీ, సంక్లిష్టత నిబంధనలు మరియు తక్షణ చిట్కాలను పొందండి.',
     pwdInputLabel: 'పరీక్షించడానికి పాస్‌వర్డ్‌ను నమోదు చేయండి',
     pwdPlaceholder: 'పాస్‌వర్డ్‌ను టైప్ చేయండి (ఉదా: MySecret#2026)',
     pwdCriteriaTitle: 'పాస్‌వర్డ్ అవసరాలు',
@@ -678,6 +745,16 @@ export const translations: Record<Language, Translations> = {
     homeHeading: 'సైబర్ సేఫ్ - ఆన్‌లైన్ స్కామ్ అవగాహన పోర్టల్',
     homeSubheading: 'ఆన్‌లైన్‌లో సురక్షితంగా ఉండండి',
     homeDescription: 'ఫిషింగ్ దాడులు, OTP మోసాలు, పాస్‌వర్డ్ భద్రత మరియు సురక్షిత ఆన్‌లైన్ విధానాల గురించి తెలుసుకోండి.',
+    homeHeroTitle: 'డిజిటల్ ప్రపంచంలో సురక్షితంగా ఉండండి',
+    homeHeroDesc: 'సరళమైన ఆన్‌లైన్ భద్రతా సాధనాలతో అనుమానాస్పద లింక్‌లను తనిఖీ చేయండి, సందేశాలను విశ్లేషించండి మరియు మీ పాస్‌వర్డ్‌లను బలోపేతం చేయండి.',
+    homeExploreTools: 'భద్రతా సాధనాలను చూడండి',
+    homeToolsTitle: 'మీ భద్రతా సాధనాలు',
+    homeToolsSubtitle: 'మీరు ఆన్‌లైన్‌లో సురక్షితంగా ఉండటానికి తక్షణ తనిఖీలు.',
+    homeAwarenessTitle: 'సైబర్ ముప్పు అవగాహన',
+    homeHelpTitle: 'సైబర్ మోసంతో సహాయం కావాలా?',
+    homeHelpDesc: 'మీరు ఆర్థిక సైబర్ మోసానికి గురైనట్లు అనుమానిస్తే, వెంటనే సైబర్‌క్రైమ్ హెల్ప్‌లైన్‌ను సంప్రదించండి లేదా అధికారిక పోర్టల్‌లో ఫిర్యాదు చేయండి.',
+    homeCallHelpline: '1930 కి కాల్ చేయండి',
+    homeReportPortal: 'సైబర్ నేరాన్ని నివేదించండి',
     stat1Value: '80%',
     stat1Label: 'ఫిషింగ్ దాడులు ఈమెయిళ్ళ ద్వారా జరుగుతాయి.',
     stat2Value: 'వేలాది మంది',
@@ -687,6 +764,16 @@ export const translations: Record<Language, Translations> = {
     stat4Value: 'సైబర్ క్రైమ్ హెల్ప్‌లైన్',
     stat4Label: '1930',
     startLearning: 'నేర్చుకోవడం ప్రారంభించండి',
+    homeTrustBadge: 'ప్రజా సైబర్ భద్రత & స్కామ్ రక్షణ',
+    homeHowItWorksTitle: 'సైబర్ సేఫ్ మిమ్మల్ని ఎలా రక్షిస్తుంది',
+    homeStep1Title: '1. లింక్, సందేశం లేదా పాస్‌వర్డ్ నమోదు చేయండి',
+    homeStep1Desc: 'అనుమానాస్పద లింక్‌లు, సందేశాలు నమోదు చేయండి లేదా పాస్‌వర్డ్‌ను నిజ సమయంలో సురక్షితంగా పరీక్షించండి.',
+    homeStep2Title: '2. తక్షణ ముప్పు విశ్లేషణ',
+    homeStep2Desc: 'మా విశ్లేషణ వ్యవస్థ ఫిషింగ్ గుర్తులు, నకిలీ డొమైన్‌లు మరియు స్కామ్ నమూనాలను గుర్తిస్తుంది.',
+    homeStep3Title: '3. కార్యాచరణ భద్రతా మార్గదర్శకత్వం',
+    homeStep3Desc: 'మీ ఆర్థిక లావాదేవీలు మరియు వ్యక్తిగత వివరాలను రక్షించుకోవడానికి స్పష్టమైన సలహాలు పొందండి.',
+    homeModulesBannerTitle: 'మీ సైబర్ రక్షణ నైపుణ్యాలను పెంచుకోండి',
+    homeModulesBannerDesc: 'వీడియో పాఠాలు, ఆచరణాత్మక అంశాలు మరియు క్విజ్‌లతో కూడిన 4 ఇంటరాక్టివ్ అవగాహన మాడ్యూల్స్ పూర్తి చేయండి.',
 
     tabLogin: 'లాగిన్',
     tabRegister: 'కొత్త వినియోగదారు నమోదు',
@@ -752,6 +839,7 @@ export const translations: Record<Language, Translations> = {
     loginSuccess: 'విజయవంతంగా లాగిన్ అయ్యారు.',
 
     modulesTitle: 'సైబర్ సెక్యూరిటీ లెర్నింగ్ మాడ్యూల్స్',
+    modulesSubtitle: 'దశలవారీ ఇంటరాక్టివ్ పాఠాలు మరియు ఆచరణాత్మక భద్రతా మార్గదర్శకాల ద్వారా ముఖ్యమైన సైబర్ భద్రతా నైపుణ్యాలను నేర్చుకోండి.',
     progressTitle: 'మాడ్యూల్ పురోగతి',
     progressCompleted: '{completed}/4 పూర్తయింది ({percent}%)',
     moduleLabel: 'మాడ్యూల్',
@@ -761,10 +849,14 @@ export const translations: Record<Language, Translations> = {
     btnComplete: 'మాడ్యూల్ పూర్తి చేయండి',
     btnMarkIncomplete: 'అసంపూర్ణంగా గుర్తించండి',
     btnCompletedTooltip: 'పూర్తయినట్లు గుర్తును తీసివేయడానికి క్లిక్ చేయండి',
+    btnPrevModule: 'మునుపటి మాడ్యూల్',
+    btnNextModule: 'తదుపరి మాడ్యూల్',
     btnTakeQuiz: 'క్విజ్ ప్రారంభించండి',
     btnTakeQuizDisabledNotice: 'క్విజ్ తెరవడానికి మొత్తం 4 మాడ్యూళ్లను పూర్తి చేయండి.',
     allModulesCompletedNotice: 'అన్ని మాడ్యూల్స్ పూర్తయ్యాయి! క్విజ్ అన్‌లాక్ చేయబడింది.',
     clickToPlayVideo: 'వీడియో ప్లే చేయడానికి క్లిక్ చేయండి',
+    viewFullTranscript: 'పూర్తి ట్రాన్స్‌క్రిప్ట్ చదవండి',
+    hideTranscript: 'ట్రాన్స్‌క్రిప్ట్ దాచండి',
     saving: 'సేవ్ చేస్తోంది...',
     quizReadyPrompt: 'మీ పరిజ్ఞానాన్ని పరీక్షించడానికి సిద్ధంగా ఉన్నారా? 10 ప్రశ్నల స్కామ్ అవగాహన క్విజ్ రాయండి.',
     quizRemainingPrompt: 'క్విజ్ రాయడానికి ముందు ఇంకా {remaining} మాడ్యూల్(లు) పూర్తి చేయాలి.',
@@ -826,6 +918,7 @@ export const translations: Record<Language, Translations> = {
     quizResultHeading: 'ఫలితం',
     correctBadge: 'సరైనది',
     incorrectBadge: 'తప్పు',
+    unattemptedBadge: 'సమాధానం ఇవ్వలేదు',
 
     q1Question: 'SBI ప్రతినిధి అని చెప్పుకుంటూ ఎవరైనా OTP అడిగితే మీరు ఏమి చేయాలి?',
     q1Opt1: 'OTP చెప్పాలి',
@@ -881,11 +974,14 @@ export const translations: Record<Language, Translations> = {
     navLinkSafety: 'लिंक सुरक्षा',
     navMessageSafety: 'संदेश सुरक्षा',
     navPasswordChecker: 'पासवर्ड चेकर',
+    navModules: 'मॉड्यूल',
+    btnBack: 'पिछले पृष्ठ पर जाएं',
+    btnForward: 'अगले पृष्ठ पर जाएं',
 
     // Link Safety Checker
     lsBadge: 'एआई-सहायक खतरा खुफिया',
     lsTitle: 'लिंक सुरक्षा चेकर',
-    lsDesc: 'क्लिक करने से पहले वेबसाइटों और संदिग्ध लिंक की जांच करें। हमारा विश्लेषक डोमेन विशेषताओं, फ़िशिंग और स्कैम पैटर्न की जांच करता है।',
+    lsDesc: 'क्लिक करने से पहले वेबसाइट और संदिग्ध लिंक की जांच करें। फर्जी लॉगिन पेज और फ़िशिंग जाल का आसानी से पता लगाएं।',
     lsInputLabel: 'वेबसाइट या लिंक URL',
     lsInputPlaceholder: 'उदा. sbi-kyc-update.com या https://example.com',
     lsCooldownNote: 'हर 30 सेकंड में 1 नई जांच की अनुमति है • लॉगिन की आवश्यकता नहीं है',
@@ -910,7 +1006,7 @@ export const translations: Record<Language, Translations> = {
     // Message Safety Checker
     msBadge: 'एआई-सहायक धोखाधड़ी पहचान',
     msTitle: 'संदेश सुरक्षा चेकर',
-    msDesc: 'संदिग्ध एसएमएस, व्हाट्सएप फॉरवर्ड, लॉटरी दावों या भुगतान अनुरोधों को यहां पेस्ट करें। हमारा विश्लेषक वित्तीय लालच, तात्कालिकता और धोखाधड़ी पैटर्न की जांच करता है।',
+    msDesc: 'संदिग्ध एसएमएस और व्हाट्सएप संदेशों का विश्लेषण करें। जल्दबाजी के दबाव, लॉटरी के झांसे और ओटीपी धोखाधड़ी को पहचानें।',
     msInputLabel: 'संदिग्ध संदेश पाठ',
     msInputPlaceholder: 'संदिग्ध एसएमएस, व्हाट्सएप संदेश या ईमेल यहां पेस्ट करें...',
     msPrivacyNote: 'संदेश सुरक्षित रूप से संसाधित होता है और कभी संग्रहीत नहीं होता • लॉगिन की आवश्यकता नहीं है',
@@ -945,11 +1041,13 @@ export const translations: Record<Language, Translations> = {
     errMessageLong: 'संदेश 5000 अक्षरों की अधिकतम सीमा से अधिक है।',
     recently: 'हाल ही में',
     minsAgo: '{mins} मिनट पहले',
+    btnClear: 'हटाएं',
+    clearUrlAria: 'URL हटाएं',
 
     // Password Checker
     pwdCheckerBadge: 'रीयल-टाइम सुरक्षा मूल्यांकन',
     pwdCheckerTitle: 'पासवर्ड मजबूती चेकर',
-    pwdCheckerDesc: 'तात्कालिक मानदंडों के साथ रीयल-टाइम में अपने पासवर्ड की जांच करें।',
+    pwdCheckerDesc: 'रीयल-टाइम में अपने पासवर्ड की मजबूती जांचें। एंट्रॉपी स्कोर, जटिलता के नियम और उपयोगी सुरक्षा सुझाव प्राप्त करें।',
     pwdInputLabel: 'जांच के लिए पासवर्ड दर्ज करें',
     pwdPlaceholder: 'पासवर्ड टाइप करें (उदा. MySecret#2026)',
     pwdCriteriaTitle: 'पासवर्ड आवश्यकताएं',
@@ -971,6 +1069,16 @@ export const translations: Record<Language, Translations> = {
     homeHeading: 'साइबर सेफ - ऑनलाइन स्कैम जागरूकता पोर्टल',
     homeSubheading: 'ऑनलाइन सुरक्षित रहें',
     homeDescription: 'फ़िशिंग हमलों, ओटीपी घोटालों, पासवर्ड सुरक्षा और सुरक्षित ऑनलाइन प्रथाओं के बारे में जानें।',
+    homeHeroTitle: 'डिजिटल दुनिया में सुरक्षित रहें',
+    homeHeroDesc: 'सरल ऑनलाइन सुरक्षा टूल्स के साथ संदिग्ध लिंक जांचें, स्कैम संदेशों का विश्लेषण करें और अपने पासवर्ड मजबूत करें।',
+    homeExploreTools: 'सुरक्षा टूल्स देखें',
+    homeToolsTitle: 'आपके सुरक्षा टूल्स',
+    homeToolsSubtitle: 'ऑनलाइन सुरक्षित रहने के लिए त्वरित जांच।',
+    homeAwarenessTitle: 'साइबर खतरे की जागरूकता',
+    homeHelpTitle: 'क्या आपको साइबर धोखाधड़ी में मदद चाहिए?',
+    homeHelpDesc: 'यदि आपको वित्तीय साइबर धोखाधड़ी का संदेह है, तो तुरंत साइबर क्राइम हेल्पलाइन से संपर्क करें या आधिकारिक पोर्टल पर रिपोर्ट करें।',
+    homeCallHelpline: '1930 पर कॉल करें',
+    homeReportPortal: 'साइबर अपराध की रिपोर्ट करें',
     stat1Value: '80%',
     stat1Label: 'फ़िशिंग हमले ईमेल के माध्यम से होते हैं।',
     stat2Value: 'हजारों लोग',
@@ -980,6 +1088,16 @@ export const translations: Record<Language, Translations> = {
     stat4Value: 'साइबर अपराध हेल्पलाइन',
     stat4Label: '1930',
     startLearning: 'सीखना शुरू करें',
+    homeTrustBadge: 'सार्वजनिक साइबर सुरक्षा और स्कैम सुरक्षा',
+    homeHowItWorksTitle: 'साइबर सेफ आपकी सुरक्षा कैसे करता है',
+    homeStep1Title: '1. लिंक, संदेश या पासवर्ड दर्ज करें',
+    homeStep1Desc: 'संदिग्ध लिंक, फ़ॉरवर्ड किए गए संदेश दर्ज करें या रीयल-टाइम में पासवर्ड का सुरक्षित परीक्षण करें।',
+    homeStep2Title: '2. त्वरित खतरा विश्लेषण',
+    homeStep2Desc: 'हमारा स्मार्ट विश्लेषक फ़िशिंग पैटर्न, भ्रामक डोमेन और धोखाधड़ी के दबाव की जांच करता है।',
+    homeStep3Title: '3. व्यावहारिक सुरक्षा मार्गदर्शन',
+    homeStep3Desc: 'अपने वित्त और व्यक्तिगत जानकारी को सुरक्षित रखने के लिए स्पष्ट सुझाव और दिशा-निर्देश प्राप्त करें।',
+    homeModulesBannerTitle: 'अपने साइबर सुरक्षा कौशल का निर्माण करें',
+    homeModulesBannerDesc: 'वीडियो पाठ, व्यावहारिक सुझाव और संक्षिप्त क्विज़ के साथ 4 इंटरैक्टिव जागरूकता मॉड्यूल पूरा करें।',
 
     tabLogin: 'लॉग इन',
     tabRegister: 'नया उपयोगकर्ता पंजीकरण',
@@ -1045,6 +1163,7 @@ export const translations: Record<Language, Translations> = {
     loginSuccess: 'सफलतापूर्वक लॉग इन हुए।',
 
     modulesTitle: 'साइबर सुरक्षा लर्निंग मॉड्यूल',
+    modulesSubtitle: 'चरण-दर-चरण इंटरैक्टिव पाठों और व्यावहारिक सुरक्षा गाइडों के माध्यम से आवश्यक डिजिटल सुरक्षा कौशल सीखें।',
     progressTitle: 'मॉड्यूल प्रगति',
     progressCompleted: '{completed}/4 पूर्ण ({percent}%)',
     moduleLabel: 'मॉड्यूल',
@@ -1054,10 +1173,14 @@ export const translations: Record<Language, Translations> = {
     btnComplete: 'मॉड्यूल पूरा करें',
     btnMarkIncomplete: 'अपूर्ण करने के लिए क्लिक करें',
     btnCompletedTooltip: 'पूर्ण किए गए को हटाने के लिए क्लिक करें',
+    btnPrevModule: 'पिछला मॉड्यूल',
+    btnNextModule: 'अगला मॉड्यूल',
     btnTakeQuiz: 'प्रश्नोत्तरी शुरू करें',
     btnTakeQuizDisabledNotice: 'प्रश्नोत्तरी अनलॉक करने के लिए सभी 4 मॉड्यूल पूरे करें।',
     allModulesCompletedNotice: 'सभी मॉड्यूल पूरे हो गए! प्रश्नोत्तरी अब अनलॉक हो गई है।',
     clickToPlayVideo: 'वीडियो चलाने के लिए क्लिक करें',
+    viewFullTranscript: 'पूरा ट्रांसक्रिप्ट पढ़ें',
+    hideTranscript: 'ट्रांसक्रिप्ट छिपाएं',
     saving: 'सहेजा जा रहा है...',
     quizReadyPrompt: 'अपने ज्ञान का परीक्षण करने के लिए तैयार हैं? 10-प्रश्नों की धोखाधड़ी जागरूकता प्रश्नोत्तरी लें।',
     quizRemainingPrompt: 'प्रश्नोत्तरी लेने से पहले {remaining} और मॉड्यूल पूरा करना होगा।',
@@ -1119,6 +1242,7 @@ export const translations: Record<Language, Translations> = {
     quizResultHeading: 'परिणाम',
     correctBadge: 'सही',
     incorrectBadge: 'गलत',
+    unattemptedBadge: 'उत्तर नहीं दिया',
 
     q1Question: 'एसबीआई से होने का दावा करते हुए कोई आपसे ओटीपी मांगता है तो आप क्या करेंगे?',
     q1Opt1: 'ओटीपी साझा करें',
@@ -1165,3 +1289,312 @@ export const translations: Record<Language, Translations> = {
     nationalPortal: 'cybercrime.gov.in'
   }
 };
+
+export const CLASSIFICATION_TRANSLATIONS: Record<string, Record<Language, string>> = {
+  // Link classifications
+  'no known threat detected': {
+    en: 'No Known Threat Detected',
+    te: 'తెలిసిన ముప్పు ఏదీ గుర్తించబడలేదు',
+    hi: 'कोई ज्ञात खतरा नहीं मिला'
+  },
+  'malicious or dangerous': {
+    en: 'Malicious or Dangerous',
+    te: 'హానికరమైన లేదా ప్రమాదకరమైనది',
+    hi: 'दुर्भावनापूर्ण या खतरनाक'
+  },
+  'phishing': {
+    en: 'Phishing',
+    te: 'ఫిషింగ్',
+    hi: 'फ़िशिंग'
+  },
+  'fake banking website': {
+    en: 'Fake Banking Website',
+    te: 'నకిలీ బ్యాంకింగ్ వెబ్‌సైట్',
+    hi: 'फर्जी बैंकिंग वेबसाइट'
+  },
+  'brand impersonation or replica website': {
+    en: 'Brand Impersonation or Replica Website',
+    te: 'బ్రాండ్ అనుకరణ లేదా నకిలీ వెబ్‌సైట్',
+    hi: 'ब्रांड प्रतिरूपण या नकली वेबसाइट'
+  },
+  'piracy-related website': {
+    en: 'Piracy-Related Website',
+    te: 'పైరసీ సంబంధిత వెబ్‌సైట్',
+    hi: 'पायरेसी से संबंधित वेबसाइट'
+  },
+  'mod apk distributor': {
+    en: 'Mod APK Distributor',
+    te: 'మోడ్ APK పంపిణీదారు',
+    hi: 'मॉड एपीके वितरक'
+  },
+  'betting or gambling website': {
+    en: 'Betting or Gambling Website',
+    te: 'బెట్టింగ్ లేదా జూదం వెబ్‌సైట్',
+    hi: 'सट्टेबाजी या जुआ वेबसाइट'
+  },
+  'suspicious website': {
+    en: 'Suspicious Website',
+    te: 'అనుమానాస్పద వెబ్‌సైట్',
+    hi: 'संदिग्ध वेबसाइट'
+  },
+  'unable to verify': {
+    en: 'Unable to Verify',
+    te: 'ధృవీకరించడం సాధ్యం కాలేదు',
+    hi: 'सत्यापित करने में असमर्थ'
+  },
+
+  // Message classifications
+  'likely scam': {
+    en: 'Likely Scam',
+    te: 'స్కామ్ అయ్యే అవకాశం ఉంది',
+    hi: 'संभावित स्कैम'
+  },
+  'suspicious': {
+    en: 'Suspicious',
+    te: 'అనుమానాస్పదమైనది',
+    hi: 'संदिग्ध'
+  },
+  'no strong scam indicators detected': {
+    en: 'No Strong Scam Indicators Detected',
+    te: 'బలమైన స్కామ్ సూచికలు కనుగొనబడలేదు',
+    hi: 'कोई मजबूत स्कैम संकेतक नहीं मिले'
+  }
+};
+
+export const CATEGORY_TRANSLATIONS: Record<string, Record<Language, string>> = {
+  'phishing': {
+    en: 'Phishing',
+    te: 'ఫిషింగ్',
+    hi: 'फ़िशिंग'
+  },
+  'brand impersonation': {
+    en: 'Brand Impersonation',
+    te: 'బ్రాండ్ అనుకరణ',
+    hi: 'ब्रांड प्रतिरूपण'
+  },
+  'fake banking': {
+    en: 'Fake Banking',
+    te: 'నకిలీ బ్యాంకింగ్',
+    hi: 'फर्जी बैंकिंग'
+  },
+  'fake banking alert': {
+    en: 'Fake Banking Alert',
+    te: 'నకిలీ బ్యాంకింగ్ హెచ్చరిక',
+    hi: 'फर्जी बैंकिंग अलर्ट'
+  },
+  'upi payment scam': {
+    en: 'UPI Payment Scam',
+    te: 'UPI చెల్లింపు స్కామ్',
+    hi: 'यूपीआई भुगतान स्कैम'
+  },
+  'otp request': {
+    en: 'OTP Request',
+    te: 'OTP అభ్యర్థన',
+    hi: 'ओटीपी अनुरोध'
+  },
+  'phishing lure': {
+    en: 'Phishing Lure',
+    te: 'ఫిషింగ్ ఎర',
+    hi: 'फ़िशिंग प्रलोभन'
+  },
+  'fake customer support': {
+    en: 'Fake Customer Support',
+    te: 'నకిలీ కస్టమర్ సపోర్ట్',
+    hi: 'फर्जी कस्टमर सपोर्ट'
+  },
+  'lottery scam': {
+    en: 'Lottery Scam',
+    te: 'లాటరీ స్కామ్',
+    hi: 'लॉटरी स्कैम'
+  },
+  'job scam': {
+    en: 'Job Scam',
+    te: 'ఉద్యోగ స్కామ్',
+    hi: 'नौकरी स्कैम'
+  },
+  'investment scam': {
+    en: 'Investment Scam',
+    te: 'పెట్టుబడి స్కామ్',
+    hi: 'निवेश स्कैम'
+  },
+  'impersonation attempt': {
+    en: 'Impersonation Attempt',
+    te: 'గుర్తింపు అనుకరణ యత్నం',
+    hi: 'प्रतिरूपण प्रयास'
+  },
+  'extortion or threat': {
+    en: 'Extortion or Threat',
+    te: 'బ్లాక్‌మెయిల్ లేదా బెదిరింపు',
+    hi: 'जबरन वसूली या धमकी'
+  },
+  'electricity bill scam': {
+    en: 'Electricity Bill Scam',
+    te: 'విద్యుత్ బిల్లు స్కామ్',
+    hi: 'बिजली बिल स्कैम'
+  },
+  'kyc update scam': {
+    en: 'KYC Update Scam',
+    te: 'KYC అప్‌డేట్ స్కామ్',
+    hi: 'केवाईसी अपडेट स्कैम'
+  },
+  'part-time job offer': {
+    en: 'Part-time Job Offer',
+    te: 'పార్ట్ టైమ్ జాబ్ ఆఫర్',
+    hi: 'पार्ट-टाइम नौकरी प्रस्ताव'
+  },
+  'courier / delivery scam': {
+    en: 'Courier / Delivery Scam',
+    te: 'కొరియర్ / డెలివరీ స్కామ్',
+    hi: 'कूरियर / डिलीवरी स्कैम'
+  },
+  'loan approval scam': {
+    en: 'Loan Approval Scam',
+    te: 'రుణ ఆమోదం స్కామ్',
+    hi: 'ऋण स्वीकृति स्कैम'
+  },
+  'transactional alert': {
+    en: 'Transactional Alert',
+    te: 'లావాదేవీల హెచ్చరిక',
+    hi: 'लेन-देन अलर्ट'
+  },
+  'legitimate website': {
+    en: 'Legitimate Website',
+    te: 'నిజమైన వెబ్‌సైట్',
+    hi: 'वैध वेबसाइट'
+  },
+  'no known threat': {
+    en: 'No Known Threat',
+    te: 'తెలిసిన ముప్పు లేదు',
+    hi: 'कोई ज्ञात खतरा नहीं'
+  },
+  'credential harvesting': {
+    en: 'Credential Harvesting',
+    te: 'వివరాల దొంగతనం',
+    hi: 'क्रेडेंशियल चोरी'
+  },
+  'deceptive url': {
+    en: 'Deceptive URL',
+    te: 'మోసపూరిత URL',
+    hi: 'भ्रामक URL'
+  },
+  'financial fraud': {
+    en: 'Financial Fraud',
+    te: 'ఆర్థిక మోసం',
+    hi: 'वित्तीय धोखाधड़ी'
+  },
+  'social engineering': {
+    en: 'Social Engineering',
+    te: 'సోషల్ ఇంజనీరింగ్',
+    hi: 'सोशल इंजीनियरिंग'
+  },
+  'mod apk distributor': {
+    en: 'Mod APK Distributor',
+    te: 'మోడ్ APK పంపిణీదారు',
+    hi: 'मॉड एपीके वितरक'
+  },
+  'mod apk': {
+    en: 'Mod APK',
+    te: 'మోడ్ APK',
+    hi: 'मॉड एपीके'
+  },
+  'piracy-related website': {
+    en: 'Piracy-Related Website',
+    te: 'పైరసీ సంబంధిత వెబ్‌సైట్',
+    hi: 'पायरेसी से संबंधित वेबसाइट'
+  },
+  'piracy-related': {
+    en: 'Piracy-Related',
+    te: 'పైరసీ సంబంధిత',
+    hi: 'पायरेसी से संबंधित'
+  },
+  'piracy': {
+    en: 'Piracy',
+    te: 'పైరసీ',
+    hi: 'पायरेसी'
+  },
+  'betting or gambling website': {
+    en: 'Betting or Gambling Website',
+    te: 'బెట్టింగ్ లేదా జూదం వెబ్‌సైట్',
+    hi: 'सट्टेबाजी या जुआ वेबसाइट'
+  },
+  'betting or gambling': {
+    en: 'Betting or Gambling',
+    te: 'బెట్టింగ్ లేదా జూదం',
+    hi: 'सट्टेबाजी या जुआ'
+  },
+  'gambling': {
+    en: 'Gambling',
+    te: 'జూదం',
+    hi: 'जुआ'
+  },
+  'malicious or dangerous': {
+    en: 'Malicious or Dangerous',
+    te: 'హానికరమైన లేదా ప్రమాదకరమైనది',
+    hi: 'दुर्भावनापूर्ण या खतरनाक'
+  },
+  'malicious': {
+    en: 'Malicious',
+    te: 'హానికరమైనది',
+    hi: 'दुर्भावनापूर्ण'
+  },
+  'suspicious website': {
+    en: 'Suspicious Website',
+    te: 'అనుమానాస్పద వెబ్‌సైట్',
+    hi: 'संदिग्ध वेबसाइट'
+  },
+  'suspicious': {
+    en: 'Suspicious',
+    te: 'అనుమానాస్పదమైనది',
+    hi: 'संदिग्ध'
+  }
+};
+
+export function translateClassification(classification: string, lang: Language): string {
+  if (!classification) return '';
+  const key = classification.toLowerCase().trim();
+  if (CLASSIFICATION_TRANSLATIONS[key]?.[lang]) {
+    return CLASSIFICATION_TRANSLATIONS[key][lang];
+  }
+  return classification;
+}
+
+export function translateCategory(cat: string, lang: Language): string {
+  if (!cat) return '';
+  const key = cat.toLowerCase().trim();
+  if (CATEGORY_TRANSLATIONS[key]?.[lang]) {
+    return CATEGORY_TRANSLATIONS[key][lang];
+  }
+  for (const [dictKey, dictVal] of Object.entries(CATEGORY_TRANSLATIONS)) {
+    if (key.includes(dictKey) || dictKey.includes(key)) {
+      if (dictVal[lang]) return dictVal[lang];
+    }
+  }
+  return cat;
+}
+
+export function getLocalizedExplanation(
+  result: { explanation: string; translations?: Partial<Record<Language, { explanation?: string }>> } | null | undefined,
+  lang: Language
+): string {
+  if (!result) return '';
+  if (lang === 'en') return result.explanation;
+  return result.translations?.[lang]?.explanation || result.explanation;
+}
+
+export function getLocalizedEvidence(
+  result: { evidence: string[]; translations?: Partial<Record<Language, { evidence?: string[] }>> } | null | undefined,
+  lang: Language
+): string[] {
+  if (!result) return [];
+  if (lang === 'en') return result.evidence;
+  return result.translations?.[lang]?.evidence || result.evidence;
+}
+
+export function getLocalizedRecommendations(
+  result: { recommendations: string[]; translations?: Partial<Record<Language, { recommendations?: string[] }>> } | null | undefined,
+  lang: Language
+): string[] {
+  if (!result) return [];
+  if (lang === 'en') return result.recommendations;
+  return result.translations?.[lang]?.recommendations || result.recommendations;
+}

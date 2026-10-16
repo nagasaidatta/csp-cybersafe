@@ -1,5 +1,14 @@
 import React from 'react';
-import { ArrowRight, ShieldAlert, Users, CreditCard, PhoneCall } from 'lucide-react';
+import {
+  ArrowRight,
+  ShieldAlert,
+  Users,
+  CreditCard,
+  Link2,
+  MessageSquareWarning,
+  KeyRound,
+  GraduationCap
+} from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { ViewState } from '../types';
@@ -21,97 +30,226 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="py-12 sm:py-16 md:py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {/* Main Content Area */}
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-sm sm:text-base font-semibold tracking-wide text-blue-700 uppercase mb-3">
-            {t('homeSubheading')}
-          </p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            {t('homeHeading')}
-          </h1>
-          <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            {t('homeDescription')}
-          </p>
+    <div className="py-8 sm:py-12 md:py-14">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
 
-          {/* Primary Action Button */}
-          <div className="mt-8 flex justify-center">
+        {/* ========================================================= */}
+        {/* 1. HERO SECTION                                           */}
+        {/* ========================================================= */}
+        <section aria-labelledby="hero-title" className="text-center max-w-3xl mx-auto pt-2">
+          <h1
+            id="hero-title"
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight"
+          >
+            {t('homeHeroTitle')}
+          </h1>
+
+          <p className="mt-3.5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            {t('homeHeroDesc')}
+          </p>
+        </section>
+
+        {/* ========================================================= */}
+        {/* 2. PRIMARY ACTION: THREE SECURITY TOOLS                   */}
+        {/* ========================================================= */}
+        <section id="security-tools" aria-label={t('homeToolsTitle')} className="scroll-mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            {/* Tool 1: Link Safety */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onNavigate('link-safety')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('link-safety')}
+              aria-label={`Open ${t('navLinkSafety')}`}
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-blue-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <div>
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-2xs">
+                    <Link2 className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base sm:text-lg group-hover:text-blue-700 transition-colors">
+                    {t('navLinkSafety')}
+                  </h3>
+                </div>
+
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+                  {t('lsDesc')}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-blue-700 group-hover:text-blue-800">
+                <span>{t('lsBtnCheck')}</span>
+                <div className="w-7 h-7 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </div>
+
+            {/* Tool 2: Message Safety */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onNavigate('message-safety')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('message-safety')}
+              aria-label={`Open ${t('navMessageSafety')}`}
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-amber-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <div>
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-2xs">
+                    <MessageSquareWarning className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base sm:text-lg group-hover:text-amber-700 transition-colors">
+                    {t('navMessageSafety')}
+                  </h3>
+                </div>
+
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+                  {t('msDesc')}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-amber-700 group-hover:text-amber-800">
+                <span>{t('msBtnCheck')}</span>
+                <div className="w-7 h-7 rounded-full bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center transition-colors">
+                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </div>
+
+            {/* Tool 3: Password Checker */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onNavigate('password-checker')}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('password-checker')}
+              aria-label={`Open ${t('navPasswordChecker')}`}
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <div>
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-2xs">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors">
+                    {t('navPasswordChecker')}
+                  </h3>
+                </div>
+
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+                  {t('pwdCheckerDesc')}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-emerald-700 group-hover:text-emerald-800">
+                <span>{t('navPasswordChecker')}</span>
+                <div className="w-7 h-7 rounded-full bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
+                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* 3. SECONDARY ACTION: INTERACTIVE LEARNING MODULES         */}
+        {/* ========================================================= */}
+        <section aria-labelledby="modules-banner-heading">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={handleStartLearning}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleStartLearning()}
+            className="group cursor-pointer bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          >
+            <div className="max-w-2xl text-center md:text-left">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
+                <GraduationCap className="w-3.5 h-3.5" />
+                {t('navModules')}
+              </span>
+              <h2 id="modules-banner-heading" className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
+                {t('homeModulesBannerTitle')}
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+                {t('homeModulesBannerDesc')}
+              </p>
+            </div>
+
             <button
               type="button"
-              onClick={handleStartLearning}
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 text-base font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStartLearning();
+              }}
+              className="animate-click-me shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm sm:text-base font-bold text-slate-900 bg-white hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               <span>{t('startLearning')}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 animate-arrow-nudge" />
             </button>
           </div>
-        </div>
+        </section>
 
-        {/* Four Exact Awareness Statistics */}
-        <div className="mt-16 sm:mt-20 pt-12 border-t border-slate-200">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {/* Stat 1 */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div className="w-10 h-10 rounded bg-blue-50 text-blue-700 flex items-center justify-center mb-4">
-                <ShieldAlert className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {t('stat1Value')}
+        {/* ========================================================= */}
+        {/* 4. AWARENESS METRICS (UNIFIED BALANCED PANEL)              */}
+        {/* ========================================================= */}
+        <section aria-labelledby="awareness-heading" className="pt-2">
+          <div className="mb-5 sm:mb-6 text-center sm:text-left">
+            <h2 id="awareness-heading" className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              {t('homeAwarenessTitle')}
+            </h2>
+          </div>
+
+          <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl p-6 sm:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 md:divide-x md:divide-slate-200">
+              {/* Stat 1 */}
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="w-9 h-9 rounded-lg bg-blue-100/70 text-blue-700 flex items-center justify-center mb-3">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {t('stat1Value')}
+                  </div>
                 </div>
                 <p className="mt-2 text-sm text-slate-600 leading-snug">
                   {t('stat1Label')}
                 </p>
               </div>
-            </div>
 
-            {/* Stat 2 */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div className="w-10 h-10 rounded bg-amber-50 text-amber-700 flex items-center justify-center mb-4">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {t('stat2Value')}
+              {/* Stat 2 */}
+              <div className="flex flex-col justify-between md:pl-8">
+                <div>
+                  <div className="w-9 h-9 rounded-lg bg-amber-100/70 text-amber-700 flex items-center justify-center mb-3">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {t('stat2Value')}
+                  </div>
                 </div>
                 <p className="mt-2 text-sm text-slate-600 leading-snug">
                   {t('stat2Label')}
                 </p>
               </div>
-            </div>
 
-            {/* Stat 3 */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div className="w-10 h-10 rounded bg-red-50 text-red-700 flex items-center justify-center mb-4">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                  {t('stat3Value')}
+              {/* Stat 3 */}
+              <div className="flex flex-col justify-between md:pl-8">
+                <div>
+                  <div className="w-9 h-9 rounded-lg bg-red-100/70 text-red-700 flex items-center justify-center mb-3">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {t('stat3Value')}
+                  </div>
                 </div>
                 <p className="mt-2 text-sm text-slate-600 leading-snug">
                   {t('stat3Label')}
                 </p>
               </div>
             </div>
-
-            {/* Stat 4 */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div className="w-10 h-10 rounded bg-emerald-50 text-emerald-700 flex items-center justify-center mb-4">
-                <PhoneCall className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                  {t('stat4Value')}
-                </div>
-                <div className="mt-1 text-3xl font-extrabold text-emerald-700 tracking-tight">
-                  {t('stat4Label')}
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+        </section>
+
       </div>
     </div>
   );

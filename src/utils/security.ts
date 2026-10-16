@@ -121,7 +121,7 @@ export function getCachedLinkResult(normalizedUrl: string): LinkSafetyResult | n
     const raw = localStorage.getItem(STORAGE_KEYS.LINK_CACHE);
     if (!raw) return null;
     const cacheMap: Record<string, { result: LinkSafetyResult; timestamp: number }> = JSON.parse(raw);
-    const entry = cacheMap[normalizedUrl];
+    const entry = cacheMap[normalizedUrl] || cacheMap[`${normalizedUrl}::en`];
     if (!entry) return null;
 
     if (Date.now() - entry.timestamp < CACHE_TTL_MS) {
@@ -178,7 +178,7 @@ export function getCachedMessageResult(hash: string): MessageSafetyResult | null
     const raw = localStorage.getItem(STORAGE_KEYS.MSG_CACHE);
     if (!raw) return null;
     const cacheMap: Record<string, { result: MessageSafetyResult; timestamp: number }> = JSON.parse(raw);
-    const entry = cacheMap[hash];
+    const entry = cacheMap[hash] || cacheMap[`${hash}::en`];
     if (!entry) return null;
 
     if (Date.now() - entry.timestamp < CACHE_TTL_MS) {

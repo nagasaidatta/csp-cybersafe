@@ -1,35 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  Shield,
-  Globe,
-  LogOut,
-  User,
-  ChevronDown,
-  Menu,
-  X,
-  Link2,
-  MessageSquareWarning,
-  KeyRound
-} from 'lucide-react';
+import { Shield, Globe, LogOut, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { Language, ViewState } from '../types';
 
 interface NavbarProps {
-  currentView: ViewState;
+  currentView?: ViewState;
   onNavigate: (view: ViewState) => void;
+  canGoBack?: boolean;
+  canGoForward?: boolean;
+  onGoBack?: () => void;
+  onGoForward?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onNavigate
+}) => {
   const { language, setLanguage, t } = useLanguage();
   const { user, profile, signOut } = useAuth();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const langRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -38,9 +31,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
       }
       if (userRef.current && !userRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
-      }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
-        setMobileMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -62,119 +52,45 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200" ref={mobileMenuRef}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* Portal Name & Shield Icon */}
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs transition-colors">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Brand Logo */}
         <button
-          onClick={() => {
-            onNavigate('home');
-            setMobileMenuOpen(false);
-          }}
-          className="flex items-center gap-2.5 text-left group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded"
+          onClick={() => onNavigate('home')}
+          className="flex items-center gap-2 text-left group shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded-lg"
           aria-label="Cyber Safe Home"
         >
-          <div className="w-9 h-9 rounded bg-blue-700 text-white flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-lg bg-blue-700 text-white flex items-center justify-center shadow-xs group-hover:bg-blue-800 transition-colors">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 block leading-tight">
+            <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-700 transition-colors block leading-tight">
               {t('siteTitle')}
             </span>
           </div>
         </button>
 
-        {/* Desktop Navigation Items */}
-        <nav className="hidden md:flex items-center gap-1.5 lg:gap-2.5" aria-label="Main navigation">
-          {/* Link Safety */}
-          <button
-            type="button"
-            onClick={() => onNavigate('link-safety')}
-            className={`group inline-flex items-center gap-2 px-3 py-1.5 text-xs lg:text-sm font-semibold rounded-lg border transition-all duration-150 ${
-              currentView === 'link-safety'
-                ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-700 hover:border-slate-300'
-            }`}
-          >
-            <div
-              className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
-                currentView === 'link-safety'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'
-              }`}
-            >
-              <Link2 className="w-3.5 h-3.5" />
-            </div>
-            <span>{t('navLinkSafety')}</span>
-          </button>
-
-          {/* Message Safety */}
-          <button
-            type="button"
-            onClick={() => onNavigate('message-safety')}
-            className={`group inline-flex items-center gap-2 px-3 py-1.5 text-xs lg:text-sm font-semibold rounded-lg border transition-all duration-150 ${
-              currentView === 'message-safety'
-                ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-700 hover:border-slate-300'
-            }`}
-          >
-            <div
-              className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
-                currentView === 'message-safety'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'
-              }`}
-            >
-              <MessageSquareWarning className="w-3.5 h-3.5" />
-            </div>
-            <span>{t('navMessageSafety')}</span>
-          </button>
-
-          {/* Password Checker */}
-          <button
-            type="button"
-            onClick={() => onNavigate('password-checker')}
-            className={`group inline-flex items-center gap-2 px-3 py-1.5 text-xs lg:text-sm font-semibold rounded-lg border transition-all duration-150 ${
-              currentView === 'password-checker'
-                ? 'bg-blue-50 text-blue-700 border-blue-300 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-blue-700 hover:border-slate-300'
-            }`}
-          >
-            <div
-              className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
-                currentView === 'password-checker'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'
-              }`}
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-            </div>
-            <span>{t('navPasswordChecker')}</span>
-          </button>
-        </nav>
-
-
-        {/* Right Controls: Language Selector + Auth State + Mobile Menu Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Controls: Language Selector + Auth State */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* Language Selector */}
           <div className="relative" ref={langRef}>
             <button
               type="button"
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-300 rounded hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               aria-expanded={langMenuOpen}
-
               aria-haspopup="true"
               aria-label="Select Language"
             >
-              <Globe className="w-4 h-4 text-slate-500" />
+              <Globe className="w-4 h-4 text-slate-500 shrink-0" />
               <span>{languages.find((l) => l.code === language)?.label || 'English'}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-150 ${langMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {langMenuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 mt-1.5 w-36 bg-white border border-slate-200 rounded shadow-md py-1 z-50 animate-in fade-in"
+                className="absolute right-0 mt-2 w-36 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 duration-100"
               >
                 {languages.map((item) => (
                   <button
@@ -184,13 +100,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
                       setLanguage(item.code);
                       setLangMenuOpen(false);
                     }}
-                    className={`w-full text-left px-3.5 py-2 text-sm transition-colors ${
+                    className={`w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg transition-colors font-medium flex items-center justify-between ${
                       language === item.code
                         ? 'bg-blue-50 text-blue-700 font-semibold'
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {language === item.code && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -203,28 +122,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 max-w-[180px] sm:max-w-[240px] truncate"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-lg shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 max-w-[160px] sm:max-w-[220px] truncate"
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
                 aria-label="User menu"
               >
-                <User className="w-4 h-4 text-blue-700 shrink-0" />
+                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                  <User className="w-3.5 h-3.5" />
+                </div>
                 <span className="truncate">{displayName}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-150 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {userMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-1.5 w-48 bg-white border border-slate-200 rounded shadow-md py-1 z-50"
+                  className="absolute right-0 mt-2 w-48 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 duration-100"
                 >
-                  <div className="px-3.5 py-2 border-b border-slate-100 text-xs text-slate-500 truncate">
+                  <div className="px-3 py-2 border-b border-slate-100 text-xs text-slate-500 truncate">
                     {user.email}
                   </div>
                   <button
                     role="menuitem"
                     onClick={handleLogout}
-                    className="w-full text-left px-3.5 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-2 transition-colors font-medium mt-0.5"
                   >
                     <LogOut className="w-4 h-4 text-red-600" />
                     <span>{t('logout')}</span>
@@ -235,121 +156,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
           ) : (
             <button
               type="button"
-              onClick={() => {
-                onNavigate('auth');
-                setMobileMenuOpen(false);
-              }}
-              className="px-4 py-1.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1"
+              onClick={() => onNavigate('auth')}
+              className="px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-lg shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
             >
               {t('login')}
             </button>
           )}
-
-          {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-            aria-label="Toggle navigation menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-slate-700" /> : <Menu className="w-5 h-5 text-slate-700" />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1.5 shadow-md animate-in fade-in">
-          <button
-            type="button"
-            onClick={() => {
-              onNavigate('home');
-              setMobileMenuOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
-              currentView === 'home'
-                ? 'bg-blue-50 text-blue-700 font-semibold border-blue-200'
-                : 'bg-white text-slate-700 border-transparent hover:bg-slate-50'
-            }`}
-          >
-            <div
-              className={`w-7 h-7 rounded-md flex items-center justify-center ${
-                currentView === 'home' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              <Shield className="w-4 h-4" />
-            </div>
-            <span>{t('navHome')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              onNavigate('link-safety');
-              setMobileMenuOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
-              currentView === 'link-safety'
-                ? 'bg-blue-50 text-blue-700 font-semibold border-blue-200'
-                : 'bg-white text-slate-700 border-transparent hover:bg-slate-50'
-            }`}
-          >
-            <div
-              className={`w-7 h-7 rounded-md flex items-center justify-center ${
-                currentView === 'link-safety' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              <Link2 className="w-4 h-4" />
-            </div>
-            <span>{t('navLinkSafety')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              onNavigate('message-safety');
-              setMobileMenuOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
-              currentView === 'message-safety'
-                ? 'bg-blue-50 text-blue-700 font-semibold border-blue-200'
-                : 'bg-white text-slate-700 border-transparent hover:bg-slate-50'
-            }`}
-          >
-            <div
-              className={`w-7 h-7 rounded-md flex items-center justify-center ${
-                currentView === 'message-safety' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              <MessageSquareWarning className="w-4 h-4" />
-            </div>
-            <span>{t('navMessageSafety')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              onNavigate('password-checker');
-              setMobileMenuOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
-              currentView === 'password-checker'
-                ? 'bg-blue-50 text-blue-700 font-semibold border-blue-200'
-                : 'bg-white text-slate-700 border-transparent hover:bg-slate-50'
-            }`}
-          >
-            <div
-              className={`w-7 h-7 rounded-md flex items-center justify-center ${
-                currentView === 'password-checker' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              <KeyRound className="w-4 h-4" />
-            </div>
-            <span>{t('navPasswordChecker')}</span>
-          </button>
-        </div>
-      )}
     </header>
   );
 };

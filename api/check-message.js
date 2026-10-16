@@ -26,8 +26,18 @@ Respond strictly with a JSON object in this exact schema:
   "riskLevel": "Low" | "Medium" | "High" | "Critical" | "Unknown",
   "scamCategories": ["Array of detected categories, e.g. Fake Banking Alert, UPI Payment Scam, OTP Request, Phishing Lure, Fake Customer Support, Lottery Scam, Job Scam, Investment Scam, Impersonation Attempt, Extortion or Threat"],
   "suspiciousPhrases": ["Array of exact quotes or key suspicious red flags extracted from the message"],
-  "explanation": "Clear, accessible explanation of the findings in simple language for everyday citizens",
-  "recommendations": ["Array of practical, actionable safety steps the user should take"],
+  "explanation": "Clear, accessible explanation of the findings in English",
+  "recommendations": ["Array of practical, actionable safety steps in English"],
+  "translations": {
+    "te": {
+      "explanation": "వివరణాత్మక ఫలితాలు (in Telugu)",
+      "recommendations": ["సిఫార్సు చేయబడిన జాగ్రత్తలు (in Telugu)"]
+    },
+    "hi": {
+      "explanation": "विस्तृत निष्कर्ष (in Hindi)",
+      "recommendations": ["अनुशंसित सावधानियां (in Hindi)"]
+    }
+  },
   "limitations": "Explicit note regarding limitations, context dependency, or the need to verify directly through official verified channels"
 }`;
 
@@ -36,16 +46,6 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed. Only POST is supported.' });
-  }
-
-  // Rate limiting (gentle 5-second flood protection per IP)
-  const clientIp = getClientIp(req);
-  const rateCheck = checkRateLimit(clientIp + '_msg', 5000);
-  if (!rateCheck.allowed) {
-    return res.status(429).json({
-      error: `Please wait ${rateCheck.remainingSeconds} seconds before submitting another message.`,
-      remainingSeconds: rateCheck.remainingSeconds
-    });
   }
 
   // Parse request body
@@ -71,16 +71,26 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Message exceeds maximum length of 5000 characters.' });
   }
 
-  const langName = body?.language === 'te' ? 'Telugu' : body?.language === 'hi' ? 'Hindi' : 'English';
+  // Rate limiting (allows language re-requests on exact same message)
+  const clientIp = getClientIp(req);
+  const rateCheck = checkRateLimit(clientIp + '_msg', 5000, trimmedMessage);
+  if (!rateCheck.allowed) {
+    return res.status(429).json({
+      error: `Please wait ${rateCheck.remainingSeconds} seconds before submitting another message.`,
+      remainingSeconds: rateCheck.remainingSeconds
+    });
+  }
+
   const prompt = `Analyze the following message for fraud and scam indicators:
 --- BEGIN UNTRUSTED MESSAGE CONTENT ---
 ${trimmedMessage}
 --- END UNTRUSTED MESSAGE CONTENT ---
 
-LANGUAGE INSTRUCTION: Provide the "explanation", "recommendations", and "limitations" in ${langName} language for the citizen. Keep the "classification" and "riskLevel" in standard English so the system badges map correctly.
+CRITICAL MULTI-LANGUAGE REQUIREMENT:
+Provide the primary "explanation" and "recommendations" in English. In addition, populate "translations.te" (Telugu) and "translations.hi" (Hindi) with natural, accurate translations of "explanation" and "recommendations".
+Keep "classification" and "riskLevel" in standard English so system badge logic maps correctly.
 
 Provide your structured assessment strictly in the requested JSON format.`;
-
 
   const geminiResult = await callGemini({
     systemInstruction: SYSTEM_INSTRUCTION,
@@ -104,6 +114,7 @@ Provide your structured assessment strictly in the requested JSON format.`;
       suspiciousPhrases: Array.isArray(geminiResult.data.suspiciousPhrases) ? geminiResult.data.suspiciousPhrases : [],
       explanation: geminiResult.data.explanation || 'No explanation provided.',
       recommendations: Array.isArray(geminiResult.data.recommendations) ? geminiResult.data.recommendations : [],
+      translations: geminiResult.data.translations || {},
       limitations: geminiResult.data.limitations || 'Assessment is based on textual analysis and recognized scam patterns. Always verify independently through official numbers.'
     }
   });

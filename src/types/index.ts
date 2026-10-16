@@ -37,6 +37,12 @@ export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2:
 
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical' | 'Unknown';
 
+export interface LocalizedContent {
+  explanation?: string;
+  evidence?: string[];
+  recommendations?: string[];
+}
+
 export interface LinkSafetyResult {
   submittedUrl: string;
   classification: string;
@@ -44,7 +50,8 @@ export interface LinkSafetyResult {
   categories: string[];
   explanation: string;
   evidence: string[];
-  limitations: string;
+  translations?: Partial<Record<Language, LocalizedContent>>;
+  limitations?: string;
   cachedAt?: number;
 }
 
@@ -55,7 +62,8 @@ export interface MessageSafetyResult {
   suspiciousPhrases: string[];
   explanation: string;
   recommendations: string[];
-  limitations: string;
+  translations?: Partial<Record<Language, LocalizedContent>>;
+  limitations?: string;
   cachedAt?: number;
 }
 

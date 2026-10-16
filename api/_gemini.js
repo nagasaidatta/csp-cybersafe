@@ -115,19 +115,28 @@ export function getClientIp(req) {
 
 /**
  * Verifies if the client IP is within the 30-second cooldown period.
+ * Allows language switches / re-requests on the exact same target URL or message.
  * Returns { allowed: boolean, remainingSeconds: number }
  */
-export function checkRateLimit(ip, cooldownMs = 30000) {
+export function checkRateLimit(ip, cooldownMs = 30000, contextKey = null) {
   const now = Date.now();
-  const lastTime = ipRateLimits.get(ip) || 0;
+  const entry = ipRateLimits.get(ip);
+  const lastTime = typeof entry === 'object' ? entry?.time : (entry || 0);
+  const lastKey = typeof entry === 'object' ? entry?.contextKey : null;
   const elapsed = now - lastTime;
+
+  // If the user is re-requesting the exact same target (e.g. switching language), allow it!
+  if (contextKey && lastKey === contextKey) {
+    ipRateLimits.set(ip, { time: now, contextKey });
+    return { allowed: true, remainingSeconds: 0 };
+  }
 
   if (elapsed < cooldownMs) {
     const remainingSeconds = Math.ceil((cooldownMs - elapsed) / 1000);
     return { allowed: false, remainingSeconds };
   }
 
-  ipRateLimits.set(ip, now);
+  ipRateLimits.set(ip, { time: now, contextKey });
   return { allowed: true, remainingSeconds: 0 };
 }
 

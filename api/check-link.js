@@ -35,8 +35,18 @@ Respond strictly with a JSON object in this exact schema:
   "classification": "One of the 10 supported classifications above",
   "riskLevel": "Low" | "Medium" | "High" | "Critical" | "Unknown",
   "categories": ["Array of detected applicable categories, e.g. Phishing, Brand Impersonation"],
-  "explanation": "A concise, clear explanation understandable to ordinary citizens",
-  "evidence": ["Specific observable indicators, e.g. lookalike domain, misleading subdomain, suspicious TLD"],
+  "explanation": "A concise, clear explanation in English",
+  "evidence": ["Specific observable indicators in English"],
+  "translations": {
+    "te": {
+      "explanation": "వివరణ (in Telugu)",
+      "evidence": ["ఆధారాలు (in Telugu)"]
+    },
+    "hi": {
+      "explanation": "विवरण (in Hindi)",
+      "evidence": ["प्रमाण (in Hindi)"]
+    }
+  },
   "limitations": "Explicit notice explaining that this assessment is based on URL heuristics, domain patterns, and threat intelligence. Real-time live page rendering, deep DNS probing, or dynamic sandboxing was not executed."
 }`;
 
@@ -80,18 +90,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed. Only POST is supported.' });
   }
 
-  // 1. Check Rate Limit (1 check per 30 seconds per IP)
-  const clientIp = getClientIp(req);
-  const rateCheck = checkRateLimit(clientIp, 30000);
-
-  if (!rateCheck.allowed) {
-    return res.status(429).json({
-      error: `Rate limit exceeded. Please wait ${rateCheck.remainingSeconds} seconds before checking again.`,
-      remainingSeconds: rateCheck.remainingSeconds
-    });
-  }
-
-  // 2. Parse request body
+  // 1. Parse request body
   let body = req.body;
   if (typeof body === 'string') {
     try {
@@ -141,17 +140,28 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid or restricted hostname. Local, private, and internal addresses are not allowed.' });
   }
 
+  // 2. Check Rate Limit (allows language re-requests on exact same URL)
+  const clientIp = getClientIp(req);
+  const rateCheck = checkRateLimit(clientIp, 30000, parsedUrl.href);
+
+  if (!rateCheck.allowed) {
+    return res.status(429).json({
+      error: `Rate limit exceeded. Please wait ${rateCheck.remainingSeconds} seconds before checking again.`,
+      remainingSeconds: rateCheck.remainingSeconds
+    });
+  }
+
   // 3. Call Gemini API
-  const langName = body?.language === 'te' ? 'Telugu' : body?.language === 'hi' ? 'Hindi' : 'English';
   const prompt = `Perform an objective, evidence-based security and scam analysis for the following submitted URL:
 URL: ${parsedUrl.href}
 Hostname: ${parsedUrl.hostname}
 Path: ${parsedUrl.pathname}
 
-LANGUAGE INSTRUCTION: Provide the "explanation", "evidence" bullet points, and "limitations" in ${langName} language for the citizen. Keep the "classification" and "riskLevel" in standard English so the system badges map correctly.
+CRITICAL MULTI-LANGUAGE REQUIREMENT:
+Provide the primary "explanation" and "evidence" in English. In addition, populate "translations.te" (Telugu) and "translations.hi" (Hindi) with natural, accurate translations of "explanation" and "evidence".
+Keep "classification" and "riskLevel" in standard English so system badge logic maps correctly.
 
 Provide your structured assessment strictly in the requested JSON format.`;
-
 
   const geminiResult = await callGemini({
     systemInstruction: SYSTEM_INSTRUCTION,
@@ -175,6 +185,7 @@ Provide your structured assessment strictly in the requested JSON format.`;
       categories: Array.isArray(geminiResult.data.categories) ? geminiResult.data.categories : [],
       explanation: geminiResult.data.explanation || 'No explanation provided.',
       evidence: Array.isArray(geminiResult.data.evidence) ? geminiResult.data.evidence : [],
+      translations: geminiResult.data.translations || {},
       limitations: geminiResult.data.limitations || 'Assessment is based on observable URL indicators and threat patterns. Live web inspection was not conducted.'
     }
   });

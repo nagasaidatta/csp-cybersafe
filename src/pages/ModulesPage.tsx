@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, Circle, ArrowRight, BookOpen, Play } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  ArrowRight,
+  ArrowLeft,
+  ChevronLeft,
+  Play,
+  ChevronDown,
+  ChevronUp,
+  FileText
+} from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -14,9 +24,11 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
   const { t, strings } = useLanguage();
   const { user } = useAuth();
 
+  const [activeModuleId, setActiveModuleId] = useState<number>(1);
   const [completedModules, setCompletedModules] = useState<Record<number, boolean>>({});
   const [updatingModule, setUpdatingModule] = useState<number | null>(null);
   const [activeVideoId, setActiveVideoId] = useState<Record<number, boolean>>({});
+  const [expandedTranscripts, setExpandedTranscripts] = useState<Record<number, boolean>>({});
   const [syncNote, setSyncNote] = useState<string | null>(null);
 
   // 1. Fetch module progress on initial load with cache preservation
@@ -25,13 +37,17 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
       return;
     }
 
-    // Check localStorage cache first for fast display
     const cachedStr = localStorage.getItem(`cyber_safe_progress_${user.id}`);
     let cachedMap: Record<number, boolean> = {};
     if (cachedStr) {
       try {
         cachedMap = JSON.parse(cachedStr) || {};
         setCompletedModules(cachedMap);
+
+        const firstIncomplete = modulesData.find((m) => !cachedMap[m.id]);
+        if (firstIncomplete) {
+          setActiveModuleId(firstIncomplete.id);
+        }
       } catch {
         // ignore parse error
       }
@@ -49,12 +65,10 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
 
       if (error) {
         console.warn('Progress load note:', error.message);
-        // Do NOT overwrite local progress if database query errored
         return;
       }
 
       if (data && data.length > 0) {
-        // Database has records: reflect verified state
         const progressMap: Record<number, boolean> = {};
         data.forEach((row: { module_id: number; completed: boolean }) => {
           if (row.completed) {
@@ -63,9 +77,12 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         });
         setCompletedModules(progressMap);
         localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify(progressMap));
+
+        const firstIncomplete = modulesData.find((m) => !progressMap[m.id]);
+        if (firstIncomplete && !cachedStr) {
+          setActiveModuleId(firstIncomplete.id);
+        }
       } else if (data && data.length === 0) {
-        // If DB returned 0 records but the user has local progress,
-        // proactively sync the locally completed modules so progress is NOT lost!
         const cachedCompletedIds = Object.keys(cachedMap)
           .map(Number)
           .filter((id) => cachedMap[id]);
@@ -87,7 +104,6 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
             }
           }
         } else {
-          // Fresh user with 0 completed modules
           setCompletedModules({});
           localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify({}));
         }
@@ -113,7 +129,6 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
     setUpdatingModule(moduleId);
     setSyncNote(null);
 
-    // Optimistically update local state & localStorage immediately
     const nextCompleted = { ...completedModules, [moduleId]: nextStatus };
     setCompletedModules(nextCompleted);
     localStorage.setItem(`cyber_safe_progress_${user.id}`, JSON.stringify(nextCompleted));
@@ -123,7 +138,6 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         let saveSucceeded = false;
         let lastError: any = null;
 
-        // Primary strategy: Upsert with onConflict
         const { error: upsertErr } = await supabase
           .from('module_progress')
           .upsert(
@@ -140,9 +154,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
           saveSucceeded = true;
         } else {
           lastError = upsertErr;
-          console.warn('Upsert note, trying fallback update/insert:', upsertErr.message);
 
-          // Fallback Strategy: Direct update
           const { data: updateData, error: updateErr } = await supabase
             .from('module_progress')
             .update({
@@ -157,7 +169,6 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
             saveSucceeded = true;
           } else {
             if (updateErr) lastError = updateErr;
-            // Fallback Strategy: Row doesn't exist yet, direct insert
             const { error: insertErr } = await supabase
               .from('module_progress')
               .insert({
@@ -176,7 +187,6 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         }
 
         if (!saveSucceeded && lastError) {
-          console.error('Failed to persist module progress to database:', lastError);
           setSyncNote('Progress saved locally. Database sync will retry on next action.');
         }
       } catch (err) {
@@ -188,31 +198,85 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
     setUpdatingModule(null);
   };
 
+  const toggleTranscript = (moduleId: number) => {
+    setExpandedTranscripts((prev) => ({ ...prev, [moduleId]: !prev[moduleId] }));
+  };
+
   const completedCount = Object.values(completedModules).filter(Boolean).length;
   const totalModules = 4;
-  const percentCompleted = (completedCount / totalModules) * 100;
+  const percentCompleted = Math.round((completedCount / totalModules) * 100);
   const isAllCompleted = completedCount === totalModules;
 
+  const currentModule = modulesData.find((m) => m.id === activeModuleId) || modulesData[0];
+  const isCurrentCompleted = Boolean(completedModules[currentModule.id]);
+  const isCurrentVideoActive = Boolean(activeVideoId[currentModule.id]);
+  const isCurrentTranscriptOpen = Boolean(expandedTranscripts[currentModule.id]);
+
+  const currentTitle = strings[currentModule.titleKey as keyof typeof strings] as string || '';
+  const currentTranscript = strings[currentModule.transcriptKey as keyof typeof strings] as string || '';
+  const currentTakeaways = (strings[currentModule.takeawaysKey as keyof typeof strings] as unknown as string[]) || [];
+
+  const handleNext = () => {
+    if (activeModuleId < totalModules) {
+      setActiveModuleId(activeModuleId + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (activeModuleId > 1) {
+      setActiveModuleId(activeModuleId - 1);
+    }
+  };
+
   return (
-    <div className="py-10 max-w-4xl mx-auto px-4 sm:px-6">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          {t('modulesTitle')}
-        </h1>
-        <p className="mt-2 text-sm sm:text-base text-slate-600">
-          {t('homeDescription')}
-        </p>
+    <div className="py-8 sm:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      {/* Top Navigation & Header */}
+      <div className="mb-6">
+        <button
+          type="button"
+          onClick={() => onNavigate('home')}
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-700 transition-colors cursor-pointer group mb-3"
+        >
+          <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+          <span>{t('navHome')}</span>
+        </button>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {t('modulesTitle')}
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-xl">
+              {t('modulesSubtitle')}
+            </p>
+          </div>
+
+          {/* Minimal Progress Indicator */}
+          <div className="shrink-0 flex items-center gap-3 bg-white px-3.5 py-2 rounded-xl border border-slate-200/90 shadow-2xs">
+            <div className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+              {completedCount} / {totalModules} {t('badgeCompleted')}
+            </div>
+            <div className="w-28 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/80">
+              <div
+                className={`h-full transition-all duration-300 rounded-full ${
+                  isAllCompleted ? 'bg-emerald-600' : 'bg-blue-600'
+                }`}
+                style={{ width: `${percentCompleted}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Sync / Connectivity Notice */}
+      {/* Sync Notice */}
       {syncNote && (
-        <div className="mb-6 p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center justify-between shadow-sm">
+        <div className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
           <span>{syncNote}</span>
           <button
             type="button"
             onClick={() => setSyncNote(null)}
-            className="text-amber-700 hover:text-amber-900 font-bold ml-2 text-sm px-1"
+            className="text-amber-700 hover:text-amber-900 font-bold ml-2 text-sm px-1.5 cursor-pointer"
             aria-label="Dismiss note"
           >
             ✕
@@ -220,234 +284,249 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* Progress Bar Card */}
-      <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm mb-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-blue-700" />
-            <h2 className="text-base font-bold text-slate-900">
-              {t('progressTitle')}
-            </h2>
-          </div>
-          <span className="text-sm font-semibold text-slate-700">
-            {t('progressCompleted', {
-              completed: completedCount,
-              percent: percentCompleted,
-            })}
-          </span>
-        </div>
-
-        {/* Progress Bar Track */}
-        <div
-          className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200"
-          role="progressbar"
-          aria-valuenow={percentCompleted}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <div
-            className={`h-full transition-all duration-500 rounded-full ${
-              isAllCompleted ? 'bg-emerald-600' : 'bg-blue-600'
-            }`}
-            style={{ width: `${percentCompleted}%` }}
-          />
-        </div>
-
-        {/* Quiz Unlock Button Bar */}
-        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs text-slate-500">
-            {isAllCompleted ? (
-              <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
-                {t('allModulesCompletedNotice')}
-              </span>
-            ) : (
-              <span>{t('btnTakeQuizDisabledNotice')}</span>
-            )}
-          </div>
-
-          <button
-            type="button"
-            disabled={!isAllCompleted}
-            onClick={() => onNavigate('quiz')}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              isAllCompleted
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-600 cursor-pointer'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
-            }`}
-          >
-            <span>{t('btnTakeQuiz')}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Modules List */}
-      <div className="space-y-10">
+      {/* Clean Module Tabs */}
+      <div className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
         {modulesData.map((item) => {
           const isCompleted = Boolean(completedModules[item.id]);
-          const isVideoActive = Boolean(activeVideoId[item.id]);
-
-          // Get translated module title, transcript, and takeaways
-          const title = strings[item.titleKey as keyof typeof strings] as string || '';
-          const transcript = strings[item.transcriptKey as keyof typeof strings] as string || '';
-          const takeaways = (strings[item.takeawaysKey as keyof typeof strings] as unknown as string[]) || [];
+          const isActive = item.id === activeModuleId;
+          const tabTitle = strings[item.titleKey as keyof typeof strings] as string || '';
 
           return (
-            <article
+            <button
               key={item.id}
-              className={`bg-white rounded-lg border transition-colors overflow-hidden ${
-                isCompleted
-                  ? 'border-emerald-300 shadow-sm'
-                  : 'border-slate-200 shadow-sm'
+              type="button"
+              onClick={() => setActiveModuleId(item.id)}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
+                isActive
+                  ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
-              {/* Module Header */}
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded bg-blue-100 text-blue-800 border border-blue-200">
-                    {t('moduleLabel')} {item.id}
-                  </span>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                    {title}
-                  </h3>
-                </div>
-
-                {/* Completion Status Badge */}
-                {isCompleted && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 self-start sm:self-auto">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>{t('badgeCompleted')}</span>
-                  </span>
-                )}
+              <div className="truncate">
+                <span className={`text-[10px] font-bold block ${isActive ? 'text-blue-100' : 'text-slate-400'}`}>
+                  {t('moduleLabel')} {item.id}
+                </span>
+                <span className={`text-xs font-semibold truncate block ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                  {tabTitle}
+                </span>
               </div>
 
-              <div className="p-5 sm:p-6 space-y-6">
-                {/* Performance-Friendly YouTube Embed */}
-                <div>
-                  <div className="relative aspect-video w-full rounded-md overflow-hidden bg-slate-900 shadow-inner">
-                    {isVideoActive ? (
-                      <iframe
-                        src={`https://www.youtube.com/embed/${item.videoId}?autoplay=1`}
-                        title={`Module ${item.id} - ${title}`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        loading="lazy"
-                        className="w-full h-full border-0"
-                      />
-                    ) : (
-                      /* Facade: Loads lightweight thumbnail with play button, loads iframe on click */
-                      <div className="relative w-full h-full flex flex-col items-center justify-center group">
-                        <img
-                          src={`https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`}
-                          alt={`Thumbnail for ${title}`}
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setActiveVideoId((prev) => ({ ...prev, [item.id]: true }))}
-                          className="relative z-10 w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-400"
-                          aria-label={`Play video for ${title}`}
-                        >
-                          <Play className="w-8 h-8 fill-white ml-1" />
-                        </button>
-                        <span className="relative z-10 mt-3 text-xs font-semibold text-white bg-black/60 px-3 py-1 rounded">
-                          {t('clickToPlayVideo')}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Transcript Section */}
-                <div className="bg-slate-50 p-4 rounded-md border border-slate-200">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    {t('transcriptLabel')}
-                  </h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    {transcript}
-                  </p>
-                </div>
-
-                {/* Key Takeaways Section */}
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-2.5">
-                    {t('keyTakeaways')}
-                  </h4>
-                  <ul className="space-y-2">
-                    {takeaways.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-700">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Module Completion Toggle Button */}
-                <div className="pt-2 flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2.5">
-                  {isCompleted && (
-                    <span className="text-xs text-slate-500 font-medium select-none">
-                      {t('btnCompletedTooltip')}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    disabled={updatingModule === item.id}
-                    onClick={() => handleToggleModule(item.id)}
-                    title={isCompleted ? t('btnCompletedTooltip') : t('btnComplete')}
-                    className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 ${
-                      isCompleted
-                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 hover:border-emerald-400 cursor-pointer'
-                        : 'bg-blue-700 hover:bg-blue-800 text-white focus:ring-blue-600 cursor-pointer'
-                    } ${updatingModule === item.id ? 'opacity-70 cursor-wait' : ''}`}
-                  >
-                    {updatingModule === item.id ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
-                        <span>{t('saving')}</span>
-                      </>
-                    ) : isCompleted ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>{t('btnCompleted')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Circle className="w-4 h-4 text-white shrink-0" />
-                        <span>{t('btnComplete')}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </article>
+              {isCompleted ? (
+                <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-300' : 'text-emerald-600'}`} />
+              ) : (
+                <div className={`w-3.5 h-3.5 rounded-full border shrink-0 ${isActive ? 'border-white/60' : 'border-slate-300'}`} />
+              )}
+            </button>
           );
         })}
       </div>
 
-      {/* Bottom Sticky/Prompt for Quiz */}
-      <div className="mt-12 text-center p-6 bg-slate-100 rounded-lg border border-slate-300">
-        <p className="text-sm text-slate-700 mb-4 font-medium">
-          {isAllCompleted
-            ? t('quizReadyPrompt')
-            : t('quizRemainingPrompt', { remaining: totalModules - completedCount })}
-        </p>
-        <button
-          type="button"
-          disabled={!isAllCompleted}
-          onClick={() => onNavigate('quiz')}
-          className={`inline-flex items-center gap-2 px-7 py-3 text-sm font-bold rounded shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            isAllCompleted
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-600 cursor-pointer'
-              : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-          }`}
-        >
-          <span>{t('btnTakeQuiz')}</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      {/* Active Module Focused Card */}
+      <article className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+        {/* Module Title Header Bar */}
+        <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-white">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+              {t('moduleLabel')} 0{currentModule.id}
+            </span>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              {currentTitle}
+            </h2>
+          </div>
+          {isCurrentCompleted && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{t('badgeCompleted')}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Main Content: Video on Left, Takeaways & Transcript on Right */}
+        <div className="p-6 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+          {/* Left Column: Video */}
+          <div className="lg:col-span-7">
+            <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-950 shadow-xs border border-slate-900/10">
+              {isCurrentVideoActive ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${currentModule.videoId}?autoplay=1`}
+                  title={`Module ${currentModule.id} - ${currentTitle}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  className="w-full h-full border-0"
+                />
+              ) : (
+                <div
+                  className="relative w-full h-full flex items-center justify-center group cursor-pointer"
+                  onClick={() => setActiveVideoId((prev) => ({ ...prev, [currentModule.id]: true }))}
+                >
+                  <img
+                    src={`https://img.youtube.com/vi/${currentModule.videoId}/hqdefault.jpg`}
+                    alt={`Thumbnail for ${currentTitle}`}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-102"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors" />
+                  <div className="relative z-10 w-13 h-13 rounded-full bg-slate-900/85 hover:bg-blue-600 text-white backdrop-blur-xs flex items-center justify-center shadow-lg transform transition-all group-hover:scale-110">
+                    <Play className="w-5 h-5 fill-white ml-0.5" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Takeaways, Transcript & Completion */}
+          <div className="lg:col-span-5 flex flex-col justify-between space-y-5">
+            <div>
+              {/* Key Takeaways */}
+              <div className="mb-4">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                  {t('keyTakeaways')}
+                </h3>
+                <ul className="space-y-2.5">
+                  {currentTakeaways.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-2 shrink-0" />
+                      <span className="leading-relaxed">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Collapsible Transcript */}
+              <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5">
+                <button
+                  type="button"
+                  onClick={() => toggleTranscript(currentModule.id)}
+                  className="inline-flex items-center justify-between w-full text-xs font-semibold text-slate-700 hover:text-blue-700 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-slate-500" />
+                    <span>{isCurrentTranscriptOpen ? t('hideTranscript') : t('viewFullTranscript')}</span>
+                  </span>
+                  {isCurrentTranscriptOpen ? (
+                    <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  )}
+                </button>
+                {isCurrentTranscriptOpen ? (
+                  <p className="mt-2.5 pt-2.5 border-t border-slate-200/60 text-xs text-slate-600 leading-relaxed max-h-48 overflow-y-auto">
+                    {currentTranscript}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-slate-500 leading-relaxed line-clamp-2">
+                    {currentTranscript}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Completion Button */}
+            <div>
+              <button
+                type="button"
+                disabled={updatingModule === currentModule.id}
+                onClick={() => handleToggleModule(currentModule.id)}
+                title={isCurrentCompleted ? t('btnCompletedTooltip') : t('btnComplete')}
+                className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                  isCurrentCompleted
+                    ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
+                } ${updatingModule === currentModule.id ? 'opacity-70 cursor-wait' : ''}`}
+              >
+                {updatingModule === currentModule.id ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span>{t('saving')}</span>
+                  </>
+                ) : isCurrentCompleted ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{t('btnCompleted')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Circle className="w-4 h-4 text-white shrink-0" />
+                    <span>{t('btnComplete')}</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom Step Navigation Bar */}
+        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            disabled={activeModuleId === 1}
+            onClick={handlePrev}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              activeModuleId === 1
+                ? 'text-slate-300 cursor-not-allowed'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 cursor-pointer'
+            }`}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>{t('btnPrevModule')}</span>
+          </button>
+
+          {/* Stepper Dots */}
+          <div className="flex items-center gap-1.5">
+            {modulesData.map((m) => {
+              const isDotActive = m.id === activeModuleId;
+
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setActiveModuleId(m.id)}
+                  aria-label={`Go to module ${m.id}`}
+                  className={`rounded-full transition-all cursor-pointer ${
+                    isDotActive
+                      ? 'w-5 h-1.5 bg-slate-800'
+                      : 'w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                />
+              );
+            })}
+          </div>
+
+          {activeModuleId < totalModules ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-800 hover:text-slate-950 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <span>{t('btnNextModule')}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : isAllCompleted ? (
+            <button
+              type="button"
+              onClick={() => onNavigate('quiz')}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer shadow-xs"
+            >
+              <span>{t('btnTakeQuiz')}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              title={t('btnTakeQuizDisabledNotice')}
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed"
+            >
+              <span>{t('btnTakeQuiz')}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </article>
+
     </div>
   );
 };

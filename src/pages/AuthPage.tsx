@@ -129,7 +129,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     }
 
     if (!isSupabaseConfigured) {
-      setErrorMessage('Supabase is not configured yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+      setErrorMessage('Authentication service is not configured yet. Please try again later.');
       return;
     }
 
@@ -186,7 +186,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     if (cooldownRemaining > 0) return;
 
     if (!isSupabaseConfigured) {
-      setErrorMessage('Supabase is not configured yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+      setErrorMessage('Authentication service is not configured yet. Please try again later.');
       return;
     }
 
@@ -229,7 +229,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       });
 
       if (error) {
-        console.error('Supabase OTP error:', error);
+        console.error('OTP error:', error);
         const msg = error.message.toLowerCase();
         if (msg.includes('rate limit') || error.status === 429) {
           setErrorMessage(t('errOtpRateLimit') + ` (${error.message})`);
@@ -266,7 +266,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     }
 
     if (!isSupabaseConfigured) {
-      setErrorMessage('Supabase is not configured.');
+      setErrorMessage('Authentication service is not configured.');
       return;
     }
 
@@ -336,7 +336,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     }
 
     if (!isSupabaseConfigured) {
-      setErrorMessage('Supabase is not configured.');
+      setErrorMessage('Authentication service is not configured.');
       return;
     }
 
@@ -384,16 +384,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
         <span>{t('backToHome')}</span>
       </button>
 
-      {/* Supabase Notice if not configured */}
+      {/* Configuration Notice if not configured */}
       {!isSupabaseConfigured && (
         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md text-amber-900 text-xs sm:text-sm">
           <p className="font-semibold mb-1 flex items-center gap-1.5">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            Supabase Configuration Required
+            Authentication Configuration Required
           </p>
           <p>
-            Please set <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">VITE_SUPABASE_URL</code> and{' '}
-            <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">VITE_SUPABASE_ANON_KEY</code> in your environment or <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">.env.local</code> file to enable live authentication and database persistence.
+            Please set the authentication service environment variables in your environment or <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">.env.local</code> file to enable live authentication and database persistence.
           </p>
         </div>
       )}

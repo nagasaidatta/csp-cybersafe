@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Shield,
   ShieldAlert,
   AlertTriangle,
   RefreshCw,
@@ -26,7 +25,10 @@ import {
   getCachedLinkResult,
   setCachedLinkResult,
   getLinkCooldownRemaining,
-  markLinkCooldown
+  markLinkCooldown,
+  formatModelName,
+  isPortalSelfUrl,
+  getPortalSelfSafetyResult
 } from '../utils/security';
 
 interface LinkSafetyPageProps {
@@ -92,7 +94,16 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
       return;
     }
 
-    // 2. Check browser cache first (cache hit consumes NO cooldown)
+    // 2. Check if URL is this Cyber Safe Portal itself (Instant verified safe, NO API call)
+    if (isPortalSelfUrl(targetUrl) || isPortalSelfUrl(normalizedUrl)) {
+      const selfResult = getPortalSelfSafetyResult(targetUrl);
+      setResult(selfResult);
+      setIsLoading(false);
+      setIsCachedResult(false);
+      return;
+    }
+
+    // 3. Check browser cache first (cache hit consumes NO cooldown)
     if (!forceFresh) {
       const cached = getCachedLinkResult(normalizedUrl);
       if (cached) {
@@ -112,6 +123,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
     // 4. Proceed with single API check
     setIsLoading(true);
     setIsCachedResult(false);
+    setResult(null);
     markLinkCooldown();
 
     try {
@@ -133,7 +145,10 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
         return;
       }
 
-      const freshResult: LinkSafetyResult = data.result;
+      const freshResult: LinkSafetyResult = {
+        ...data.result,
+        model: data.model || data.result?.model
+      };
       setResult(freshResult);
       setCachedLinkResult(normalizedUrl, freshResult);
     } catch {
@@ -206,10 +221,6 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-100 shadow-2xs">
-            <Shield className="w-3.5 h-3.5" />
-            <span>{t('lsBadge')}</span>
-          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {t('lsTitle')}
           </h1>
@@ -248,6 +259,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
                     type="button"
                     onClick={() => {
                       setUrlInput('');
+                      setResult(null);
                       setErrorMessage(null);
                       setCooldownNotice(null);
                     }}
@@ -421,6 +433,16 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
           </div>
         )}
       </div>
+
+      {/* Small grey text in bottom right of the website only while viewing this link result */}
+      {result?.model && (
+        <aside
+          aria-label="AI response model"
+          className="fixed bottom-1.5 right-2.5 z-30 pointer-events-none select-none text-[9px] sm:text-[10px] text-slate-400 font-mono tracking-tight"
+        >
+          {formatModelName(result.model)}
+        </aside>
+      )}
     </div>
   );
 };

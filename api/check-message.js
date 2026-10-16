@@ -115,7 +115,9 @@ Provide your structured assessment strictly in the requested JSON format.`;
       explanation: geminiResult.data.explanation || 'No explanation provided.',
       recommendations: Array.isArray(geminiResult.data.recommendations) ? geminiResult.data.recommendations : [],
       translations: geminiResult.data.translations || {},
-      limitations: geminiResult.data.limitations || 'Assessment is based on textual analysis and recognized scam patterns. Always verify independently through official numbers.'
-    }
+      limitations: geminiResult.data.limitations || 'Assessment is based on textual analysis and recognized scam patterns. Always verify independently through official numbers.',
+      model: geminiResult.model || 'gemini-3.1-flash-lite'
+    },
+    model: geminiResult.model || 'gemini-3.1-flash-lite'
   });
 }

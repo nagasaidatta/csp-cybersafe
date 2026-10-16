@@ -205,42 +205,39 @@ export async function callGemini({ systemInstruction, prompt, timeoutMs = 20000 
   }
 
   const { model: primaryModel, available } = await resolveModel(apiKey);
-  console.log(`[Gemini API] Selected model: ${primaryModel} (Available: ${available.length ? available.join(', ') : 'unknown'})`);
 
-  // Try primary model first
-  let execResult = await sendGenerateContent({
-    apiKey,
-    model: primaryModel,
-    systemInstruction,
-    prompt,
-    timeoutMs
-  });
+  // Build complete list of candidate models in prioritized order
+  const candidates = [
+    primaryModel,
+    ...DEFAULT_FALLBACK_MODELS,
+    ...(available || [])
+  ].filter((m, idx, arr) => m && arr.indexOf(m) === idx && !m.toLowerCase().includes('tts'));
 
-  // If primary model failed due to 404 (not found) or 429 high demand, try alternative available flash models
-  if (!execResult.ok && (execResult.status === 404 || execResult.status === 429)) {
-    const candidateAlternatives = (available.length > 0 ? available : DEFAULT_FALLBACK_MODELS)
-      .filter((m) => m !== primaryModel && (m.includes('flash') || m.includes('lite')));
+  let execResult = null;
+  let usedModel = primaryModel;
 
-    for (const altModel of candidateAlternatives) {
-      console.log(`[Gemini API] Primary model ${primaryModel} failed (${execResult.status}). Trying fallback: ${altModel}...`);
-      const altResult = await sendGenerateContent({
-        apiKey,
-        model: altModel,
-        systemInstruction,
-        prompt,
-        timeoutMs
-      });
+  for (const modelToTry of candidates) {
+    console.log(`[Gemini API] Attempting model: ${modelToTry}...`);
+    execResult = await sendGenerateContent({
+      apiKey,
+      model: modelToTry,
+      systemInstruction,
+      prompt,
+      timeoutMs: 15000
+    });
 
-      if (altResult.ok) {
-        execResult = altResult;
-        break;
-      }
+    if (execResult.ok) {
+      usedModel = modelToTry;
+      console.log(`[Gemini API] Successfully received response using: ${modelToTry}`);
+      break;
+    } else {
+      console.warn(`[Gemini API] Model ${modelToTry} failed (${execResult.status || execResult.error?.message}). Falling back to next candidate...`);
     }
   }
 
-  // Handle final response
-  if (!execResult.ok) {
-    if (execResult.error) {
+  // Handle final response if all models failed
+  if (!execResult || !execResult.ok) {
+    if (execResult?.error) {
       return {
         success: false,
         status: execResult.status,
@@ -250,8 +247,8 @@ export async function callGemini({ systemInstruction, prompt, timeoutMs = 20000 
       };
     }
 
-    const errorText = await execResult.response.text();
-    let errorMessage = `Gemini API returned status ${execResult.status}`;
+    const errorText = await execResult?.response?.text?.() || '';
+    let errorMessage = `Gemini API returned status ${execResult?.status}`;
     try {
       const errorJson = JSON.parse(errorText);
       if (errorJson?.error?.message) {
@@ -261,14 +258,10 @@ export async function callGemini({ systemInstruction, prompt, timeoutMs = 20000 
       // keep default text
     }
 
-    const availableInfo = available.length > 0
-      ? ` Available models on your API key: [${available.join(', ')}].`
-      : '';
-
     return {
       success: false,
-      status: execResult.status,
-      error: `${errorMessage}.${availableInfo}`
+      status: execResult?.status || 500,
+      error: errorMessage
     };
   }
 
@@ -289,7 +282,8 @@ export async function callGemini({ systemInstruction, prompt, timeoutMs = 20000 
 
     return {
       success: true,
-      data: parsedResult
+      data: parsedResult,
+      model: usedModel
     };
   } catch (err) {
     return {

@@ -496,7 +496,7 @@ export const translations: Record<Language, Translations> = {
     verifying: 'Verifying...',
     settingPassword: 'Setting Password...',
     passwordsMatch: 'Passwords match',
-    secureAuthNotice: 'End-to-End Secure Supabase Authentication',
+    secureAuthNotice: 'End-to-End Secure Authentication',
 
     errInvalidEmail: 'Please enter a valid email address.',
     errExistingEmail: 'This email is already registered. Please log in instead.',

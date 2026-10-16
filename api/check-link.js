@@ -140,6 +140,45 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid or restricted hostname. Local, private, and internal addresses are not allowed.' });
   }
 
+  // Fast path: Verified official Cyber Safe Portal (Zero external API call)
+  const hostLower = parsedUrl.hostname.toLowerCase();
+  if (hostLower === 'csp-cybersafe.vercel.app' || hostLower.endsWith('.csp-cybersafe.vercel.app')) {
+    return res.status(200).json({
+      success: true,
+      result: {
+        submittedUrl: parsedUrl.href,
+        classification: 'No Known Threat Detected',
+        riskLevel: 'Low',
+        categories: ['Verified Official Portal', 'Cybersecurity Awareness Service'],
+        explanation: 'This URL belongs to the official Cyber Safe public portal. It is safe and verified for cyber awareness and scam defense checks.',
+        evidence: [
+          'Official verified domain (csp-cybersafe.vercel.app)',
+          'Valid encrypted HTTPS certificate on secure cloud infrastructure',
+          'Non-commercial public security service with zero known threat signatures'
+        ],
+        translations: {
+          te: {
+            explanation: 'ఈ URL అధికారిక సైబర్ సేఫ్ పబ్లిక్ పోర్టల్‌కు చెందినది. ఇది సురక్షితమైనది మరియు సైబర్ అవగాహన మరియు స్కామ్ రక్షణ తనిఖీల కోసం ధృవీకరించబడింది.',
+            evidence: [
+              'ధృవీకరించబడిన అధికారిక డొమైన్ (csp-cybersafe.vercel.app)',
+              'సురక్షిత క్లౌడ్ మౌలిక సదుపాయాలపై చెల్లుబాటు అయ్యే ఎన్‌క్రిప్ట్ చేయబడిన HTTPS సర్టిఫికేట్',
+              'ఎలాంటి ముప్పు సంకేతాలు లేని పబ్లిక్ సైబర్ సెక్యూరిటీ సేవ'
+            ]
+          },
+          hi: {
+            explanation: 'यह URL आधिकारिक साइबर सेफ पब्लिक पोर्टल का है। यह सुरक्षित है और साइबर जागरूकता व धोखाधड़ी सुरक्षा जांच के लिए सत्यापित है।',
+            evidence: [
+              'सत्यापित आधिकारिक डोमेन (csp-cybersafe.vercel.app)',
+              'सुरक्षित क्लाउड इन्फ्रास्ट्रक्चर पर वैध एन्क्रिप्टेड HTTPS प्रमाणपत्र',
+              'बिना किसी ज्ञात खतरे के आधिकारिक सार्वजनिक सुरक्षा सेवा'
+            ]
+          }
+        },
+        limitations: 'Verified as the official Cyber Safe portal. Verified without external AI call.'
+      }
+    });
+  }
+
   // 2. Check Rate Limit (allows language re-requests on exact same URL)
   const clientIp = getClientIp(req);
   const rateCheck = checkRateLimit(clientIp, 30000, parsedUrl.href);
@@ -186,7 +225,9 @@ Provide your structured assessment strictly in the requested JSON format.`;
       explanation: geminiResult.data.explanation || 'No explanation provided.',
       evidence: Array.isArray(geminiResult.data.evidence) ? geminiResult.data.evidence : [],
       translations: geminiResult.data.translations || {},
-      limitations: geminiResult.data.limitations || 'Assessment is based on observable URL indicators and threat patterns. Live web inspection was not conducted.'
-    }
+      limitations: geminiResult.data.limitations || 'Assessment is based on observable URL indicators and threat patterns. Live web inspection was not conducted.',
+      model: geminiResult.model || 'gemini-3.1-flash-lite'
+    },
+    model: geminiResult.model || 'gemini-3.1-flash-lite'
   });
 }

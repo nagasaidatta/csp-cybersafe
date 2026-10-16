@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  MessageSquare,
   ShieldAlert,
   AlertTriangle,
   RefreshCw,
@@ -25,7 +24,8 @@ import {
 import {
   computeSha256,
   getCachedMessageResult,
-  setCachedMessageResult
+  setCachedMessageResult,
+  formatModelName
 } from '../utils/security';
 
 interface MessageSafetyPageProps {
@@ -102,6 +102,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate
     // 3. Perform fresh API analysis
     setIsLoading(true);
     setIsCachedResult(false);
+    setResult(null);
 
     try {
       const res = await fetch('/api/check-message', {
@@ -117,7 +118,10 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate
         return;
       }
 
-      const freshResult: MessageSafetyResult = data.result;
+      const freshResult: MessageSafetyResult = {
+        ...data.result,
+        model: data.model || data.result?.model
+      };
       setResult(freshResult);
       setCachedMessageResult(msgHash, freshResult);
     } catch {
@@ -190,10 +194,6 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-100 shadow-2xs">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>{t('msBadge')}</span>
-          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {t('msTitle')}
           </h1>
@@ -216,6 +216,7 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate
                       type="button"
                       onClick={() => {
                         setMessageInput('');
+                        setResult(null);
                         setErrorMessage(null);
                       }}
                       className="text-xs text-slate-500 hover:text-slate-800 font-medium underline focus:outline-none"
@@ -412,6 +413,16 @@ export const MessageSafetyPage: React.FC<MessageSafetyPageProps> = ({ onNavigate
           </div>
         )}
       </div>
+
+      {/* Small grey text in bottom right of the website only while viewing this message result */}
+      {result?.model && (
+        <aside
+          aria-label="AI response model"
+          className="fixed bottom-1.5 right-2.5 z-30 pointer-events-none select-none text-[9px] sm:text-[10px] text-slate-400 font-mono tracking-tight"
+        >
+          {formatModelName(result.model)}
+        </aside>
+      )}
     </div>
   );
 };

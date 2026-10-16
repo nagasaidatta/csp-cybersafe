@@ -53,6 +53,7 @@ export interface LinkSafetyResult {
   translations?: Partial<Record<Language, LocalizedContent>>;
   limitations?: string;
   cachedAt?: number;
+  model?: string;
 }
 
 export interface MessageSafetyResult {
@@ -65,5 +66,6 @@ export interface MessageSafetyResult {
   translations?: Partial<Record<Language, LocalizedContent>>;
   limitations?: string;
   cachedAt?: number;
+  model?: string;
 }
 

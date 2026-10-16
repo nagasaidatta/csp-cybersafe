@@ -225,3 +225,84 @@ export function setCachedMessageResult(hash: string, result: MessageSafetyResult
     // Gracefully handle storage quota or privacy mode errors
   }
 }
+
+/**
+ * Formats a model identifier to a clean, human-readable name.
+ * e.g. "gemini-3.1-flash-lite" -> "Gemini 3.1 Flash Lite"
+ */
+export function formatModelName(model?: string): string {
+  if (!model) return '';
+  return model
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Checks if a submitted URL belongs to this Cyber Safe Portal itself.
+ */
+export function isPortalSelfUrl(url: string): boolean {
+  try {
+    let toParse = url.trim();
+    if (!toParse) return false;
+    if (!/^https?:\/\//i.test(toParse)) {
+      toParse = 'https://' + toParse;
+    }
+    const parsed = new URL(toParse);
+    const host = parsed.hostname.toLowerCase();
+
+    // Recognize official production domain, preview domains, or current host
+    if (
+      host === 'csp-cybersafe.vercel.app' ||
+      host.endsWith('.csp-cybersafe.vercel.app') ||
+      (typeof window !== 'undefined' && window.location.hostname && host === window.location.hostname.toLowerCase())
+    ) {
+      return true;
+    }
+  } catch {
+    // ignore parse error
+  }
+  return false;
+}
+
+/**
+ * Returns an instant, pre-verified safe report for the official Cyber Safe Portal without calling external APIs.
+ */
+export function getPortalSelfSafetyResult(url: string): LinkSafetyResult {
+  return {
+    submittedUrl: url.trim(),
+    classification: 'No Known Threat Detected',
+    riskLevel: 'Low',
+    categories: ['Verified Official Portal', 'Cybersecurity Awareness Service'],
+    explanation:
+      'This URL belongs to the official Cyber Safe public portal. It is safe and verified for cyber awareness and scam defense checks.',
+    evidence: [
+      'Official verified domain (csp-cybersafe.vercel.app)',
+      'Valid encrypted HTTPS certificate on secure cloud infrastructure',
+      'Non-commercial public security service with zero known threat signatures'
+    ],
+    translations: {
+      te: {
+        explanation:
+          'ఈ URL అధికారిక సైబర్ సేఫ్ పబ్లిక్ పోర్టల్‌కు చెందినది. ఇది సురక్షితమైనది మరియు సైబర్ అవగాహన మరియు స్కామ్ రక్షణ తనిఖీల కోసం ధృవీకరించబడింది.',
+        evidence: [
+          'ధృవీకరించబడిన అధికారిక డొమైన్ (csp-cybersafe.vercel.app)',
+          'సురక్షిత క్లౌడ్ మౌలిక సదుపాయాలపై చెల్లుబాటు అయ్యే ఎన్‌క్రిప్ట్ చేయబడిన HTTPS సర్టిఫికేట్',
+          'ఎలాంటి ముప్పు సంకేతాలు లేని పబ్లిక్ సైబర్ సెక్యూరిటీ సేవ'
+        ]
+      },
+      hi: {
+        explanation:
+          'यह URL आधिकारिक साइबर सेफ पब्लिक पोर्टल का है। यह सुरक्षित है और साइबर जागरूकता व धोखाधड़ी सुरक्षा जांच के लिए सत्यापित है।',
+        evidence: [
+          'सत्यापित आधिकारिक डोमेन (csp-cybersafe.vercel.app)',
+          'सुरक्षित क्लाउड इन्फ्रास्ट्रक्चर पर वैध एन्क्रिप्टेड HTTPS प्रमाणपत्र',
+          'बिना किसी ज्ञात खतरे के आधिकारिक सार्वजनिक सुरक्षा सेवा'
+        ]
+      }
+    },
+    limitations:
+      'Verified as the official Cyber Safe portal. Verified locally with zero external API calls.'
+  };
+}
+

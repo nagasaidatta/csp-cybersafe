@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  ShieldCheck,
   CheckCircle2,
   XCircle,
   Eye,
@@ -86,10 +85,6 @@ export const PasswordCheckerPage: React.FC<PasswordCheckerPageProps> = ({ onNavi
 
         {/* Page Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-100 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{t('pwdCheckerBadge')}</span>
-          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {t('pwdCheckerTitle')}
           </h1>

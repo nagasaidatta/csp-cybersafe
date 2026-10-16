@@ -55,7 +55,7 @@ export async function listAvailableModels(apiKey) {
  * Resolves the best available low-token model for the given API key.
  */
 export async function resolveModel(apiKey) {
-  const configured = process.env.GEMINI_MODEL?.trim();
+  const configured = (process.env.GEMINI_MODEL || process.env.VITE_GEMINI_MODEL)?.trim();
   const available = await listAvailableModels(apiKey);
 
   if (available && available.length > 0) {
@@ -191,7 +191,7 @@ async function sendGenerateContent({ apiKey, model, systemInstruction, prompt, t
  * Calls Gemini API with automatic model resolution and graceful low-token failover.
  */
 export async function callGemini({ systemInstruction, prompt, timeoutMs = 20000 }) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey || apiKey.trim() === '') {
     return {

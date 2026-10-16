@@ -7,9 +7,10 @@ import { AuthMode, RegisterStep, ViewState } from '../types';
 
 interface AuthPageProps {
   onNavigate: (view: ViewState) => void;
+  redirectTo?: ViewState | null;
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
+export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) => {
   const { t } = useLanguage();
   const { user, saveProfile, refreshProfile } = useAuth();
 
@@ -44,12 +45,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
     };
   }, []);
 
-  // If user is logged in and on login mode, navigate to home immediately
+  // If user is logged in and on login mode, navigate immediately
   useEffect(() => {
     if (user && mode === 'login') {
-      onNavigate('home');
+      onNavigate(redirectTo || 'home');
     }
-  }, [user, mode, onNavigate]);
+  }, [user, mode, onNavigate, redirectTo]);
 
   // If user verifies email via confirmation link or OTP in another window/tab,
   // automatically advance to Step 3 (Set Password)
@@ -154,7 +155,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       if (data.user) {
         await refreshProfile();
         setSuccessMessage(t('loginSuccess'));
-        onNavigate('home');
+        onNavigate(redirectTo || 'home');
       }
     } catch {
       setErrorMessage(t('errNetwork'));
@@ -363,7 +364,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       setSuccessMessage(t('regCompleteSuccess'));
       // Access granted to learning content
       setTimeout(() => {
-        onNavigate('modules');
+        onNavigate(redirectTo || 'modules');
       }, 500);
     } catch {
       setErrorMessage(t('errNetwork'));

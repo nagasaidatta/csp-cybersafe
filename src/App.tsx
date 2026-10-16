@@ -31,20 +31,58 @@ const getViewFromHash = (): ViewState => {
   return 'home';
 };
 
+const REDIRECT_STORAGE_KEY = 'csp_redirect_after_auth';
+
+const getStoredRedirect = (): ViewState | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const val = sessionStorage.getItem(REDIRECT_STORAGE_KEY) as ViewState;
+    if (val && VALID_VIEWS.includes(val)) return val;
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
+const storeRedirect = (view: ViewState | null) => {
+  if (typeof window === 'undefined') return;
+  try {
+    if (view && view !== 'home') {
+      sessionStorage.setItem(REDIRECT_STORAGE_KEY, view);
+    } else {
+      sessionStorage.removeItem(REDIRECT_STORAGE_KEY);
+    }
+  } catch {
+    // ignore
+  }
+};
+
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
 
   const [currentView, setCurrentView] = useState<ViewState>(() => getViewFromHash());
   const [historyStack, setHistoryStack] = useState<ViewState[]>(() => [getViewFromHash()]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
+  const [redirectAfterAuth, setRedirectAfterAuth] = useState<ViewState | null>(() => getStoredRedirect());
+
+  const updateRedirectAfterAuth = (view: ViewState | null) => {
+    setRedirectAfterAuth(view);
+    storeRedirect(view);
+  };
 
   // Initialize history state on first mount
   useEffect(() => {
     const initialView = getViewFromHash();
-    setCurrentView(initialView);
+    if ((initialView === 'modules' || initialView === 'quiz') && !user && !loading) {
+      updateRedirectAfterAuth(initialView);
+      setCurrentView('auth');
+      window.history.replaceState({ view: 'auth', index: 0 }, '', '#/auth');
+    } else {
+      setCurrentView(initialView);
+      window.history.replaceState({ view: initialView, index: 0 }, '', `#/${initialView}`);
+    }
     setHistoryStack([initialView]);
     setHistoryIndex(0);
-    window.history.replaceState({ view: initialView, index: 0 }, '', `#/${initialView}`);
   }, []);
 
   // Listen to browser Back / Forward (popstate)
@@ -55,6 +93,7 @@ const AppContent: React.FC = () => {
 
       // Protected views check
       if ((targetView === 'modules' || targetView === 'quiz') && !user && !loading) {
+        updateRedirectAfterAuth(targetView);
         setCurrentView('auth');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -73,11 +112,16 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [user, loading]);
 
-  const handleNavigate = (view: ViewState) => {
+  const handleNavigate = (view: ViewState, redirectTo?: ViewState) => {
     let targetView = view;
     // Protected views require login
     if ((targetView === 'modules' || targetView === 'quiz') && !user && !loading) {
+      updateRedirectAfterAuth(targetView);
       targetView = 'auth';
+    } else if (view === 'auth') {
+      updateRedirectAfterAuth(redirectTo || 'home');
+    } else if (view === 'modules' || view === 'quiz' || view === 'home') {
+      updateRedirectAfterAuth(null);
     }
 
     if (targetView === currentView) {
@@ -125,12 +169,12 @@ const AppContent: React.FC = () => {
       {/* Main View Router */}
       <main className="flex-1">
         {currentView === 'home' && <HomePage onNavigate={handleNavigate} />}
-        {currentView === 'auth' && <AuthPage onNavigate={handleNavigate} />}
+        {currentView === 'auth' && <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth} />}
         {currentView === 'modules' && (
-          user ? <ModulesPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} />
+          user ? <ModulesPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'modules'} />
         )}
         {currentView === 'quiz' && (
-          user ? <QuizPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} />
+          user ? <QuizPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'quiz'} />
         )}
         {currentView === 'link-safety' && <LinkSafetyPage onNavigate={handleNavigate} />}
         {currentView === 'message-safety' && <MessageSafetyPage onNavigate={handleNavigate} />}

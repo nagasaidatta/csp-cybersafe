@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { ViewState } from '../types';
 
 interface HomePageProps {
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (view: ViewState, redirectTo?: ViewState) => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
@@ -25,7 +25,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     if (user) {
       onNavigate('modules');
     } else {
-      onNavigate('auth');
+      onNavigate('auth', 'modules');
     }
   };
 

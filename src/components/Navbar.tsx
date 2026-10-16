@@ -6,7 +6,7 @@ import { Language, ViewState } from '../types';
 
 interface NavbarProps {
   currentView?: ViewState;
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (view: ViewState, redirectTo?: ViewState) => void;
   canGoBack?: boolean;
   canGoForward?: boolean;
   onGoBack?: () => void;
@@ -156,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               type="button"
-              onClick={() => onNavigate('auth')}
+              onClick={() => onNavigate('auth', 'home')}
               className="px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-lg shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1"
             >
               {t('login')}

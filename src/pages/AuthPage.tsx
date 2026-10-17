@@ -3,7 +3,7 @@ import { Lock, Mail, User, KeyRound, AlertCircle, CheckCircle2, Circle, Shield, 
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { AuthMode, RegisterStep, ViewState } from '../types';
+import { AuthMode, RegisterStep, ForgotStep, ViewState } from '../types';
 
 interface AuthPageProps {
   onNavigate: (view: ViewState) => void;
@@ -16,6 +16,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [registerStep, setRegisterStep] = useState<RegisterStep>(1);
+  const [forgotStep, setForgotStep] = useState<ForgotStep>(1);
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -62,6 +63,38 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
     }
   }, [user, mode, registerStep, t]);
 
+  useEffect(() => {
+    if (user && mode === 'forgot' && forgotStep < 3) {
+      setForgotStep(3);
+      setSuccessMessage(t('otpVerifiedSuccess'));
+      setErrorMessage(null);
+    }
+  }, [user, mode, forgotStep, t]);
+
+  // Listen for password recovery events or recovery hash in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery')) {
+        setMode('forgot');
+        setForgotStep(3);
+        setSuccessMessage(t('otpVerifiedSuccess'));
+      }
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('forgot');
+        setForgotStep(3);
+        setSuccessMessage(t('otpVerifiedSuccess'));
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [t]);
+
   const startCooldown = () => {
     setCooldownRemaining(30);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -91,6 +124,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
     setMode(newMode);
     clearMessages();
     setRegisterStep(1);
+    setForgotStep(1);
     setOtp('');
     setPassword('');
     setConfirmPassword('');
@@ -373,6 +407,320 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
     }
   };
 
+  // -------------------------------------------------------------
+  // FORGOT PASSWORD STEP 1: Send OTP
+  // -------------------------------------------------------------
+  const handleForgotGetOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    clearMessages();
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail || !validateEmail(cleanEmail)) {
+      setErrorMessage(t('errInvalidEmail'));
+      return;
+    }
+
+    if (cooldownRemaining > 0) return;
+
+    if (!isSupabaseConfigured) {
+      setErrorMessage('Authentication service is not configured yet. Please try again later.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Pre-check if email exists in database
+      try {
+        const { data: rpcExists, error: rpcErr } = await supabase.rpc('check_email_exists', {
+          check_email: cleanEmail,
+        });
+
+        if (!rpcErr && rpcExists === false) {
+          setErrorMessage(t('errEmailNotFound'));
+          setLoading(false);
+          return;
+        }
+      } catch (checkErr) {
+        console.warn('Pre-check email note:', checkErr);
+      }
+
+      // 2. Request OTP for password reset
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail);
+
+      if (error) {
+        console.error('Password reset OTP error:', error);
+        const msg = error.message.toLowerCase();
+        if (msg.includes('rate limit') || error.status === 429) {
+          setErrorMessage(t('errOtpRateLimit') + ` (${error.message})`);
+        } else {
+          setErrorMessage(`Error: ${error.message} ${error.status ? `[Status ${error.status}]` : ''}`);
+        }
+        return;
+      }
+
+      setOtpRequested(true);
+      startCooldown();
+      setSuccessMessage(t('otpSentSuccess'));
+      setForgotStep(2);
+    } catch {
+      setErrorMessage(t('errNetwork'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // FORGOT PASSWORD STEP 2: Verify OTP
+  // -------------------------------------------------------------
+  const handleForgotVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearMessages();
+
+    const cleanOtp = otp.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanOtp || cleanOtp.length < 6) {
+      setErrorMessage(t('errInvalidOtp'));
+      return;
+    }
+
+    if (!isSupabaseConfigured) {
+      setErrorMessage('Authentication service is not configured.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Try with type: 'recovery' (standard for resetPasswordForEmail)
+      let verifyResult = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanOtp,
+        type: 'recovery',
+      });
+
+      // 2. Fallback to type: 'email' if needed
+      if (verifyResult.error) {
+        const emailResult = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanOtp,
+          type: 'email',
+        });
+        if (!emailResult.error) {
+          verifyResult = emailResult;
+        }
+      }
+
+      const { data, error } = verifyResult;
+
+      if (error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes('expired')) {
+          setErrorMessage(t('errExpiredOtp'));
+        } else if (msg.includes('rate limit') || error.status === 429) {
+          setErrorMessage(t('errOtpRateLimit'));
+        } else {
+          setErrorMessage(t('errInvalidOtp'));
+        }
+        return;
+      }
+
+      if (data.session || data.user) {
+        setSuccessMessage(t('otpVerifiedSuccess'));
+        setForgotStep(3);
+      } else {
+        setErrorMessage(t('errInvalidOtp'));
+      }
+    } catch {
+      setErrorMessage(t('errNetwork'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // FORGOT PASSWORD STEP 3: Set New Password
+  // -------------------------------------------------------------
+  const handleForgotSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearMessages();
+
+    if (!isStrong) {
+      setErrorMessage(t('errPasswordNotStrong'));
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage(t('errPasswordMismatch'));
+      return;
+    }
+
+    if (!isSupabaseConfigured) {
+      setErrorMessage('Authentication service is not configured.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error: pwdError } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (pwdError) {
+        setErrorMessage(pwdError.message || t('errAuthFailed'));
+        setLoading(false);
+        return;
+      }
+
+      await refreshProfile();
+      setSuccessMessage(t('passwordResetSuccess'));
+      setTimeout(() => {
+        onNavigate(redirectTo || 'home');
+      }, 1200);
+    } catch {
+      setErrorMessage(t('errNetwork'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderPasswordStrength = () => (
+    <div className="mt-3 p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-2.5 text-xs">
+      {/* Strength Label and Badge */}
+      <div className="flex items-center justify-between">
+        <span className="font-semibold text-slate-700">
+          {t('pwdStrengthLabel')}:
+        </span>
+        {password.length > 0 ? (
+          <span
+            className={`px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ${
+              isStrong
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : isMedium
+                ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                : 'bg-red-100 text-red-800 border border-red-300'
+            }`}
+          >
+            {isStrong
+              ? t('pwdStrengthStrong')
+              : isMedium
+              ? t('pwdStrengthMedium')
+              : t('pwdStrengthWeak')}
+          </span>
+        ) : (
+          <span className="text-slate-400 text-[11px] font-medium">—</span>
+        )}
+      </div>
+
+      {/* 3-segment Strength Bar */}
+      <div className="grid grid-cols-3 gap-1.5 h-1.5 w-full">
+        <div
+          className={`h-full rounded-full transition-all duration-300 ${
+            password.length === 0
+              ? 'bg-slate-200'
+              : isWeak
+              ? 'bg-red-500'
+              : isMedium
+              ? 'bg-amber-500'
+              : 'bg-emerald-500'
+          }`}
+        />
+        <div
+          className={`h-full rounded-full transition-all duration-300 ${
+            isMedium
+              ? 'bg-amber-500'
+              : isStrong
+              ? 'bg-emerald-500'
+              : 'bg-slate-200'
+          }`}
+        />
+        <div
+          className={`h-full rounded-full transition-all duration-300 ${
+            isStrong ? 'bg-emerald-500' : 'bg-slate-200'
+          }`}
+        />
+      </div>
+
+      {/* Realtime 5 Criteria Checklist */}
+      <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
+        <div
+          className={`flex items-center gap-2 transition-colors ${
+            pwdCriteria.minLength
+              ? 'text-emerald-800 font-medium'
+              : 'text-slate-500'
+          }`}
+        >
+          {pwdCriteria.minLength ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+          )}
+          <span>{t('pwdRuleMinLength')}</span>
+        </div>
+
+        <div
+          className={`flex items-center gap-2 transition-colors ${
+            pwdCriteria.uppercase
+              ? 'text-emerald-800 font-medium'
+              : 'text-slate-500'
+          }`}
+        >
+          {pwdCriteria.uppercase ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+          )}
+          <span>{t('pwdRuleUppercase')}</span>
+        </div>
+
+        <div
+          className={`flex items-center gap-2 transition-colors ${
+            pwdCriteria.lowercase
+              ? 'text-emerald-800 font-medium'
+              : 'text-slate-500'
+          }`}
+        >
+          {pwdCriteria.lowercase ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+          )}
+          <span>{t('pwdRuleLowercase')}</span>
+        </div>
+
+        <div
+          className={`flex items-center gap-2 transition-colors ${
+            pwdCriteria.number
+              ? 'text-emerald-800 font-medium'
+              : 'text-slate-500'
+          }`}
+        >
+          {pwdCriteria.number ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+          )}
+          <span>{t('pwdRuleNumber')}</span>
+        </div>
+
+        <div
+          className={`flex items-center gap-2 transition-colors ${
+            pwdCriteria.symbol
+              ? 'text-emerald-800 font-medium'
+              : 'text-slate-500'
+          }`}
+        >
+          {pwdCriteria.symbol ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+          )}
+          <span>{t('pwdRuleSymbol')}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="py-10 sm:py-14 max-w-md mx-auto px-4">
       {/* Back to Home Button */}
@@ -401,30 +749,46 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
       {/* Main Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Auth Tabs: Login vs Register */}
-        <div className="grid grid-cols-2 border-b border-slate-200/80 bg-slate-50/80">
-          <button
-            type="button"
-            onClick={() => handleTabChange('login')}
-            className={`py-3.5 text-center text-sm font-bold transition-all ${
-              mode === 'login'
-                ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t('tabLogin')}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleTabChange('register')}
-            className={`py-3.5 text-center text-sm font-bold transition-all ${
-              mode === 'register'
-                ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t('tabRegister')}
-          </button>
-        </div>
+        {mode !== 'forgot' ? (
+          <div className="grid grid-cols-2 border-b border-slate-200/80 bg-slate-50/80">
+            <button
+              type="button"
+              onClick={() => handleTabChange('login')}
+              className={`py-3.5 text-center text-sm font-bold transition-all ${
+                mode === 'login'
+                  ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {t('tabLogin')}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabChange('register')}
+              className={`py-3.5 text-center text-sm font-bold transition-all ${
+                mode === 'register'
+                  ? 'bg-white text-blue-700 border-b-2 border-blue-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {t('tabRegister')}
+            </button>
+          </div>
+        ) : (
+          <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => handleTabChange('login')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 focus:outline-none"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              {t('backToLogin')}
+            </button>
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              {t('resetPasswordTitle')}
+            </span>
+          </div>
+        )}
 
         <div className="p-6 sm:p-7">
           {/* Error & Success Alerts */}
@@ -444,6 +808,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
                   className="font-bold underline text-blue-700 hover:text-blue-900 shrink-0 text-xs sm:text-sm whitespace-nowrap"
                 >
                   {t('tabLogin')}
+                </button>
+              )}
+              {mode === 'forgot' && errorMessage === t('errEmailNotFound') && (
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('register')}
+                  className="font-bold underline text-blue-700 hover:text-blue-900 shrink-0 text-xs sm:text-sm whitespace-nowrap"
+                >
+                  {t('tabRegister')}
                 </button>
               )}
             </div>
@@ -483,9 +856,25 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="login-password">
-                  {t('passwordLabel')}
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-800" htmlFor="login-password">
+                    {t('passwordLabel')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('forgot');
+                      setForgotStep(1);
+                      clearMessages();
+                      setOtp('');
+                      setPassword('');
+                      setConfirmPassword('');
+                    }}
+                    className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline focus:outline-none"
+                  >
+                    {t('forgotPassword')}
+                  </button>
+                </div>
                 <div className="relative flex items-center">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Lock className="w-4 h-4" />
@@ -721,140 +1110,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
                     </div>
 
                     {/* Real-time Password Strength Meter & Criteria Checklist */}
-                    <div className="mt-3 p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-2.5 text-xs">
-                      {/* Strength Label and Badge */}
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-700">
-                          {t('pwdStrengthLabel')}:
-                        </span>
-                        {password.length > 0 ? (
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ${
-                              isStrong
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                : isMedium
-                                ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                                : 'bg-red-100 text-red-800 border border-red-300'
-                            }`}
-                          >
-                            {isStrong
-                              ? t('pwdStrengthStrong')
-                              : isMedium
-                              ? t('pwdStrengthMedium')
-                              : t('pwdStrengthWeak')}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-[11px] font-medium">—</span>
-                        )}
-                      </div>
-
-                      {/* 3-segment Strength Bar */}
-                      <div className="grid grid-cols-3 gap-1.5 h-1.5 w-full">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            password.length === 0
-                              ? 'bg-slate-200'
-                              : isWeak
-                              ? 'bg-red-500'
-                              : isMedium
-                              ? 'bg-amber-500'
-                              : 'bg-emerald-500'
-                          }`}
-                        />
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            isMedium
-                              ? 'bg-amber-500'
-                              : isStrong
-                              ? 'bg-emerald-500'
-                              : 'bg-slate-200'
-                          }`}
-                        />
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            isStrong ? 'bg-emerald-500' : 'bg-slate-200'
-                          }`}
-                        />
-                      </div>
-
-                      {/* Realtime 5 Criteria Checklist */}
-                      <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
-                        <div
-                          className={`flex items-center gap-2 transition-colors ${
-                            pwdCriteria.minLength
-                              ? 'text-emerald-800 font-medium'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {pwdCriteria.minLength ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          )}
-                          <span>{t('pwdRuleMinLength')}</span>
-                        </div>
-
-                        <div
-                          className={`flex items-center gap-2 transition-colors ${
-                            pwdCriteria.uppercase
-                              ? 'text-emerald-800 font-medium'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {pwdCriteria.uppercase ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          )}
-                          <span>{t('pwdRuleUppercase')}</span>
-                        </div>
-
-                        <div
-                          className={`flex items-center gap-2 transition-colors ${
-                            pwdCriteria.lowercase
-                              ? 'text-emerald-800 font-medium'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {pwdCriteria.lowercase ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          )}
-                          <span>{t('pwdRuleLowercase')}</span>
-                        </div>
-
-                        <div
-                          className={`flex items-center gap-2 transition-colors ${
-                            pwdCriteria.number
-                              ? 'text-emerald-800 font-medium'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {pwdCriteria.number ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          )}
-                          <span>{t('pwdRuleNumber')}</span>
-                        </div>
-
-                        <div
-                          className={`flex items-center gap-2 transition-colors ${
-                            pwdCriteria.symbol
-                              ? 'text-emerald-800 font-medium'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {pwdCriteria.symbol ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          )}
-                          <span>{t('pwdRuleSymbol')}</span>
-                        </div>
-                      </div>
-                    </div>
+                    {renderPasswordStrength()}
                   </div>
 
                   <div>
@@ -911,6 +1167,269 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
                       }`}
                     >
                       {loading ? t('settingPassword') : t('btnSetPassword')}
+                    </button>
+                    {!isStrong && password.length > 0 && (
+                      <p className="mt-1.5 text-xs text-center text-slate-500">
+                        {t('errPasswordNotStrong')}
+                      </p>
+                    )}
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* ---------------- FORGOT PASSWORD FLOW ---------------- */}
+          {mode === 'forgot' && (
+            <div>
+              {/* Step Indicators */}
+              <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-3.5">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      forgotStep >= 1 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
+                    }`}
+                  >
+                    1
+                  </span>
+                  <span className={`text-xs ${forgotStep >= 1 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>
+                    {t('stepAccount')}
+                  </span>
+                </div>
+                <div className={`flex-1 mx-2 h-0.5 rounded-full ${forgotStep >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      forgotStep >= 2 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
+                    }`}
+                  >
+                    2
+                  </span>
+                  <span className={`text-xs ${forgotStep >= 2 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>
+                    {t('stepVerify')}
+                  </span>
+                </div>
+                <div className={`flex-1 mx-2 h-0.5 rounded-full ${forgotStep === 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      forgotStep === 3 ? 'bg-blue-700 text-white shadow-2xs' : 'bg-slate-100 text-slate-500'
+                    }`}
+                  >
+                    3
+                  </span>
+                  <span className={`text-xs ${forgotStep === 3 ? 'font-bold text-slate-900' : 'font-medium text-slate-500'}`}>
+                    {t('stepPassword')}
+                  </span>
+                </div>
+              </div>
+
+              {/* STEP 1: ENTER EMAIL -> GET OTP */}
+              {forgotStep === 1 && (
+                <form onSubmit={handleForgotGetOtp} className="space-y-4">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed">
+                    {t('resetPasswordDesc')}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="forgot-email">
+                      {t('emailLabel')}
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="forgot-email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t('emailPlaceholder')}
+                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={loading || cooldownRemaining > 0}
+                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-60"
+                    >
+                      {loading
+                        ? t('sending')
+                        : otpRequested && cooldownRemaining > 0
+                        ? t('cooldownText', { seconds: cooldownRemaining })
+                        : t('btnGetOtp')}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* STEP 2: VERIFY OTP */}
+              {forgotStep === 2 && (
+                <form onSubmit={handleForgotVerifyOtp} className="space-y-4">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed flex items-center justify-between">
+                    <span>
+                      {t('step2Desc')} <strong>{email}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotStep(1);
+                        clearMessages();
+                      }}
+                      className="text-blue-700 hover:text-blue-900 underline text-xs ml-2 shrink-0 font-medium"
+                    >
+                      {t('changeEmail')}
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="forgot-otp">
+                      {t('otpLabel')}
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <KeyRound className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="forgot-otp"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        required
+                        autoFocus
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder={t('otpPlaceholder')}
+                        className="w-full pl-9 pr-3 py-2.5 text-sm font-mono tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-1">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 rounded-xl shadow-xs hover:shadow transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-60"
+                    >
+                      {loading ? t('verifying') : t('btnVerifyOtp')}
+                    </button>
+                  </div>
+
+                  {/* Resend OTP button with exact 30-second cooldown */}
+                  <div className="text-center pt-2 border-t border-slate-100">
+                    {cooldownRemaining > 0 ? (
+                      <span className="text-xs text-slate-500 font-medium">
+                        {t('cooldownText', { seconds: cooldownRemaining })}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleForgotGetOtp()}
+                        disabled={loading}
+                        className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline focus:outline-none"
+                      >
+                        {t('btnResendOtp')}
+                      </button>
+                    )}
+                  </div>
+                </form>
+              )}
+
+              {/* STEP 3: SET NEW PASSWORD & CONFIRM */}
+              {forgotStep === 3 && (
+                <form onSubmit={handleForgotSetPassword} className="space-y-4">
+                  <div className="text-xs text-slate-600 mb-2 leading-relaxed">
+                    {t('step3Desc')}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="forgot-pwd">
+                      {t('newPasswordLabel')}
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="forgot-pwd"
+                        type={showRegPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={t('passwordPlaceholder')}
+                        className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                        aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    {renderPasswordStrength()}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5" htmlFor="forgot-confirm-pwd">
+                      {t('confirmNewPasswordLabel')}
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="forgot-confirm-pwd"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder={t('confirmPasswordPlaceholder')}
+                        className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-slate-900 bg-white shadow-2xs hover:border-slate-400 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {confirmPassword.length > 0 && (
+                      <div className="mt-2 flex items-center gap-1.5 text-xs">
+                        {password === confirmPassword ? (
+                          <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{t('passwordsMatch')}</span>
+                          </span>
+                        ) : (
+                          <span className="text-red-700 font-semibold flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 text-red-600" />
+                            <span>{t('errPasswordMismatch')}</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={loading || !isStrong || password !== confirmPassword}
+                      className={`w-full py-2.5 px-4 text-sm font-semibold rounded-xl shadow-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                        isStrong && password === confirmPassword && !loading
+                          ? 'text-white bg-blue-700 hover:bg-blue-800 active:bg-blue-900 focus-visible:ring-blue-600 cursor-pointer hover:shadow'
+                          : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                      }`}
+                    >
+                      {loading ? t('settingPassword') : t('btnResetPassword')}
                     </button>
                     {!isStrong && password.length > 0 && (
                       <p className="mt-1.5 text-xs text-center text-slate-500">

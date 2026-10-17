@@ -32,8 +32,9 @@ export interface QuizQuestionItem {
 }
 
 export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker';
-export type AuthMode = 'login' | 'register';
+export type AuthMode = 'login' | 'register' | 'forgot';
 export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2: OTP verification, 3: Password setup
+export type ForgotStep = 1 | 2 | 3; // 1: initial (email -> Get OTP), 2: OTP verification, 3: Set new password
 
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical' | 'Unknown';
 

@@ -201,6 +201,18 @@ export interface Translations {
   regCompleteSuccess: string;
   loginSuccess: string;
 
+  // Forgot Password
+  forgotPassword: string;
+  resetPasswordTitle: string;
+  resetPasswordDesc: string;
+  btnResetPassword: string;
+  backToLogin: string;
+  errEmailNotFound: string;
+  passwordResetSuccess: string;
+  newPasswordLabel: string;
+  confirmNewPasswordLabel: string;
+  changeEmail: string;
+
   // Modules Page
   modulesTitle: string;
   modulesSubtitle: string;
@@ -513,6 +525,17 @@ export const translations: Record<Language, Translations> = {
     otpVerifiedSuccess: 'Email verified successfully. Now create your password.',
     regCompleteSuccess: 'Registration completed successfully!',
     loginSuccess: 'Logged in successfully.',
+
+    forgotPassword: 'Forgot Password?',
+    resetPasswordTitle: 'Reset Password',
+    resetPasswordDesc: 'Enter your registered email address to receive a 6-digit verification code.',
+    btnResetPassword: 'Set New Password',
+    backToLogin: 'Back to Login',
+    errEmailNotFound: 'No registered account found with this email address.',
+    passwordResetSuccess: 'Password changed successfully! Redirecting...',
+    newPasswordLabel: 'New Password',
+    confirmNewPasswordLabel: 'Confirm New Password',
+    changeEmail: 'Change email',
 
     modulesTitle: 'Cybersecurity Learning Modules',
     modulesSubtitle: 'Master essential digital safety skills through step-by-step interactive lessons and practical safety guides.',
@@ -838,6 +861,17 @@ export const translations: Record<Language, Translations> = {
     regCompleteSuccess: 'నమోదు విజయవంతంగా పూర్తయింది!',
     loginSuccess: 'విజయవంతంగా లాగిన్ అయ్యారు.',
 
+    forgotPassword: 'పాస్‌వర్డ్ మర్చిపోయారా?',
+    resetPasswordTitle: 'పాస్‌వర్డ్‌ను రీసెట్ చేయండి',
+    resetPasswordDesc: '6-అంకెల ధృవీకరణ కోడ్ పొందడానికి మీ నమోదిత ఈమెయిల్ చిరునామాను నమోదు చేయండి.',
+    btnResetPassword: 'కొత్త పాస్‌వర్డ్ సెట్ చేయండి',
+    backToLogin: 'లాగిన్‌కు తిరిగి వెళ్లండి',
+    errEmailNotFound: 'ఈ ఈమెయిల్ చిరునామాతో నమోదిత ఖాతా ఏదీ కనుగొనబడలేదు.',
+    passwordResetSuccess: 'పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది! దారిమళ్లిస్తోంది...',
+    newPasswordLabel: 'కొత్త పాస్‌వర్డ్',
+    confirmNewPasswordLabel: 'కొత్త పాస్‌వర్డ్ నిర్ధారణ',
+    changeEmail: 'ఈమెయిల్ మార్చండి',
+
     modulesTitle: 'సైబర్ సెక్యూరిటీ లెర్నింగ్ మాడ్యూల్స్',
     modulesSubtitle: 'దశలవారీ ఇంటరాక్టివ్ పాఠాలు మరియు ఆచరణాత్మక భద్రతా మార్గదర్శకాల ద్వారా ముఖ్యమైన సైబర్ భద్రతా నైపుణ్యాలను నేర్చుకోండి.',
     progressTitle: 'మాడ్యూల్ పురోగతి',
@@ -1161,6 +1195,17 @@ export const translations: Record<Language, Translations> = {
     otpVerifiedSuccess: 'ईमेल सफलतापूर्वक सत्यापित हुआ। अब अपना पासवर्ड बनाएं।',
     regCompleteSuccess: 'पंजीकरण सफलतापूर्वक पूरा हुआ!',
     loginSuccess: 'सफलतापूर्वक लॉग इन हुए।',
+
+    forgotPassword: 'पासवर्ड भूल गए?',
+    resetPasswordTitle: 'पासवर्ड रीसेट करें',
+    resetPasswordDesc: '6-अंकों का सत्यापन कोड प्राप्त करने के लिए अपना पंजीकृत ईमेल पता दर्ज करें।',
+    btnResetPassword: 'नया पासवर्ड सेट करें',
+    backToLogin: 'लॉग इन पर वापस जाएं',
+    errEmailNotFound: 'इस ईमेल पते के साथ कोई पंजीकृत खाता नहीं मिला।',
+    passwordResetSuccess: 'पासवर्ड सफलतापूर्वक बदल दिया गया! पुनर्निर्देशित किया जा रहा है...',
+    newPasswordLabel: 'नया पासवर्ड',
+    confirmNewPasswordLabel: 'नए पासवर्ड की पुष्टि करें',
+    changeEmail: 'ईमेल बदलें',
 
     modulesTitle: 'साइबर सुरक्षा लर्निंग मॉड्यूल',
     modulesSubtitle: 'चरण-दर-चरण इंटरैक्टिव पाठों और व्यावहारिक सुरक्षा गाइडों के माध्यम से आवश्यक डिजिटल सुरक्षा कौशल सीखें।',

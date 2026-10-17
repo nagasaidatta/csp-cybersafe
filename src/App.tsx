@@ -25,6 +25,9 @@ const VALID_VIEWS: ViewState[] = [
 const getViewFromHash = (): ViewState => {
   if (typeof window === 'undefined') return 'home';
   const hash = window.location.hash.replace(/^#\/?/, '').trim();
+  if (hash.includes('type=recovery') || hash.includes('access_token')) {
+    return 'auth';
+  }
   if (VALID_VIEWS.includes(hash as ViewState)) {
     return hash as ViewState;
   }

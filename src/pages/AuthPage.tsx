@@ -261,7 +261,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
     const cleanOtp = otp.trim();
     const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanOtp || cleanOtp.length < 8) {
+    if (!cleanOtp || cleanOtp.length < 6) {
       setErrorMessage(t('errInvalidOtp'));
       return;
     }
@@ -645,7 +645,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate, redirectTo }) =>
                         id="reg-otp"
                         type="text"
                         inputMode="numeric"
-                        maxLength={8}
+                        maxLength={6}
                         required
                         autoFocus
                         value={otp}

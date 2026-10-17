@@ -161,7 +161,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             tabIndex={0}
             onClick={handleStartLearning}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleStartLearning()}
-            className="group cursor-pointer bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
             <div className="max-w-2xl text-center md:text-left">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">

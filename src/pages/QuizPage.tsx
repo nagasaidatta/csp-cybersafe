@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { ArrowLeft, CheckCircle2, XCircle, Award, AlertCircle, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, CheckCircle2, XCircle, Award, AlertCircle, RotateCcw, Trophy } from 'lucide-react';
 import { quizQuestions } from '../data/quizData';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import { ViewState } from '../types';
 
 interface QuizPageProps {
@@ -11,12 +13,76 @@ interface QuizPageProps {
 
 export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modules' }) => {
   const { t, strings } = useLanguage();
+  const { user } = useAuth();
 
   // Selected answers: questionId -> chosen index (0 or 1)
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
+  const [highestScore, setHighestScore] = useState<number | null>(null);
+  const [isNewHighScore, setIsNewHighScore] = useState<boolean>(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
+
+  // Load existing highest score for this user
+  const loadHighestScore = useCallback(async () => {
+    if (!user) return;
+
+    let currentHighest: number | null = null;
+
+    // 1. Check local storage first
+    try {
+      const stored = localStorage.getItem(`cyber_safe_quiz_score_${user.id}`);
+      if (stored !== null) {
+        const parsed = parseInt(stored, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          currentHighest = parsed;
+          setHighestScore(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2. Fetch from database if configured
+    if (isSupabaseConfigured) {
+      try {
+        // Check quiz_scores table
+        const { data: scoreData, error: scoreErr } = await supabase
+          .from('quiz_scores')
+          .select('highest_score')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!scoreErr && scoreData && typeof scoreData.highest_score === 'number') {
+          const dbScore = scoreData.highest_score;
+          const best = currentHighest !== null ? Math.max(currentHighest, dbScore) : dbScore;
+          setHighestScore(best);
+          localStorage.setItem(`cyber_safe_quiz_score_${user.id}`, String(best));
+          return;
+        }
+
+        // Fallback: check profiles table
+        const { data: profileData, error: profileErr } = await supabase
+          .from('profiles')
+          .select('highest_quiz_score')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!profileErr && profileData && typeof profileData.highest_quiz_score === 'number') {
+          const profileScore = profileData.highest_quiz_score;
+          const best = currentHighest !== null ? Math.max(currentHighest, profileScore) : profileScore;
+          setHighestScore(best);
+          localStorage.setItem(`cyber_safe_quiz_score_${user.id}`, String(best));
+        }
+      } catch (err) {
+        console.warn('Highest quiz score fetch note:', err);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadHighestScore();
+  }, [loadHighestScore]);
 
   const handleSelectOption = (questionId: number, optionIndex: number) => {
     if (submitted) return; // Do not alter answers after submit unless retaking
@@ -38,9 +104,56 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modu
       }
     });
 
+    const previousHighest = highestScore;
+    const isNew = previousHighest === null || calculatedScore > previousHighest;
+    const newHighest = previousHighest === null ? calculatedScore : Math.max(previousHighest, calculatedScore);
+
     setScore(calculatedScore);
+    setHighestScore(newHighest);
+    setIsNewHighScore(isNew);
     setSubmitted(true);
     setErrorNotice(null);
+
+    // Save locally
+    if (user?.id) {
+      try {
+        localStorage.setItem(`cyber_safe_quiz_score_${user.id}`, String(newHighest));
+        localStorage.setItem(`cyber_safe_quiz_last_score_${user.id}`, String(calculatedScore));
+      } catch {
+        // ignore
+      }
+
+      // Asynchronously sync to database
+      if (isSupabaseConfigured) {
+        const payload = {
+          user_id: user.id,
+          highest_score: newHighest,
+          last_score: calculatedScore,
+          total_questions: quizQuestions.length,
+          completed_at: new Date().toISOString(),
+        };
+
+        // Asynchronously sync to database
+        (async () => {
+          try {
+            // 1. Upsert into quiz_scores table
+            const { error: quizErr } = await supabase
+              .from('quiz_scores')
+              .upsert(payload, { onConflict: 'user_id' });
+            if (quizErr) console.warn('Quiz score table upsert note:', quizErr.message);
+
+            // 2. Also update profiles table column
+            const { error: profileErr } = await supabase
+              .from('profiles')
+              .update({ highest_quiz_score: newHighest })
+              .eq('id', user.id);
+            if (profileErr) console.warn('Profiles highest score update note:', profileErr.message);
+          } catch (syncErr) {
+            console.warn('Quiz score sync note:', syncErr);
+          }
+        })();
+      }
+    }
 
     // Scroll to results summary at top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -50,6 +163,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modu
     setSelectedAnswers({});
     setSubmitted(false);
     setScore(0);
+    setIsNewHighScore(false);
     setErrorNotice(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -68,9 +182,19 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modu
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          {t('quizTitle')}
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            {t('quizTitle')}
+          </h1>
+          {highestScore !== null && (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold shrink-0 shadow-2xs">
+              <Trophy className="w-3.5 h-3.5 text-amber-600" />
+              <span>
+                {t('quizHighestScore')}: <strong>{highestScore}/{quizQuestions.length}</strong>
+              </span>
+            </div>
+          )}
+        </div>
         <p className="mt-2 text-sm sm:text-base text-slate-600">
           {t('quizSubtitle')}
         </p>
@@ -91,9 +215,21 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modu
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                   {t('yourScore')}: {score}/{quizQuestions.length}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  {t('correctAnswers')}: <strong>{score}</strong> | {t('totalQuestions')}: <strong>{quizQuestions.length}</strong>
-                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                  <span>
+                    {t('correctAnswers')}: <strong>{score}</strong> | {t('totalQuestions')}: <strong>{quizQuestions.length}</strong>
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-slate-800">
+                    <Trophy className="w-3.5 h-3.5 text-amber-600" />
+                    <span>{t('quizHighestScore')}: {highestScore}/{quizQuestions.length}</span>
+                  </span>
+                  {isNewHighScore && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold animate-pulse">
+                      🎉 {t('quizNewHighestScore')}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 

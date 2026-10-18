@@ -8,8 +8,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
+  highest_quiz_score INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+-- Ensure column exists if table was previously created
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS highest_quiz_score INT DEFAULT 0;
 
 -- Enable RLS on 'profiles'
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -72,7 +76,41 @@ CREATE POLICY "Users can manage own module progress"
 CREATE INDEX IF NOT EXISTS idx_module_progress_user
   ON public.module_progress (user_id);
 
--- 3. Helper RPC to check if an email already exists in auth.users or profiles
+
+-- 3. Create 'quiz_scores' table
+CREATE TABLE IF NOT EXISTS public.quiz_scores (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  highest_score INT NOT NULL DEFAULT 0,
+  last_score INT NOT NULL DEFAULT 0,
+  total_questions INT NOT NULL DEFAULT 10,
+  completed_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Enable RLS on 'quiz_scores'
+ALTER TABLE public.quiz_scores ENABLE ROW LEVEL SECURITY;
+
+-- Quiz Scores RLS Policies
+DROP POLICY IF EXISTS "Users can manage own quiz score" ON public.quiz_scores;
+CREATE POLICY "Users can manage own quiz score"
+  ON public.quiz_scores
+  FOR ALL
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Authenticated users can view quiz scores" ON public.quiz_scores;
+CREATE POLICY "Authenticated users can view quiz scores"
+  ON public.quiz_scores
+  FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Optional: Performance Index on quiz_scores
+CREATE INDEX IF NOT EXISTS idx_quiz_scores_user
+  ON public.quiz_scores (user_id);
+
+
+-- 4. Helper RPC to check if an email already exists in auth.users or profiles
 CREATE OR REPLACE FUNCTION public.check_email_exists(check_email TEXT)
 RETURNS BOOLEAN
 LANGUAGE plpgsql

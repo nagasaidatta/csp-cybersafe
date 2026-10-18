@@ -5,6 +5,7 @@ export interface UserProfile {
   name: string;
   email: string;
   created_at?: string;
+  highest_quiz_score?: number | null;
 }
 
 export interface ModuleProgress {
@@ -45,12 +46,16 @@ export interface DashboardUser {
   percentage: number;
   isFullyCompleted: boolean;
   created_at?: string | null;
+  highestQuizScore?: number | null;
+  highestScore?: number | null;
 }
 
 export interface DashboardSummary {
   totalUsers: number;
   totalModules: number;
   fullyCompletedUsers: number;
+  quizzesAttempted?: number;
+  avgHighestScore?: number | null;
 }
 
 export interface DashboardData {

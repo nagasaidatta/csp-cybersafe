@@ -132,6 +132,50 @@ export default async function handler(req, res) {
       console.warn('Supabase module_progress query note:', progressError.message);
     }
 
+    // 4b. Query quiz scores from quiz_scores table
+    const userQuizScoreMap = new Map();
+    try {
+      const { data: quizRecords, error: quizError } = await supabase
+        .from('quiz_scores')
+        .select('user_id, highest_score');
+
+      if (!quizError && Array.isArray(quizRecords)) {
+        for (const row of quizRecords) {
+          if (row && row.user_id) {
+            const uid = String(row.user_id).toLowerCase().trim();
+            const score = parseInt(row.highest_score, 10);
+            if (!isNaN(score)) {
+              userQuizScoreMap.set(uid, score);
+            }
+          }
+        }
+      }
+    } catch (quizQueryErr) {
+      console.warn('Supabase quiz_scores query note:', quizQueryErr.message);
+    }
+
+    // 4c. Safely check if profiles table has highest_quiz_score column
+    try {
+      const { data: profileScores, error: pScoresError } = await supabase
+        .from('profiles')
+        .select('id, highest_quiz_score');
+
+      if (!pScoresError && Array.isArray(profileScores)) {
+        for (const row of profileScores) {
+          if (row && row.id && row.highest_quiz_score !== null && row.highest_quiz_score !== undefined) {
+            const uid = String(row.id).toLowerCase().trim();
+            const score = parseInt(row.highest_quiz_score, 10);
+            if (!isNaN(score)) {
+              const current = userQuizScoreMap.get(uid);
+              userQuizScoreMap.set(uid, current !== undefined ? Math.max(current, score) : score);
+            }
+          }
+        }
+      }
+    } catch {
+      // Column may not exist yet in profiles table
+    }
+
     // 5. Aggregate module completion records per user
     const userCompletedMap = new Map();
 
@@ -186,6 +230,23 @@ export default async function handler(req, res) {
             recordCompletion(rec.user_id, rec.module_id, rec.completed);
           }
         }
+
+        const { data: authUserQuiz } = await userClient
+          .from('quiz_scores')
+          .select('user_id, highest_score');
+
+        if (Array.isArray(authUserQuiz)) {
+          for (const rec of authUserQuiz) {
+            if (rec && rec.user_id) {
+              const uid = String(rec.user_id).toLowerCase().trim();
+              const score = parseInt(rec.highest_score, 10);
+              if (!isNaN(score)) {
+                const current = userQuizScoreMap.get(uid);
+                userQuizScoreMap.set(uid, current !== undefined ? Math.max(current, score) : score);
+              }
+            }
+          }
+        }
       } catch (authClientErr) {
         console.warn('User-authenticated client sync note:', authClientErr);
       }
@@ -216,12 +277,39 @@ export default async function handler(req, res) {
       }
     }
 
-    // 6. Map each profile and compute completion metrics
+    // 5d. Merge client-provided local storage quiz scores if available
+    let clientScoresHeader = req.headers['x-local-quiz-scores'];
+    if (!clientScoresHeader && req.body && req.body.clientQuizScores) {
+      clientScoresHeader = req.body.clientQuizScores;
+    }
+    if (clientScoresHeader) {
+      try {
+        const parsedScores = typeof clientScoresHeader === 'string'
+          ? JSON.parse(clientScoresHeader)
+          : clientScoresHeader;
+
+        if (parsedScores && typeof parsedScores === 'object') {
+          for (const [userId, scoreVal] of Object.entries(parsedScores)) {
+            const uid = String(userId).toLowerCase().trim();
+            const s = parseInt(scoreVal, 10);
+            if (!isNaN(s) && s >= 0) {
+              const current = userQuizScoreMap.get(uid);
+              userQuizScoreMap.set(uid, current !== undefined ? Math.max(current, s) : s);
+            }
+          }
+        }
+      } catch {
+        // ignore parse error
+      }
+    }
+
+    // 6. Map each profile and compute completion and quiz metrics
     const users = (profiles || []).map((p) => {
       const uid = String(p.id || '').toLowerCase().trim();
       const completedSet = userCompletedMap.get(uid) || new Set();
       const completedModules = Math.min(completedSet.size, TOTAL_MODULES);
       const percentage = Math.round((completedModules / TOTAL_MODULES) * 100);
+      const highestScore = userQuizScoreMap.has(uid) ? userQuizScoreMap.get(uid) : null;
 
       return {
         id: p.id,
@@ -231,6 +319,8 @@ export default async function handler(req, res) {
         totalModules: TOTAL_MODULES,
         percentage,
         isFullyCompleted: completedModules >= TOTAL_MODULES,
+        highestQuizScore: highestScore,
+        highestScore: highestScore,
         created_at: p.created_at || null
       };
     });
@@ -243,12 +333,19 @@ export default async function handler(req, res) {
     // 8. Calculate summary counts
     const totalUsers = users.length;
     const fullyCompletedUsers = users.filter((u) => u.completedModules >= TOTAL_MODULES).length;
+    const attemptedUsers = users.filter((u) => typeof u.highestQuizScore === 'number');
+    const quizzesAttempted = attemptedUsers.length;
+    const avgHighestScore = quizzesAttempted > 0
+      ? Number((attemptedUsers.reduce((sum, u) => sum + (u.highestQuizScore || 0), 0) / quizzesAttempted).toFixed(1))
+      : null;
 
     return res.status(200).json({
       summary: {
         totalUsers,
         totalModules: TOTAL_MODULES,
-        fullyCompletedUsers
+        fullyCompletedUsers,
+        quizzesAttempted,
+        avgHighestScore
       },
       users
     });

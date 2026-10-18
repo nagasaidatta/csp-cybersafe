@@ -282,6 +282,8 @@ export interface Translations {
   correctBadge: string;
   incorrectBadge: string;
   unattemptedBadge: string;
+  quizHighestScore: string;
+  quizNewHighestScore: string;
 
   // Quiz Questions & Options
   q1Question: string;
@@ -369,6 +371,11 @@ export interface Translations {
   adminTableName: string;
   adminTableEmail: string;
   adminTableProgress: string;
+  adminTableQuizScore: string;
+  adminQuizNotAttempted: string;
+  adminToggleScoreSort: string;
+  adminAvgQuizScore: string;
+  adminQuizzesAttempted: string;
   adminModulesCount: string;
   adminShowPassword: string;
   adminHidePassword: string;
@@ -667,6 +674,8 @@ export const translations: Record<Language, Translations> = {
     correctBadge: 'Correct',
     incorrectBadge: 'Incorrect',
     unattemptedBadge: 'Unanswered',
+    quizHighestScore: 'Highest Score',
+    quizNewHighestScore: 'New Highest Score!',
 
     q1Question: 'Someone asks for an OTP claiming to be SBI.',
     q1Opt1: 'Share OTP',
@@ -751,6 +760,11 @@ export const translations: Record<Language, Translations> = {
     adminTableName: 'Name',
     adminTableEmail: 'Email',
     adminTableProgress: 'Progress',
+    adminTableQuizScore: 'Highest Quiz Score',
+    adminQuizNotAttempted: 'Not Attempted',
+    adminToggleScoreSort: 'Toggle score sort',
+    adminAvgQuizScore: 'Avg Highest Score',
+    adminQuizzesAttempted: 'Quizzes Taken',
     adminModulesCount: '{completed} / {total} modules',
     adminShowPassword: 'Show password',
     adminHidePassword: 'Hide password',
@@ -1048,6 +1062,8 @@ export const translations: Record<Language, Translations> = {
     correctBadge: 'సరైనది',
     incorrectBadge: 'తప్పు',
     unattemptedBadge: 'సమాధానం ఇవ్వలేదు',
+    quizHighestScore: 'అత్యధిక స్కోరు',
+    quizNewHighestScore: 'కొత్త అత్యధిక స్కోరు!',
 
     q1Question: 'SBI ప్రతినిధి అని చెప్పుకుంటూ ఎవరైనా OTP అడిగితే మీరు ఏమి చేయాలి?',
     q1Opt1: 'OTP చెప్పాలి',
@@ -1132,6 +1148,11 @@ export const translations: Record<Language, Translations> = {
     adminTableName: 'పేరు',
     adminTableEmail: 'ఇమెయిల్',
     adminTableProgress: 'పురోగతి',
+    adminTableQuizScore: 'అత్యధిక క్విజ్ స్కోరు',
+    adminQuizNotAttempted: 'రాయలేదు',
+    adminToggleScoreSort: 'స్కోరు క్రమబద్ధీకరణను మార్చండి',
+    adminAvgQuizScore: 'సగటు అత్యధిక స్కోరు',
+    adminQuizzesAttempted: 'పూర్తయిన క్విజ్‌లు',
     adminModulesCount: '{completed} / {total} మాడ్యూల్స్',
     adminShowPassword: 'పాస్‌వర్డ్ చూపించు',
     adminHidePassword: 'పాస్‌వర్డ్ దాచండి',
@@ -1429,6 +1450,8 @@ export const translations: Record<Language, Translations> = {
     correctBadge: 'सही',
     incorrectBadge: 'गलत',
     unattemptedBadge: 'उत्तर नहीं दिया',
+    quizHighestScore: 'उच्चतम स्कोर',
+    quizNewHighestScore: 'नया उच्चतम स्कोर!',
 
     q1Question: 'एसबीआई से होने का दावा करते हुए कोई आपसे ओटीपी मांगता है तो आप क्या करेंगे?',
     q1Opt1: 'ओटीपी साझा करें',
@@ -1513,6 +1536,11 @@ export const translations: Record<Language, Translations> = {
     adminTableName: 'नाम',
     adminTableEmail: 'ईमेल',
     adminTableProgress: 'प्रगति',
+    adminTableQuizScore: 'उच्चतम प्रश्नोत्तरी स्कोर',
+    adminQuizNotAttempted: 'प्रयास नहीं किया',
+    adminToggleScoreSort: 'स्कोर क्रम बदलें',
+    adminAvgQuizScore: 'औसत उच्चतम स्कोर',
+    adminQuizzesAttempted: 'प्रश्नोत्तरी पूर्ण',
     adminModulesCount: '{completed} / {total} मॉड्यूल',
     adminShowPassword: 'पासवर्ड दिखाएं',
     adminHidePassword: 'पासवर्ड छुपाएं',

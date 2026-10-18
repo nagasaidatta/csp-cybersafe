@@ -12,7 +12,8 @@ import {
   User,
   Mail,
   ArrowLeft,
-  Globe
+  Globe,
+  Trophy
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
@@ -61,6 +62,93 @@ function getAllLocalProgress(): Record<string, number[]> {
   return map;
 }
 
+/**
+ * Scans localStorage for all saved learner quiz score records.
+ */
+function getAllLocalQuizScores(): Record<string, number> {
+  const map: Record<string, number> = {};
+  if (typeof window === 'undefined') return map;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('cyber_safe_quiz_score_')) {
+        const userId = key.replace('cyber_safe_quiz_score_', '').toLowerCase().trim();
+        const raw = localStorage.getItem(key);
+        if (raw !== null) {
+          const score = parseInt(raw, 10);
+          if (!isNaN(score) && score >= 0) {
+            map[userId] = score;
+          }
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return map;
+}
+
+/**
+ * Merges server data with client-side localStorage progress and quiz scores.
+ */
+function mergeDashboardData(
+  result: DashboardData,
+  localProgress: Record<string, number[]>,
+  localQuizScores: Record<string, number>
+): DashboardData {
+  if (!result || !Array.isArray(result.users)) {
+    return result;
+  }
+
+  const mergedUsers = result.users.map((u) => {
+    const uid = String(u.id || '').toLowerCase().trim();
+    const localModules = localProgress[uid] || [];
+    const count = Math.max(u.completedModules, localModules.length);
+    const total = u.totalModules || 4;
+    const percentage = Math.round((count / total) * 100);
+
+    const localScore = localQuizScores[uid];
+    const serverScore = typeof u.highestQuizScore === 'number'
+      ? u.highestQuizScore
+      : typeof u.highestScore === 'number'
+      ? u.highestScore
+      : null;
+
+    let resolvedScore: number | null = serverScore;
+    if (typeof localScore === 'number' && localScore >= 0) {
+      resolvedScore = resolvedScore !== null ? Math.max(resolvedScore, localScore) : localScore;
+    }
+
+    return {
+      ...u,
+      completedModules: count,
+      percentage,
+      isFullyCompleted: count >= total,
+      highestQuizScore: resolvedScore,
+      highestScore: resolvedScore,
+    };
+  });
+
+  const totalUsers = mergedUsers.length;
+  const fullyCompletedUsers = mergedUsers.filter((u) => u.completedModules >= 4).length;
+  const attemptedUsers = mergedUsers.filter((u) => typeof u.highestQuizScore === 'number');
+  const quizzesAttempted = attemptedUsers.length;
+  const avgHighestScore = quizzesAttempted > 0
+    ? Number((attemptedUsers.reduce((sum, u) => sum + (u.highestQuizScore || 0), 0) / quizzesAttempted).toFixed(1))
+    : null;
+
+  return {
+    summary: {
+      totalUsers,
+      totalModules: 4,
+      fullyCompletedUsers,
+      quizzesAttempted,
+      avgHighestScore,
+    },
+    users: mergedUsers,
+  };
+}
+
 const languages: { code: Language; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'te', label: 'తెలుగు' },
@@ -99,6 +187,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'in-progress' | 'not-started'>('all');
+  const [sortField, setSortField] = useState<'name' | 'score'>('name');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
 
   // Fetch dashboard data with admin credentials
@@ -107,8 +196,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     setFetchError(null);
 
     try {
-      // 1. Gather any client-side cached progress to ensure accurate counts
+      // 1. Gather any client-side cached progress and quiz scores to ensure accurate counts
       const localProgress = getAllLocalProgress();
+      const localQuizScores = getAllLocalQuizScores();
 
       // 2. Get active Supabase auth session token if available
       let userToken: string | undefined;
@@ -123,7 +213,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${password}`,
         'x-admin-id': adminId,
-        'x-local-progress': JSON.stringify(localProgress)
+        'x-local-progress': JSON.stringify(localProgress),
+        'x-local-quiz-scores': JSON.stringify(localQuizScores)
       };
 
       if (userToken) {
@@ -148,37 +239,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
       const result: DashboardData = await response.json();
 
-      // 3. Client-side merge guarantee: Ensure any progress saved in localStorage is reflected
-      if (result && Array.isArray(result.users)) {
-        const mergedUsers = result.users.map((u) => {
-          const uid = String(u.id || '').toLowerCase().trim();
-          const localModules = localProgress[uid] || [];
-          const count = Math.max(u.completedModules, localModules.length);
-          const total = u.totalModules || 4;
-          const percentage = Math.round((count / total) * 100);
-
-          return {
-            ...u,
-            completedModules: count,
-            percentage,
-            isFullyCompleted: count >= total
-          };
-        });
-
-        const totalUsers = mergedUsers.length;
-        const fullyCompletedUsers = mergedUsers.filter((u) => u.completedModules >= 4).length;
-
-        setData({
-          summary: {
-            totalUsers,
-            totalModules: 4,
-            fullyCompletedUsers
-          },
-          users: mergedUsers
-        });
-      } else {
-        setData(result);
-      }
+      // 3. Client-side merge guarantee: Ensure any progress and scores saved in localStorage are reflected
+      setData(mergeDashboardData(result, localProgress, localQuizScores));
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
       setFetchError(err.message || 'Unable to connect to the dashboard API. Please try again.');
@@ -226,13 +288,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
     try {
       const localProgress = getAllLocalProgress();
+      const localQuizScores = getAllLocalQuizScores();
       const response = await fetch('/api/dashboard-progress', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${cleanPassword}`,
           'x-admin-id': cleanId,
-          'x-local-progress': JSON.stringify(localProgress)
+          'x-local-progress': JSON.stringify(localProgress),
+          'x-local-quiz-scores': JSON.stringify(localQuizScores)
         }
       });
 
@@ -248,37 +312,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
       const result: DashboardData = await response.json();
 
-      // Merge local progress if needed
-      if (result && Array.isArray(result.users)) {
-        const mergedUsers = result.users.map((u) => {
-          const uid = String(u.id || '').toLowerCase().trim();
-          const localModules = localProgress[uid] || [];
-          const count = Math.max(u.completedModules, localModules.length);
-          const total = u.totalModules || 4;
-          const percentage = Math.round((count / total) * 100);
-
-          return {
-            ...u,
-            completedModules: count,
-            percentage,
-            isFullyCompleted: count >= total
-          };
-        });
-
-        const totalUsers = mergedUsers.length;
-        const fullyCompletedUsers = mergedUsers.filter((u) => u.completedModules >= 4).length;
-
-        setData({
-          summary: {
-            totalUsers,
-            totalModules: 4,
-            fullyCompletedUsers
-          },
-          users: mergedUsers
-        });
-      } else {
-        setData(result);
-      }
+      // Merge local progress and scores if needed
+      setData(mergeDashboardData(result, localProgress, localQuizScores));
 
       // Persist in sessionStorage for current browser session
       const authPayload: StoredAuth = { adminId: cleanId, password: cleanPassword };
@@ -349,14 +384,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       );
     }
 
-    // Alphabetical sort by name
+    // Sort by name or highest quiz score
     result.sort((a, b) => {
+      if (sortField === 'score') {
+        const scoreA = typeof a.highestQuizScore === 'number' ? a.highestQuizScore : -1;
+        const scoreB = typeof b.highestQuizScore === 'number' ? b.highestQuizScore : -1;
+        if (scoreA !== scoreB) {
+          return sortAsc ? scoreA - scoreB : scoreB - scoreA;
+        }
+      }
       const cmp = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
       return sortAsc ? cmp : -cmp;
     });
 
     return result;
-  }, [data, statusFilter, searchQuery, sortAsc]);
+  }, [data, statusFilter, searchQuery, sortField, sortAsc]);
 
   // =========================================================================
   // 1. ADMIN LOGIN VIEW (Minimal and clean)
@@ -498,10 +540,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   // 2. ADMIN DASHBOARD VIEW (Minimal and clean)
   // =========================================================================
   const summary = data?.summary || { totalUsers: 0, totalModules: 4, fullyCompletedUsers: 0 };
-  const completionRate =
-    summary.totalUsers > 0
-      ? Math.round((summary.fullyCompletedUsers / summary.totalUsers) * 100)
-      : 0;
 
   return (
     <div className="py-8 sm:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -601,28 +639,27 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Card 2: Total Modules */}
+          {/* Card 2: Fully Completed Users */}
           <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              {t('adminTotalModules')}
+              {t('adminFullyCompletedUsers')}
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-              4
+              {loading && !data ? '—' : summary.fullyCompletedUsers}
             </div>
           </div>
 
-          {/* Card 3: Fully Completed Users */}
+          {/* Card 3: Avg Highest Quiz Score */}
           <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                {t('adminFullyCompletedUsers')}
-              </span>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/80">
-                {completionRate}%
-              </span>
-            </div>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+              {t('adminAvgQuizScore')}
+            </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-              {loading && !data ? '—' : summary.fullyCompletedUsers}
+              {loading && !data
+                ? '—'
+                : summary.avgHighestScore !== null && summary.avgHighestScore !== undefined
+                ? `${summary.avgHighestScore} / 10`
+                : '—'}
             </div>
           </div>
         </div>
@@ -734,23 +771,56 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                     <th scope="col" className="py-3 px-4 sm:px-6">
                       <button
                         type="button"
-                        onClick={() => setSortAsc(!sortAsc)}
+                        onClick={() => {
+                          if (sortField === 'name') {
+                            setSortAsc(!sortAsc);
+                          } else {
+                            setSortField('name');
+                            setSortAsc(true);
+                          }
+                        }}
                         className="inline-flex items-center gap-1 hover:text-blue-700 transition-colors focus:outline-none"
                         title={t('adminToggleSort')}
                       >
                         <span>{t('adminTableName')}</span>
-                        {sortAsc ? (
-                          <ArrowUp className="w-3 h-3 text-blue-600" />
-                        ) : (
-                          <ArrowDown className="w-3 h-3 text-blue-600" />
+                        {sortField === 'name' && (
+                          sortAsc ? (
+                            <ArrowUp className="w-3 h-3 text-blue-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-blue-600" />
+                          )
                         )}
                       </button>
                     </th>
                     <th scope="col" className="py-3 px-4 sm:px-6">
                       {t('adminTableEmail')}
                     </th>
-                    <th scope="col" className="py-3 px-4 sm:px-6 min-w-[200px]">
+                    <th scope="col" className="py-3 px-4 sm:px-6 min-w-[180px]">
                       {t('adminTableProgress')}
+                    </th>
+                    <th scope="col" className="py-3 px-4 sm:px-6 min-w-[160px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (sortField === 'score') {
+                            setSortAsc(!sortAsc);
+                          } else {
+                            setSortField('score');
+                            setSortAsc(false);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 hover:text-blue-700 transition-colors focus:outline-none"
+                        title={t('adminToggleScoreSort')}
+                      >
+                        <span>{t('adminTableQuizScore')}</span>
+                        {sortField === 'score' && (
+                          sortAsc ? (
+                            <ArrowUp className="w-3 h-3 text-blue-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-blue-600" />
+                          )
+                        )}
+                      </button>
                     </th>
                   </tr>
                 </thead>
@@ -821,6 +891,36 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                               />
                             </div>
                           </div>
+                        </td>
+
+                        {/* Highest Quiz Score Column */}
+                        <td className="py-3.5 px-4 sm:px-6">
+                          {typeof item.highestQuizScore === 'number' ? (
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+                              <Trophy
+                                className={`w-3.5 h-3.5 shrink-0 ${
+                                  item.highestQuizScore >= 8
+                                    ? 'text-amber-500'
+                                    : item.highestQuizScore >= 5
+                                    ? 'text-blue-500'
+                                    : 'text-slate-400'
+                                }`}
+                              />
+                              <span
+                                className={`${
+                                  item.highestQuizScore >= 8
+                                    ? 'text-emerald-700 font-bold'
+                                    : item.highestQuizScore >= 5
+                                    ? 'text-blue-700 font-bold'
+                                    : 'text-slate-700'
+                                }`}
+                              >
+                                {item.highestQuizScore} / 10
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-xs font-medium">—</span>
+                          )}
                         </td>
                       </tr>
                     );

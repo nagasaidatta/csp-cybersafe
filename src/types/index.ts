@@ -47,6 +47,7 @@ export interface DashboardUser {
   percentage: number;
   isFullyCompleted: boolean;
   created_at?: string | null;
+  avatar_id?: string | null;
   highestQuizScore?: number | null;
   highestScore?: number | null;
 }

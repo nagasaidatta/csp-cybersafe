@@ -372,6 +372,7 @@ export interface Translations {
   adminTableEmail: string;
   adminTableProgress: string;
   adminTableQuizScore: string;
+  adminTableSince: string;
   adminQuizNotAttempted: string;
   adminToggleScoreSort: string;
   adminAvgQuizScore: string;
@@ -828,6 +829,7 @@ export const translations: Record<Language, Translations> = {
     adminTableEmail: 'Email',
     adminTableProgress: 'Progress',
     adminTableQuizScore: 'Highest Quiz Score',
+    adminTableSince: 'Member Since',
     adminQuizNotAttempted: 'Not Attempted',
     adminToggleScoreSort: 'Toggle score sort',
     adminAvgQuizScore: 'Avg Highest Score',
@@ -1283,6 +1285,7 @@ export const translations: Record<Language, Translations> = {
     adminTableEmail: 'ఇమెయిల్',
     adminTableProgress: 'పురోగతి',
     adminTableQuizScore: 'అత్యధిక క్విజ్ స్కోరు',
+    adminTableSince: 'చేరిన తేదీ',
     adminQuizNotAttempted: 'రాయలేదు',
     adminToggleScoreSort: 'స్కోరు క్రమబద్ధీకరణను మార్చండి',
     adminAvgQuizScore: 'సగటు అత్యధిక స్కోరు',
@@ -1738,6 +1741,7 @@ export const translations: Record<Language, Translations> = {
     adminTableEmail: 'ईमेल',
     adminTableProgress: 'प्रगति',
     adminTableQuizScore: 'उच्चतम प्रश्नोत्तरी स्कोर',
+    adminTableSince: 'सदस्य बने',
     adminQuizNotAttempted: 'प्रयास नहीं किया',
     adminToggleScoreSort: 'स्कोर क्रम बदलें',
     adminAvgQuizScore: 'औसत उच्चतम स्कोर',

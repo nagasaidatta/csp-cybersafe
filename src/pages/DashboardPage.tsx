@@ -13,10 +13,12 @@ import {
   Mail,
   ArrowLeft,
   Globe,
-  Trophy
+  Trophy,
+  Calendar
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
+import { Avatar } from '../components/Avatar';
 import { ViewState, DashboardData, Language } from '../types';
 
 interface DashboardPageProps {
@@ -121,6 +123,8 @@ function mergeDashboardData(
 
     return {
       ...u,
+      avatar_id: u.avatar_id || 'avatar-1',
+      created_at: u.created_at || null,
       completedModules: count,
       percentage,
       isFullyCompleted: count >= total,
@@ -187,7 +191,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'in-progress' | 'not-started'>('all');
-  const [sortField, setSortField] = useState<'name' | 'score'>('name');
+  const [sortField, setSortField] = useState<'name' | 'score' | 'created_at'>('name');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
 
   // Fetch dashboard data with admin credentials
@@ -384,13 +388,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       );
     }
 
-    // Sort by name or highest quiz score
+    // Sort by name or highest quiz score or created_at
     result.sort((a, b) => {
       if (sortField === 'score') {
         const scoreA = typeof a.highestQuizScore === 'number' ? a.highestQuizScore : -1;
         const scoreB = typeof b.highestQuizScore === 'number' ? b.highestQuizScore : -1;
         if (scoreA !== scoreB) {
           return sortAsc ? scoreA - scoreB : scoreB - scoreA;
+        }
+      } else if (sortField === 'created_at') {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        if (timeA !== timeB) {
+          return sortAsc ? timeA - timeB : timeB - timeA;
         }
       }
       const cmp = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
@@ -822,6 +832,30 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                         )}
                       </button>
                     </th>
+                    <th scope="col" className="py-3 px-4 sm:px-6 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (sortField === 'created_at') {
+                            setSortAsc(!sortAsc);
+                          } else {
+                            setSortField('created_at');
+                            setSortAsc(false);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 hover:text-blue-700 transition-colors focus:outline-none"
+                        title={t('adminToggleSort')}
+                      >
+                        <span>{t('adminTableSince')}</span>
+                        {sortField === 'created_at' && (
+                          sortAsc ? (
+                            <ArrowUp className="w-3 h-3 text-blue-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-blue-600" />
+                          )
+                        )}
+                      </button>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -831,13 +865,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                        {/* Name Column */}
+                        {/* Name Column with Avatar */}
                         <td className="py-3.5 px-4 sm:px-6 font-semibold text-slate-900">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 border border-slate-200">
-                              {item.name.charAt(0).toUpperCase() || 'U'}
+                          <div className="flex items-center gap-3">
+                            <Avatar
+                              avatarId={item.avatar_id}
+                              size="sm"
+                              className="w-8 h-8 rounded-full shrink-0 ring-1 ring-slate-200 shadow-2xs"
+                            />
+                            <div className="min-w-0">
+                              <span className="truncate block font-semibold text-slate-900">{item.name}</span>
+                              {item.created_at && (
+                                <span className="sm:hidden text-[11px] font-normal text-slate-400 flex items-center gap-1 mt-0.5">
+                                  <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                                  <span>{new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
+                                </span>
+                              )}
                             </div>
-                            <span className="truncate">{item.name}</span>
                           </div>
                         </td>
 
@@ -916,6 +960,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                                 }`}
                               >
                                 {item.highestQuizScore} / 10
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-xs font-medium">—</span>
+                          )}
+                        </td>
+
+                        {/* Member Since Column */}
+                        <td className="py-3.5 px-4 sm:px-6 whitespace-nowrap text-slate-600">
+                          {item.created_at ? (
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>
+                                {new Date(item.created_at).toLocaleDateString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
                               </span>
                             </div>
                           ) : (

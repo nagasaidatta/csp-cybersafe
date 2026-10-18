@@ -111,9 +111,22 @@ export default async function handler(req, res) {
     });
 
     // 3. Query all profiles (every row in the profiles table)
-    const { data: profiles, error: profilesError } = await supabase
+    let profiles = null;
+    let profilesError = null;
+
+    const resWithAvatar = await supabase
       .from('profiles')
-      .select('id, name, email, created_at');
+      .select('id, name, email, created_at, avatar_id');
+
+    if (resWithAvatar.error) {
+      const resFallback = await supabase
+        .from('profiles')
+        .select('id, name, email, created_at');
+      profiles = resFallback.data;
+      profilesError = resFallback.error;
+    } else {
+      profiles = resWithAvatar.data;
+    }
 
     if (profilesError) {
       console.error('Supabase profiles query error:', profilesError);
@@ -315,6 +328,7 @@ export default async function handler(req, res) {
         id: p.id,
         name: (p.name || '').trim() || 'Unnamed User',
         email: (p.email || '').trim() || 'No email',
+        avatar_id: p.avatar_id || 'avatar-1',
         completedModules,
         totalModules: TOTAL_MODULES,
         percentage,

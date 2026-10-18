@@ -7,7 +7,8 @@ import {
   Link2,
   MessageSquareWarning,
   KeyRound,
-  GraduationCap
+  GraduationCap,
+  HelpCircle
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +27,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       onNavigate('modules');
     } else {
       onNavigate('auth', 'modules');
+    }
+  };
+
+  const handleTakeQuiz = () => {
+    if (user) {
+      onNavigate('quiz');
+    } else {
+      onNavigate('auth', 'quiz');
     }
   };
 
@@ -153,40 +162,81 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </section>
 
         {/* ========================================================= */}
-        {/* 3. SECONDARY ACTION: INTERACTIVE LEARNING MODULES         */}
+        {/* 3. EDUCATION & ASSESSMENT ACTIONS                         */}
         {/* ========================================================= */}
-        <section aria-labelledby="modules-banner-heading">
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={handleStartLearning}
-            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleStartLearning()}
-            className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-          >
-            <div className="max-w-2xl text-center md:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
-                <GraduationCap className="w-3.5 h-3.5" />
-                {t('navModules')}
-              </span>
-              <h2 id="modules-banner-heading" className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
-                {t('homeModulesBannerTitle')}
-              </h2>
-              <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
-                {t('homeModulesBannerDesc')}
-              </p>
+        <section aria-label="Learning and Assessment">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            {/* Card 1: Interactive Learning Modules */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={handleStartLearning}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleStartLearning()}
+              className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  {t('navModules')}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                  {t('homeModulesBannerTitle')}
+                </h2>
+                <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {t('homeModulesBannerDesc')}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartLearning();
+                  }}
+                  className="animate-click-me w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                >
+                  <span>{t('startLearning')}</span>
+                  <ArrowRight className="w-4 h-4 animate-arrow-nudge" />
+                </button>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleStartLearning();
-              }}
-              className="animate-click-me shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm sm:text-base font-bold text-slate-900 bg-white hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            {/* Card 2: Cybersecurity Awareness Quiz */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={handleTakeQuiz}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTakeQuiz()}
+              className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
-              <span>{t('startLearning')}</span>
-              <ArrowRight className="w-4 h-4 animate-arrow-nudge" />
-            </button>
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  {t('footerQuizAssessment')}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                  {t('quizTitle')}
+                </h2>
+                <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {t('quizSubtitle')}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTakeQuiz();
+                  }}
+                  className="animate-click-me w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 active:scale-95 rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                >
+                  <span>{t('btnTakeQuiz')}</span>
+                  <ArrowRight className="w-4 h-4 animate-arrow-nudge" />
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 

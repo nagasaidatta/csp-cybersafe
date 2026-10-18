@@ -6,9 +6,10 @@ import { ViewState } from '../types';
 
 interface QuizPageProps {
   onNavigate: (view: ViewState) => void;
+  returnTo?: 'home' | 'modules';
 }
 
-export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate }) => {
+export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modules' }) => {
   const { t, strings } = useLanguage();
 
   // Selected answers: questionId -> chosen index (0 or 1)
@@ -58,11 +59,11 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate }) => {
       {/* Back button */}
       <button
         type="button"
-        onClick={() => onNavigate('modules')}
+        onClick={() => onNavigate(returnTo)}
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>{t('btnBackToModules')}</span>
+        <span>{returnTo === 'home' ? t('btnBackToHome') : t('btnBackToModules')}</span>
       </button>
 
       {/* Header */}
@@ -107,10 +108,10 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate }) => {
               </button>
               <button
                 type="button"
-                onClick={() => onNavigate('modules')}
+                onClick={() => onNavigate(returnTo)}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow-xs hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-all"
               >
-                <span>{t('btnBackToModules')}</span>
+                <span>{returnTo === 'home' ? t('btnBackToHome') : t('btnBackToModules')}</span>
               </button>
             </div>
           </div>

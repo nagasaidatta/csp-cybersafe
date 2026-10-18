@@ -16,6 +16,9 @@ export default {
           800: '#172554',
           900: '#0f172a'
         }
+      },
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],
       }
     },
   },

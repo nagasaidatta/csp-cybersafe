@@ -10,6 +10,7 @@ import { QuizPage } from './pages/QuizPage';
 import { LinkSafetyPage } from './pages/LinkSafetyPage';
 import { MessageSafetyPage } from './pages/MessageSafetyPage';
 import { PasswordCheckerPage } from './pages/PasswordCheckerPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { ViewState } from './types';
 
 const VALID_VIEWS: ViewState[] = [
@@ -19,7 +20,8 @@ const VALID_VIEWS: ViewState[] = [
   'quiz',
   'link-safety',
   'message-safety',
-  'password-checker'
+  'password-checker',
+  'dashboard'
 ];
 
 const getViewFromHash = (): ViewState => {
@@ -60,6 +62,28 @@ const storeRedirect = (view: ViewState | null) => {
   }
 };
 
+const QUIZ_ORIGIN_STORAGE_KEY = 'csp_quiz_origin';
+
+const getStoredQuizOrigin = (): 'home' | 'modules' => {
+  if (typeof window === 'undefined') return 'home';
+  try {
+    const val = sessionStorage.getItem(QUIZ_ORIGIN_STORAGE_KEY);
+    if (val === 'home' || val === 'modules') return val;
+  } catch {
+    // ignore
+  }
+  return 'home';
+};
+
+const storeQuizOrigin = (origin: 'home' | 'modules') => {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(QUIZ_ORIGIN_STORAGE_KEY, origin);
+  } catch {
+    // ignore
+  }
+};
+
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
 
@@ -67,6 +91,7 @@ const AppContent: React.FC = () => {
   const [historyStack, setHistoryStack] = useState<ViewState[]>(() => [getViewFromHash()]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
   const [redirectAfterAuth, setRedirectAfterAuth] = useState<ViewState | null>(() => getStoredRedirect());
+  const [quizOrigin, setQuizOrigin] = useState<'home' | 'modules'>(() => getStoredQuizOrigin());
 
   const updateRedirectAfterAuth = (view: ViewState | null) => {
     setRedirectAfterAuth(view);
@@ -108,14 +133,39 @@ const AppContent: React.FC = () => {
       } else {
         setHistoryIndex((prev) => Math.max(0, prev - 1));
       }
+
+      // Track origin if navigating back/forward into quiz
+      if (targetView === 'quiz' && targetIndex !== undefined && targetIndex > 0) {
+        const prev = historyStack[targetIndex - 1];
+        if (prev === 'modules' || prev === 'home') {
+          setQuizOrigin(prev);
+          storeQuizOrigin(prev);
+        }
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [user, loading]);
+  }, [user, loading, historyStack]);
 
   const handleNavigate = (view: ViewState, redirectTo?: ViewState) => {
+    // Track origin for Quiz page (from home vs from modules)
+    if (view === 'quiz') {
+      if (currentView === 'modules') {
+        setQuizOrigin('modules');
+        storeQuizOrigin('modules');
+      } else if (currentView === 'home') {
+        setQuizOrigin('home');
+        storeQuizOrigin('home');
+      }
+    } else if (view === 'auth' && redirectTo === 'quiz') {
+      const origin: 'home' | 'modules' = currentView === 'modules' ? 'modules' : 'home';
+      setQuizOrigin(origin);
+      storeQuizOrigin(origin);
+    }
+
     let targetView = view;
     // Protected views require login
     if ((targetView === 'modules' || targetView === 'quiz') && !user && !loading) {
@@ -177,11 +227,12 @@ const AppContent: React.FC = () => {
           user ? <ModulesPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'modules'} />
         )}
         {currentView === 'quiz' && (
-          user ? <QuizPage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'quiz'} />
+          user ? <QuizPage onNavigate={handleNavigate} returnTo={quizOrigin} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'quiz'} />
         )}
         {currentView === 'link-safety' && <LinkSafetyPage onNavigate={handleNavigate} />}
         {currentView === 'message-safety' && <MessageSafetyPage onNavigate={handleNavigate} />}
         {currentView === 'password-checker' && <PasswordCheckerPage onNavigate={handleNavigate} />}
+        {currentView === 'dashboard' && <DashboardPage onNavigate={handleNavigate} />}
       </main>
 
 

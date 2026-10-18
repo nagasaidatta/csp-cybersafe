@@ -11,6 +11,7 @@ export interface Translations {
   navMessageSafety: string;
   navPasswordChecker: string;
   navModules: string;
+  navDashboard: string;
   btnBack: string;
   btnForward: string;
 
@@ -269,6 +270,7 @@ export interface Translations {
   btnSubmitQuiz: string;
   btnRetakeQuiz: string;
   btnBackToModules: string;
+  btnBackToHome: string;
   yourScore: string;
   correctAnswers: string;
   totalQuestions: string;
@@ -326,6 +328,51 @@ export interface Translations {
   footerNotice: string;
   helplineNotice: string;
   nationalPortal: string;
+  footerMission: string;
+  footerSecurityTools: string;
+  footerLearningPlatform: string;
+  footerQuizAssessment: string;
+  footerAdminDashboard: string;
+  footerEmergencySupport: string;
+  footerHelplineTitle: string;
+  footerHelplineDesc: string;
+  footerCopyrightNotice: string;
+
+  // Admin / Dashboard
+  adminLoginTitle: string;
+  adminIdLabel: string;
+  adminPasswordLabel: string;
+  adminSignInBtn: string;
+  adminVerifying: string;
+  adminLoginErrorRequired: string;
+  adminLoginErrorInvalid: string;
+  adminLoginErrorSessionExpired: string;
+  adminLoginErrorGeneric: string;
+  adminDashboardTitle: string;
+  adminRefreshBtn: string;
+  adminLogoutBtn: string;
+  adminRetryBtn: string;
+  adminTotalUsers: string;
+  adminTotalModules: string;
+  adminFullyCompletedUsers: string;
+  adminSummaryHeading: string;
+  adminRegisteredUsers: string;
+  adminSearchPlaceholder: string;
+  adminFilterAll: string;
+  adminFilterCompleted: string;
+  adminFilterInProgress: string;
+  adminFilterNotStarted: string;
+  adminLoadingUsers: string;
+  adminNoUsers: string;
+  adminNoMatchingUsers: string;
+  adminClearSearch: string;
+  adminTableName: string;
+  adminTableEmail: string;
+  adminTableProgress: string;
+  adminModulesCount: string;
+  adminShowPassword: string;
+  adminHidePassword: string;
+  adminToggleSort: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -339,6 +386,7 @@ export const translations: Record<Language, Translations> = {
     navMessageSafety: 'Message Safety',
     navPasswordChecker: 'Password Checker',
     navModules: 'Modules',
+    navDashboard: 'Dashboard',
     btnBack: 'Go back to previous page',
     btnForward: 'Go forward to next page',
 
@@ -607,6 +655,7 @@ export const translations: Record<Language, Translations> = {
     btnSubmitQuiz: 'Submit Quiz',
     btnRetakeQuiz: 'Retake Quiz',
     btnBackToModules: 'Back to Modules',
+    btnBackToHome: 'Back to Home',
     yourScore: 'Your Score',
     correctAnswers: 'Correct Answers',
     totalQuestions: 'Total Questions',
@@ -661,7 +710,51 @@ export const translations: Record<Language, Translations> = {
 
     footerNotice: 'Public Cybersecurity Awareness Portal. In case of cyber fraud, report immediately to 1930.',
     helplineNotice: 'National Cyber Crime Reporting Helpline',
-    nationalPortal: 'cybercrime.gov.in'
+    nationalPortal: 'cybercrime.gov.in',
+    footerMission: 'Public awareness portal empowering citizens with actionable cybersecurity education and real-time scam verification tools.',
+    footerSecurityTools: 'Security Tools',
+    footerLearningPlatform: 'Learning & Platform',
+    footerQuizAssessment: 'Quiz & Assessment',
+    footerAdminDashboard: 'Admin Dashboard',
+    footerEmergencySupport: 'Emergency Support',
+    footerHelplineTitle: '1930 Helpline',
+    footerHelplineDesc: 'Toll-free 24x7 reporting',
+    footerCopyrightNotice: 'Non-commercial public cybersecurity awareness initiative.',
+
+    adminLoginTitle: 'Admin Login',
+    adminIdLabel: 'Admin ID',
+    adminPasswordLabel: 'Password',
+    adminSignInBtn: 'Sign In',
+    adminVerifying: 'Verifying...',
+    adminLoginErrorRequired: 'Please enter both Admin ID and Password.',
+    adminLoginErrorInvalid: 'Invalid Admin ID or Password. Please try again.',
+    adminLoginErrorSessionExpired: 'Admin session expired or invalid credentials. Please log in again.',
+    adminLoginErrorGeneric: 'An error occurred while signing in. Please try again.',
+    adminDashboardTitle: 'Admin Dashboard',
+    adminRefreshBtn: 'Refresh',
+    adminLogoutBtn: 'Logout',
+    adminRetryBtn: 'Retry',
+    adminTotalUsers: 'Total Users',
+    adminTotalModules: 'Total Modules',
+    adminFullyCompletedUsers: 'Fully Completed Users',
+    adminSummaryHeading: 'Summary',
+    adminRegisteredUsers: 'Registered Users',
+    adminSearchPlaceholder: 'Search name or email...',
+    adminFilterAll: 'All',
+    adminFilterCompleted: 'Completed',
+    adminFilterInProgress: 'In Progress',
+    adminFilterNotStarted: 'Not Started',
+    adminLoadingUsers: 'Loading user progress records...',
+    adminNoUsers: 'No registered users found',
+    adminNoMatchingUsers: 'No matching users',
+    adminClearSearch: 'Clear search',
+    adminTableName: 'Name',
+    adminTableEmail: 'Email',
+    adminTableProgress: 'Progress',
+    adminModulesCount: '{completed} / {total} modules',
+    adminShowPassword: 'Show password',
+    adminHidePassword: 'Hide password',
+    adminToggleSort: 'Toggle alphabetical sort'
   },
 
   te: {
@@ -674,6 +767,7 @@ export const translations: Record<Language, Translations> = {
     navMessageSafety: 'సందేశ భద్రత',
     navPasswordChecker: 'పాస్‌వర్డ్ తనిఖీ',
     navModules: 'మాడ్యూల్స్',
+    navDashboard: 'డాష్‌బోర్డ్',
     btnBack: 'మునుపటి పేజీకి వెళ్లండి',
     btnForward: 'తదుపరి పేజీకి వెళ్లండి',
 
@@ -942,6 +1036,7 @@ export const translations: Record<Language, Translations> = {
     btnSubmitQuiz: 'క్విజ్ సమర్పించండి',
     btnRetakeQuiz: 'మళ్లీ ప్రయత్నించండి',
     btnBackToModules: 'మాడ్యూల్స్‌కు తిరిగి వెళ్లండి',
+    btnBackToHome: 'హోమ్‌కు తిరిగి వెళ్లండి',
     yourScore: 'మీ స్కోరు',
     correctAnswers: 'సరైన సమాధానాలు',
     totalQuestions: 'మొత్తం ప్రశ్నలు',
@@ -996,7 +1091,51 @@ export const translations: Record<Language, Translations> = {
 
     footerNotice: 'పబ్లిక్ సైబర్ సెక్యూరిటీ అవగాహన పోర్టల్. సైబర్ మోసం జరిగితే వెంటనే 1930 కు ఫిర్యాదు చేయండి.',
     helplineNotice: 'జాతీయ సైబర్ క్రైమ్ హెల్ప్‌లైన్',
-    nationalPortal: 'cybercrime.gov.in'
+    nationalPortal: 'cybercrime.gov.in',
+    footerMission: 'పౌరులకు ఆన్‌లైన్ మోసాల అవగాహన మరియు నిజ-సమయ ధృవీకరణ సాధనాలను అందించే పబ్లిక్ పోర్టల్.',
+    footerSecurityTools: 'భద్రతా సాధనాలు',
+    footerLearningPlatform: 'లెర్నింగ్ & ప్లాట్‌ఫారమ్',
+    footerQuizAssessment: 'క్విజ్ & మూల్యాంకనం',
+    footerAdminDashboard: 'అడ్మిన్ డ్యాష్‌బోర్డ్',
+    footerEmergencySupport: 'అత్యవసర సహాయం',
+    footerHelplineTitle: '1930 హెల్ప్‌లైన్',
+    footerHelplineDesc: 'ఉచిత 24x7 ఫిర్యాదు సేవ',
+    footerCopyrightNotice: 'వాణిజ్యేతర పబ్లిక్ సైబర్ సెక్యూరిటీ అవగాహన కార్యక్రమం.',
+
+    adminLoginTitle: 'అడ్మిన్ లాగిన్',
+    adminIdLabel: 'అడ్మిన్ ఐడీ',
+    adminPasswordLabel: 'పాస్‌వర్డ్',
+    adminSignInBtn: 'సైన్ ఇన్',
+    adminVerifying: 'ధృవీకరిస్తోంది...',
+    adminLoginErrorRequired: 'దయచేసి అడ్మిన్ ఐడీ మరియు పాస్‌వర్డ్ రెండింటినీ నమోదు చేయండి.',
+    adminLoginErrorInvalid: 'చెల్లని అడ్మిన్ ఐడీ లేదా పాస్‌వర్డ్. దయచేసి మళ్లీ ప్రయత్నించండి.',
+    adminLoginErrorSessionExpired: 'అడ్మిన్ సెషన్ గడువు ముగిసింది లేదా చెల్లని ఆధారాలు. దయచేసి మళ్లీ లాగిన్ అవ్వండి.',
+    adminLoginErrorGeneric: 'సైన్ ఇన్ చేసేటప్పుడు లోపం సంభవించింది. దయచేసి మళ్లీ ప్రయత్నించండి.',
+    adminDashboardTitle: 'అడ్మిన్ డ్యాష్‌బోర్డ్',
+    adminRefreshBtn: 'రిఫ్రెష్',
+    adminLogoutBtn: 'లాగౌట్',
+    adminRetryBtn: 'మళ్లీ ప్రయత్నించండి',
+    adminTotalUsers: 'మొత్తం వినియోగదారులు',
+    adminTotalModules: 'మొత్తం మాడ్యూల్స్',
+    adminFullyCompletedUsers: 'పూర్తి చేసిన వినియోగదారులు',
+    adminSummaryHeading: 'సారాంశం',
+    adminRegisteredUsers: 'నమోదిత వినియోగదారులు',
+    adminSearchPlaceholder: 'పేరు లేదా ఇమెయిల్ శోధించండి...',
+    adminFilterAll: 'అన్నీ',
+    adminFilterCompleted: 'పూర్తయినవి',
+    adminFilterInProgress: 'పురోగతిలో ఉంది',
+    adminFilterNotStarted: 'ప్రారంభించబడలేదు',
+    adminLoadingUsers: 'వినియోగదారు పురోగతి రికార్డులను లోడ్ చేస్తోంది...',
+    adminNoUsers: 'నమోదిత వినియోగదారులు ఎవరూ లేరు',
+    adminNoMatchingUsers: 'సరిపోలే వినియోగదారులు ఎవరూ లేరు',
+    adminClearSearch: 'శోధనను క్లియర్ చేయండి',
+    adminTableName: 'పేరు',
+    adminTableEmail: 'ఇమెయిల్',
+    adminTableProgress: 'పురోగతి',
+    adminModulesCount: '{completed} / {total} మాడ్యూల్స్',
+    adminShowPassword: 'పాస్‌వర్డ్ చూపించు',
+    adminHidePassword: 'పాస్‌వర్డ్ దాచండి',
+    adminToggleSort: 'అక్షరక్రమ అమరికను మార్చండి'
   },
 
   hi: {
@@ -1009,6 +1148,7 @@ export const translations: Record<Language, Translations> = {
     navMessageSafety: 'संदेश सुरक्षा',
     navPasswordChecker: 'पासवर्ड चेकर',
     navModules: 'मॉड्यूल',
+    navDashboard: 'डैशबोर्ड',
     btnBack: 'पिछले पृष्ठ पर जाएं',
     btnForward: 'अगले पृष्ठ पर जाएं',
 
@@ -1277,6 +1417,7 @@ export const translations: Record<Language, Translations> = {
     btnSubmitQuiz: 'प्रश्नोत्तरी जमा करें',
     btnRetakeQuiz: 'पुनः प्रयास करें',
     btnBackToModules: 'मॉड्यूल पर वापस जाएं',
+    btnBackToHome: 'होम पर वापस जाएं',
     yourScore: 'आपका स्कोर',
     correctAnswers: 'सही उत्तर',
     totalQuestions: 'कुल प्रश्न',
@@ -1331,7 +1472,51 @@ export const translations: Record<Language, Translations> = {
 
     footerNotice: 'सार्वजनिक साइबर सुरक्षा जागरूकता पोर्टल। साइबर धोखाधड़ी के मामले में तुरंत 1930 पर रिपोर्ट करें।',
     helplineNotice: 'राष्ट्रीय साइबर अपराध रिपोर्टिंग हेल्पलाइन',
-    nationalPortal: 'cybercrime.gov.in'
+    nationalPortal: 'cybercrime.gov.in',
+    footerMission: 'नागरिकों को साइबर सुरक्षा शिक्षा और रीयल-टाइम धोखाधड़ी सत्यापन उपकरण प्रदान करने वाला सार्वजनिक पोर्टल।',
+    footerSecurityTools: 'सुरक्षा उपकरण',
+    footerLearningPlatform: 'लर्निंग और प्लेटफॉर्म',
+    footerQuizAssessment: 'क्विज़ और मूल्यांकन',
+    footerAdminDashboard: 'एडमिन डैशबोर्ड',
+    footerEmergencySupport: 'आपातकालीन सहायता',
+    footerHelplineTitle: '1930 हेल्पलाइन',
+    footerHelplineDesc: 'टोल-फ्री 24x7 रिपोर्टिंग',
+    footerCopyrightNotice: 'गैर-व्यावसायिक सार्वजनिक साइबर सुरक्षा जागरूकता पहल।',
+
+    adminLoginTitle: 'एडमिन लॉगिन',
+    adminIdLabel: 'एडमिन आईडी',
+    adminPasswordLabel: 'पासवर्ड',
+    adminSignInBtn: 'साइन इन',
+    adminVerifying: 'सत्यापित हो रहा है...',
+    adminLoginErrorRequired: 'कृपया एडमिन आईडी और पासवर्ड दोनों दर्ज करें।',
+    adminLoginErrorInvalid: 'अमान्य एडमिन आईडी या पासवर्ड। कृपया पुनः प्रयास करें।',
+    adminLoginErrorSessionExpired: 'एडमिन सत्र समाप्त हो गया या अमान्य क्रेडेंशियल। कृपया पुनः लॉगिन करें।',
+    adminLoginErrorGeneric: 'साइन इन करते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें।',
+    adminDashboardTitle: 'एडमिन डैशबोर्ड',
+    adminRefreshBtn: 'रिफ्रेश',
+    adminLogoutBtn: 'लॉगआउट',
+    adminRetryBtn: 'पुनः प्रयास करें',
+    adminTotalUsers: 'कुल उपयोगकर्ता',
+    adminTotalModules: 'कुल मॉड्यूल',
+    adminFullyCompletedUsers: 'पूर्ण किए गए उपयोगकर्ता',
+    adminSummaryHeading: 'सारांश',
+    adminRegisteredUsers: 'पंजीकृत उपयोगकर्ता',
+    adminSearchPlaceholder: 'नाम या ईमेल खोजें...',
+    adminFilterAll: 'सभी',
+    adminFilterCompleted: 'पूर्ण',
+    adminFilterInProgress: 'प्रगति पर',
+    adminFilterNotStarted: 'प्रारंभ नहीं हुआ',
+    adminLoadingUsers: 'उपयोगकर्ता प्रगति रिकॉर्ड लोड हो रहे हैं...',
+    adminNoUsers: 'कोई पंजीकृत उपयोगकर्ता नहीं मिला',
+    adminNoMatchingUsers: 'कोई मेल खाने वाला उपयोगकर्ता नहीं मिला',
+    adminClearSearch: 'खोज साफ़ करें',
+    adminTableName: 'नाम',
+    adminTableEmail: 'ईमेल',
+    adminTableProgress: 'प्रगति',
+    adminModulesCount: '{completed} / {total} मॉड्यूल',
+    adminShowPassword: 'पासवर्ड दिखाएं',
+    adminHidePassword: 'पासवर्ड छुपाएं',
+    adminToggleSort: 'वर्णमाला क्रम बदलें'
   }
 };
 

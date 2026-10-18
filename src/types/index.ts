@@ -31,10 +31,32 @@ export interface QuizQuestionItem {
   correctIndex: number; // 0 or 1
 }
 
-export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker';
+export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker' | 'dashboard';
 export type AuthMode = 'login' | 'register' | 'forgot';
 export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2: OTP verification, 3: Password setup
 export type ForgotStep = 1 | 2 | 3; // 1: initial (email -> Get OTP), 2: OTP verification, 3: Set new password
+
+export interface DashboardUser {
+  id: string;
+  name: string;
+  email: string;
+  completedModules: number;
+  totalModules: number;
+  percentage: number;
+  isFullyCompleted: boolean;
+  created_at?: string | null;
+}
+
+export interface DashboardSummary {
+  totalUsers: number;
+  totalModules: number;
+  fullyCompletedUsers: number;
+}
+
+export interface DashboardData {
+  summary: DashboardSummary;
+  users: DashboardUser[];
+}
 
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical' | 'Unknown';
 

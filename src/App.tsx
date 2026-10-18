@@ -209,15 +209,17 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* Top Header */}
-      <Navbar
-        currentView={currentView}
-        onNavigate={handleNavigate}
-        canGoBack={canGoBack}
-        canGoForward={canGoForward}
-        onGoBack={handleGoBack}
-        onGoForward={handleGoForward}
-      />
+      {/* Top Header - hidden when entering admin dashboard */}
+      {currentView !== 'dashboard' && (
+        <Navbar
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
+          onGoBack={handleGoBack}
+          onGoForward={handleGoForward}
+        />
+      )}
 
       {/* Main View Router */}
       <main className="flex-1">

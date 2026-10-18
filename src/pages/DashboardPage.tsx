@@ -11,11 +11,12 @@ import {
   EyeOff,
   User,
   Mail,
-  ArrowLeft
+  ArrowLeft,
+  Globe
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
-import { ViewState, DashboardData } from '../types';
+import { ViewState, DashboardData, Language } from '../types';
 
 interface DashboardPageProps {
   onNavigate: (view: ViewState) => void;
@@ -60,8 +61,14 @@ function getAllLocalProgress(): Record<string, number[]> {
   return map;
 }
 
+const languages: { code: Language; label: string }[] = [
+  { code: 'en', label: 'English' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'hi', label: 'हिन्दी' },
+];
+
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   // Authentication states
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
@@ -357,15 +364,35 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   if (!isAdminAuthenticated) {
     return (
       <div className="py-10 sm:py-14 max-w-md mx-auto px-4">
-        {/* Back to Home Button */}
-        <button
-          type="button"
-          onClick={() => onNavigate('home')}
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-700 mb-5 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{t('btnBackToHome')}</span>
-        </button>
+        {/* Back to Home & Language Switcher */}
+        <div className="flex items-center justify-between mb-5">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-700 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{t('btnBackToHome')}</span>
+          </button>
+
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => setLanguage(lang.code)}
+                className={`px-2 py-0.5 text-2xs sm:text-xs rounded font-medium transition-colors ${
+                  language === lang.code
+                    ? 'bg-blue-50 text-blue-700 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Minimal Card */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7">
@@ -496,8 +523,27 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </h1>
           </div>
 
-          {/* Action Buttons: Refresh & Logout */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Action Buttons: Language, Refresh & Logout */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* Language Switcher */}
+            <div className="inline-flex items-center gap-1 bg-white border border-slate-300 rounded-lg p-1 shadow-2xs">
+              <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => setLanguage(lang.code)}
+                  className={`px-2 py-0.5 text-2xs sm:text-xs rounded font-medium transition-colors ${
+                    language === lang.code
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
             <button
               type="button"
               onClick={handleRefresh}

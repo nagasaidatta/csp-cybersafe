@@ -11,6 +11,8 @@ import { LinkSafetyPage } from './pages/LinkSafetyPage';
 import { MessageSafetyPage } from './pages/MessageSafetyPage';
 import { PasswordCheckerPage } from './pages/PasswordCheckerPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { EditProfilePage } from './pages/EditProfilePage';
 import { ViewState } from './types';
 
 const VALID_VIEWS: ViewState[] = [
@@ -21,7 +23,9 @@ const VALID_VIEWS: ViewState[] = [
   'link-safety',
   'message-safety',
   'password-checker',
-  'dashboard'
+  'dashboard',
+  'profile',
+  'edit-profile'
 ];
 
 const getViewFromHash = (): ViewState => {
@@ -101,7 +105,7 @@ const AppContent: React.FC = () => {
   // Initialize history state on first mount
   useEffect(() => {
     const initialView = getViewFromHash();
-    if ((initialView === 'modules' || initialView === 'quiz') && !user && !loading) {
+    if ((initialView === 'modules' || initialView === 'quiz' || initialView === 'profile' || initialView === 'edit-profile') && !user && !loading) {
       updateRedirectAfterAuth(initialView);
       setCurrentView('auth');
       window.history.replaceState({ view: 'auth', index: 0 }, '', '#/auth');
@@ -120,7 +124,7 @@ const AppContent: React.FC = () => {
       const targetIndex = typeof event.state?.index === 'number' ? event.state.index : undefined;
 
       // Protected views check
-      if ((targetView === 'modules' || targetView === 'quiz') && !user && !loading) {
+      if ((targetView === 'modules' || targetView === 'quiz' || targetView === 'profile' || targetView === 'edit-profile') && !user && !loading) {
         updateRedirectAfterAuth(targetView);
         setCurrentView('auth');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -168,12 +172,12 @@ const AppContent: React.FC = () => {
 
     let targetView = view;
     // Protected views require login
-    if ((targetView === 'modules' || targetView === 'quiz') && !user && !loading) {
+    if ((targetView === 'modules' || targetView === 'quiz' || targetView === 'profile' || targetView === 'edit-profile') && !user && !loading) {
       updateRedirectAfterAuth(targetView);
       targetView = 'auth';
     } else if (view === 'auth') {
       updateRedirectAfterAuth(redirectTo || 'home');
-    } else if (view === 'modules' || view === 'quiz' || view === 'home') {
+    } else if (view === 'modules' || view === 'quiz' || view === 'home' || view === 'profile' || view === 'edit-profile') {
       updateRedirectAfterAuth(null);
     }
 
@@ -235,6 +239,12 @@ const AppContent: React.FC = () => {
         {currentView === 'message-safety' && <MessageSafetyPage onNavigate={handleNavigate} />}
         {currentView === 'password-checker' && <PasswordCheckerPage onNavigate={handleNavigate} />}
         {currentView === 'dashboard' && <DashboardPage onNavigate={handleNavigate} />}
+        {currentView === 'profile' && (
+          user ? <ProfilePage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'profile'} />
+        )}
+        {currentView === 'edit-profile' && (
+          user ? <EditProfilePage onNavigate={handleNavigate} /> : <AuthPage onNavigate={handleNavigate} redirectTo={redirectAfterAuth || 'edit-profile'} />
+        )}
       </main>
 
 

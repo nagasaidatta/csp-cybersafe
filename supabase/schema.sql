@@ -8,12 +8,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
+  avatar_id TEXT DEFAULT 'avatar-1' NOT NULL,
   highest_quiz_score INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
 -- Ensure column exists if table was previously created
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS highest_quiz_score INT DEFAULT 0;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_id TEXT DEFAULT 'avatar-1';
 
 -- Enable RLS on 'profiles'
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;

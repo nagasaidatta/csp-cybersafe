@@ -380,6 +380,73 @@ export interface Translations {
   adminShowPassword: string;
   adminHidePassword: string;
   adminToggleSort: string;
+
+  // Profile Page & Avatars
+  viewProfile: string;
+  navProfile: string;
+  profileTitle: string;
+  profileSubtitle: string;
+  profileBadge: string;
+  profileAvatarSection: string;
+  profileAvatarSubtitle: string;
+  profileAvatarSaved: string;
+  profileCurrentAvatar: string;
+  profileSelectedBadge: string;
+  profileProgressSection: string;
+  profileProgressSubtitle: string;
+  profileHighestQuizScore: string;
+  profileQuizScoreOutOf: string;
+  profileQuizNotAttempted: string;
+  profileCourseCompletion: string;
+  profileModulesCompleted: string;
+  profileTakeQuiz: string;
+  profileRetakeQuiz: string;
+  profileContinueLearning: string;
+  profileStartLearning: string;
+  profileAccountSettings: string;
+  profileAccountSubtitle: string;
+  profileDisplayName: string;
+  profileDisplayNamePlaceholder: string;
+  profileUpdateNameBtn: string;
+  profileUpdatingName: string;
+  profileNameUpdated: string;
+  profileNameLengthError: string;
+  profileChangePassword: string;
+  profileNewPassword: string;
+  profileConfirmNewPassword: string;
+  profileUpdatePasswordBtn: string;
+  profileUpdatingPassword: string;
+  profilePasswordUpdated: string;
+  profilePasswordEmptyError: string;
+  profileEmailNote: string;
+  profileMemberSince: string;
+  profileBackToHome: string;
+  profileEditAction: string;
+  profileInfoSection: string;
+  profileSecuritySection: string;
+  profileModuleBreakdown: string;
+  profileModuleStatusDone: string;
+  profileModuleStatusPending: string;
+  avatar1Name: string;
+  avatar1Desc: string;
+  avatar2Name: string;
+  avatar2Desc: string;
+  avatar3Name: string;
+  avatar3Desc: string;
+  avatar4Name: string;
+  avatar4Desc: string;
+  avatar5Name: string;
+  avatar5Desc: string;
+  avatar6Name: string;
+  avatar6Desc: string;
+  avatar7Name: string;
+  avatar7Desc: string;
+  avatar8Name: string;
+  avatar8Desc: string;
+  avatar9Name: string;
+  avatar9Desc: string;
+  avatar10Name: string;
+  avatar10Desc: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -768,7 +835,74 @@ export const translations: Record<Language, Translations> = {
     adminModulesCount: '{completed} / {total} modules',
     adminShowPassword: 'Show password',
     adminHidePassword: 'Hide password',
-    adminToggleSort: 'Toggle alphabetical sort'
+    adminToggleSort: 'Toggle alphabetical sort',
+
+    // Profile Page & Avatars
+    viewProfile: 'View Profile',
+    navProfile: 'Profile',
+    profileTitle: 'User Profile',
+    profileSubtitle: 'Manage your avatar, track your cyber safety learning progress, and update your account settings.',
+    profileBadge: 'Cyber Safe Learner',
+    profileAvatarSection: 'Choose Your Avatar',
+    profileAvatarSubtitle: 'Select a cyber-safety guardian avatar for your profile. Saved automatically across devices.',
+    profileAvatarSaved: 'Avatar updated successfully!',
+    profileCurrentAvatar: 'Current Avatar',
+    profileSelectedBadge: 'Active Avatar',
+    profileProgressSection: 'Learning Progress',
+    profileProgressSubtitle: 'Track your awareness modules completion and cybersecurity quiz mastery.',
+    profileHighestQuizScore: 'Highest Quiz Score',
+    profileQuizScoreOutOf: 'out of 10 points',
+    profileQuizNotAttempted: 'Not Attempted',
+    profileCourseCompletion: 'Course Completion',
+    profileModulesCompleted: '{count} of {total} modules completed',
+    profileTakeQuiz: 'Take Quiz',
+    profileRetakeQuiz: 'Retake Quiz',
+    profileContinueLearning: 'Continue Learning',
+    profileStartLearning: 'Start Learning',
+    profileAccountSettings: 'Account Settings',
+    profileAccountSubtitle: 'Manage your display name and login credentials securely.',
+    profileDisplayName: 'Display Name',
+    profileDisplayNamePlaceholder: 'Enter your full name',
+    profileUpdateNameBtn: 'Save Name',
+    profileUpdatingName: 'Updating...',
+    profileNameUpdated: 'Display name updated successfully!',
+    profileNameLengthError: 'Name must be between 2 and 50 characters',
+    profileChangePassword: 'Change Password',
+    profileNewPassword: 'New Password',
+    profileConfirmNewPassword: 'Confirm New Password',
+    profileUpdatePasswordBtn: 'Update Password',
+    profileUpdatingPassword: 'Saving...',
+    profilePasswordUpdated: 'Password changed successfully!',
+    profilePasswordEmptyError: 'Please enter a valid new password',
+    profileEmailNote: 'Email address is linked to your account and cannot be modified.',
+    profileMemberSince: 'Member since',
+    profileBackToHome: 'Back to Home',
+    profileEditAction: 'Edit Profile',
+    profileInfoSection: 'Profile Information',
+    profileSecuritySection: 'Password & Security',
+    profileModuleBreakdown: 'Module Breakdown',
+    profileModuleStatusDone: 'Completed',
+    profileModuleStatusPending: 'Up Next',
+    avatar1Name: 'Cyber Astronaut',
+    avatar1Desc: 'Cosmic Explorer',
+    avatar2Name: 'Ethical Hacker',
+    avatar2Desc: 'White-Hat Defender',
+    avatar3Name: 'VR Specialist',
+    avatar3Desc: 'Simulation Guide',
+    avatar4Name: 'Cyber Detective',
+    avatar4Desc: 'Phishing Scout',
+    avatar5Name: 'Armor Sentinel',
+    avatar5Desc: 'Defense Specialist',
+    avatar6Name: 'AI Scientist',
+    avatar6Desc: 'Neural Researcher',
+    avatar7Name: 'Drone Pilot',
+    avatar7Desc: 'Aerial Navigator',
+    avatar8Name: 'Vault Cryptographer',
+    avatar8Desc: 'Password Keeper',
+    avatar9Name: 'Field Scout',
+    avatar9Desc: 'Community Watch',
+    avatar10Name: 'Security Officer',
+    avatar10Desc: 'Chief Protocol'
   },
 
   te: {
@@ -1156,7 +1290,74 @@ export const translations: Record<Language, Translations> = {
     adminModulesCount: '{completed} / {total} మాడ్యూల్స్',
     adminShowPassword: 'పాస్‌వర్డ్ చూపించు',
     adminHidePassword: 'పాస్‌వర్డ్ దాచండి',
-    adminToggleSort: 'అక్షరక్రమ అమరికను మార్చండి'
+    adminToggleSort: 'అక్షరక్రమ అమరికను మార్చండి',
+
+    // Profile Page & Avatars
+    viewProfile: 'ప్రొఫైల్ చూడండి',
+    navProfile: 'ప్రొఫైల్',
+    profileTitle: 'వినియోగదారు ప్రొఫైల్',
+    profileSubtitle: 'మీ అవతార్‌ను నిర్వహించండి, మీ సైబర్ భద్రతా అభ్యాస పురోగతిని ట్రాక్ చేయండి మరియు ఖాతా వివరాలను నవీకరించండి.',
+    profileBadge: 'సైబర్ సేఫ్ లెర్నర్',
+    profileAvatarSection: 'మీ అవతార్‌ను ఎంచుకోండి',
+    profileAvatarSubtitle: 'మీ ప్రొఫైల్ కోసం సైబర్ భద్రతా గార్డియన్ అవతార్‌ను ఎంచుకోండి. పరికరాల్లో ఆటోమేటిక్‌గా సేవ్ అవుతుంది.',
+    profileAvatarSaved: 'అవతార్ విజయవంతంగా నవీకరించబడింది!',
+    profileCurrentAvatar: 'ప్రస్తుత అవతార్',
+    profileSelectedBadge: 'యాక్టివ్ అవతార్',
+    profileProgressSection: 'అభ్యాస పురోగతి',
+    profileProgressSubtitle: 'మీ అవగాహన మాడ్యూల్స్ పూర్తి మరియు సైబర్ భద్రతా క్విజ్ నైపుణ్యాన్ని ట్రాక్ చేయండి.',
+    profileHighestQuizScore: 'అత్యధిక క్విజ్ స్కోరు',
+    profileQuizScoreOutOf: '10 పాయింట్లలో',
+    profileQuizNotAttempted: 'రాయలేదు',
+    profileCourseCompletion: 'కోర్సు పూర్తి స్థితి',
+    profileModulesCompleted: '{total} లో {count} మాడ్యూల్స్ పూర్తయ్యాయి',
+    profileTakeQuiz: 'క్విజ్ రాయండి',
+    profileRetakeQuiz: 'మళ్లీ క్విజ్ రాయండి',
+    profileContinueLearning: 'నేర్చుకోవడం కొనసాగించండి',
+    profileStartLearning: 'నేర్చుకోవడం ప్రారంభించండి',
+    profileAccountSettings: 'ఖాతా సెట్టింగ్‌లు',
+    profileAccountSubtitle: 'మీ ప్రదర్శన పేరు మరియు లాగిన్ వివరాలను సురక్షితంగా నిర్వహించండి.',
+    profileDisplayName: 'ప్రదర్శన పేరు',
+    profileDisplayNamePlaceholder: 'మీ పూర్తి పేరును నమోదు చేయండి',
+    profileUpdateNameBtn: 'పేరును సేవ్ చేయండి',
+    profileUpdatingName: 'నవీకరిస్తోంది...',
+    profileNameUpdated: 'ప్రదర్శన పేరు విజయవంతంగా నవీకరించబడింది!',
+    profileNameLengthError: 'పేరు 2 నుండి 50 అక్షరాల మధ్య ఉండాలి',
+    profileChangePassword: 'పాస్‌వర్డ్‌ను మార్చండి',
+    profileNewPassword: 'కొత్త పాస్‌వర్డ్',
+    profileConfirmNewPassword: 'కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి',
+    profileUpdatePasswordBtn: 'పాస్‌వర్డ్ అప్‌డేట్ చేయండి',
+    profileUpdatingPassword: 'భద్రపరుస్తోంది...',
+    profilePasswordUpdated: 'పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది!',
+    profilePasswordEmptyError: 'దయచేసి సరైన కొత్త పాస్‌వర్డ్‌ను నమోదు చేయండి',
+    profileEmailNote: 'ఇమెయిల్ చిరునామా మీ ఖాతాకు లింక్ చేయబడింది మరియు మార్చబడదు.',
+    profileMemberSince: 'సభ్యత్వం ప్రారంభం',
+    profileBackToHome: 'హోమ్‌కు తిరిగి వెళ్లండి',
+    profileEditAction: 'ప్రొఫైల్ సవరించండి',
+    profileInfoSection: 'ప్రొఫైల్ సమాచారం',
+    profileSecuritySection: 'పాస్‌వర్డ్ & భద్రత',
+    profileModuleBreakdown: 'మాడ్యూల్స్ వివరాలు',
+    profileModuleStatusDone: 'పూర్తయింది',
+    profileModuleStatusPending: 'తదుపరిది',
+    avatar1Name: 'సైబర్ ఆస్ట్రోనాట్',
+    avatar1Desc: 'అంతరిక్ష అన్వేషకుడు',
+    avatar2Name: 'ఎథికల్ హ్యాకర్',
+    avatar2Desc: 'వైట్-హ్యాట్ డిఫెండర్',
+    avatar3Name: 'VR నిపుణుడు',
+    avatar3Desc: 'సిమ్యులేషన్ గైడ్',
+    avatar4Name: 'సైబర్ డిటెక్టివ్',
+    avatar4Desc: 'ఫిషింగ్ పరిశోధకుడు',
+    avatar5Name: 'ఆర్మర్ సెంటినెల్',
+    avatar5Desc: 'రక్షణ నిపుణుడు',
+    avatar6Name: 'AI సైంటిస్ట్',
+    avatar6Desc: 'న్యూరల్ రీసెర్చర్',
+    avatar7Name: 'డ్రోన్ పైలట్',
+    avatar7Desc: 'వైమానిక నావిగేటర్',
+    avatar8Name: 'వాల్ట్ క్రిప్టోగ్రాఫర్',
+    avatar8Desc: 'పాస్‌వర్డ్ కీపర్',
+    avatar9Name: 'ఫీల్డ్ స్కౌట్',
+    avatar9Desc: 'కమ్యూనిటీ వాచ్',
+    avatar10Name: 'సెక్యూరిటీ ఆఫీసర్',
+    avatar10Desc: 'భద్రతా అధికారి'
   },
 
   hi: {
@@ -1544,7 +1745,74 @@ export const translations: Record<Language, Translations> = {
     adminModulesCount: '{completed} / {total} मॉड्यूल',
     adminShowPassword: 'पासवर्ड दिखाएं',
     adminHidePassword: 'पासवर्ड छुपाएं',
-    adminToggleSort: 'वर्णमाला क्रम बदलें'
+    adminToggleSort: 'वर्णमाला क्रम बदलें',
+
+    // Profile Page & Avatars
+    viewProfile: 'प्रोफ़ाइल देखें',
+    navProfile: 'प्रोफ़ाइल',
+    profileTitle: 'उपयोगकर्ता प्रोफ़ाइल',
+    profileSubtitle: 'अपना अवतार प्रबंधित करें, अपनी साइबर सुरक्षा सीखने की प्रगति को ट्रैक करें और अपने खाते के विवरण को अपडेट करें।',
+    profileBadge: 'साइबर सेफ शिक्षार्थी',
+    profileAvatarSection: 'अपना अवतार चुनें',
+    profileAvatarSubtitle: 'अपनी प्रोफ़ाइल के लिए एक साइबर सुरक्षा गार्जियन अवतार चुनें। सभी डिवाइसों पर स्वचालित रूप से सहेजा जाता है।',
+    profileAvatarSaved: 'अवतार सफलतापूर्वक अपडेट किया गया!',
+    profileCurrentAvatar: 'वर्तमान अवतार',
+    profileSelectedBadge: 'सक्रिय अवतार',
+    profileProgressSection: 'सीखने की प्रगति',
+    profileProgressSubtitle: 'अपने जागरूकता मॉड्यूल की पूर्णता और साइबर सुरक्षा प्रश्नोत्तरी प्रवीणता को ट्रैक करें।',
+    profileHighestQuizScore: 'उच्चतम प्रश्नोत्तरी स्कोर',
+    profileQuizScoreOutOf: '10 अंकों में से',
+    profileQuizNotAttempted: 'प्रयास नहीं किया',
+    profileCourseCompletion: 'पाठ्यक्रम पूर्णता',
+    profileModulesCompleted: '{total} में से {count} मॉड्यूल पूरे हुए',
+    profileTakeQuiz: 'प्रश्नोत्तरी दें',
+    profileRetakeQuiz: 'फिर से प्रश्नोत्तरी दें',
+    profileContinueLearning: 'सीखना जारी रखें',
+    profileStartLearning: 'सीखना शुरू करें',
+    profileAccountSettings: 'खाता सेटिंग्स',
+    profileAccountSubtitle: 'अपना प्रदर्शित नाम और लॉगिन क्रेडेंशियल सुरक्षित रूप से प्रबंधित करें।',
+    profileDisplayName: 'प्रदर्शित नाम',
+    profileDisplayNamePlaceholder: 'अपना पूरा नाम दर्ज करें',
+    profileUpdateNameBtn: 'नाम सहेजें',
+    profileUpdatingName: 'अपडेट हो रहा है...',
+    profileNameUpdated: 'प्रदर्शित नाम सफलतापूर्वक अपडेट किया गया!',
+    profileNameLengthError: 'नाम 2 से 50 वर्णों के बीच होना चाहिए',
+    profileChangePassword: 'पासवर्ड बदलें',
+    profileNewPassword: 'नया पासवर्ड',
+    profileConfirmNewPassword: 'नए पासवर्ड की पुष्टि करें',
+    profileUpdatePasswordBtn: 'पासवर्ड अपडेट करें',
+    profileUpdatingPassword: 'सहेज रहा है...',
+    profilePasswordUpdated: 'पासवर्ड सफलतापूर्वक बदल दिया गया!',
+    profilePasswordEmptyError: 'कृपया एक मान्य नया पासवर्ड दर्ज करें',
+    profileEmailNote: 'ईमेल पता आपके खाते से स्थायी रूप से जुड़ा हुआ है और इसे बदला नहीं जा सकता है।',
+    profileMemberSince: 'सदस्य बने',
+    profileBackToHome: 'होम पर वापस जाएं',
+    profileEditAction: 'प्रोफ़ाइल संपादित करें',
+    profileInfoSection: 'प्रोफ़ाइल जानकारी',
+    profileSecuritySection: 'पासवर्ड और सुरक्षा',
+    profileModuleBreakdown: 'मॉड्यूल विवरण',
+    profileModuleStatusDone: 'पूर्ण',
+    profileModuleStatusPending: 'अगला',
+    avatar1Name: 'साइबर अंतरिक्ष यात्री',
+    avatar1Desc: 'अंतरिक्ष खोजकर्ता',
+    avatar2Name: 'एथिकल हैकर',
+    avatar2Desc: 'व्हाइट-हैट रक्षक',
+    avatar3Name: 'वीआर विशेषज्ञ',
+    avatar3Desc: 'सिमुलेशन गाइड',
+    avatar4Name: 'साइबर जासूस',
+    avatar4Desc: 'फ़िशिंग अन्वेषक',
+    avatar5Name: 'कवच प्रहरी',
+    avatar5Desc: 'सुरक्षा विशेषज्ञ',
+    avatar6Name: 'एआई वैज्ञानिक',
+    avatar6Desc: 'न्यूरल शोधकर्ता',
+    avatar7Name: 'ड्रोन पायलट',
+    avatar7Desc: 'हवाई नेविगेटर',
+    avatar8Name: 'वॉल्ट क्रिप्टोग्राफ़र',
+    avatar8Desc: 'पासवर्ड संरक्षक',
+    avatar9Name: 'फ़ील्ड स्काउट',
+    avatar9Desc: 'सामुदायिक सुरक्षा',
+    avatar10Name: 'सुरक्षा अधिकारी',
+    avatar10Desc: 'मुख्य सुरक्षा प्रोटोकॉल'
   }
 };
 

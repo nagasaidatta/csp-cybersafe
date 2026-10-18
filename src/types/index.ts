@@ -4,6 +4,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  avatar_id?: string;
   created_at?: string;
   highest_quiz_score?: number | null;
 }
@@ -32,7 +33,7 @@ export interface QuizQuestionItem {
   correctIndex: number; // 0 or 1
 }
 
-export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker' | 'dashboard';
+export type ViewState = 'home' | 'auth' | 'modules' | 'quiz' | 'link-safety' | 'message-safety' | 'password-checker' | 'dashboard' | 'profile' | 'edit-profile';
 export type AuthMode = 'login' | 'register' | 'forgot';
 export type RegisterStep = 1 | 2 | 3; // 1: initial (name, email -> Get OTP), 2: OTP verification, 3: Password setup
 export type ForgotStep = 1 | 2 | 3; // 1: initial (email -> Get OTP), 2: OTP verification, 3: Set new password

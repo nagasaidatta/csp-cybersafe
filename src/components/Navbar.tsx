@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Shield, Globe, LogOut, User, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { Avatar } from './Avatar';
 import { Language, ViewState } from '../types';
 
 interface NavbarProps {
@@ -122,14 +123,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-lg shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 max-w-[160px] sm:max-w-[220px] truncate"
+                className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-lg shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 max-w-[170px] sm:max-w-[220px] truncate"
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
                 aria-label="User menu"
               >
-                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                  <User className="w-3.5 h-3.5" />
-                </div>
+                <Avatar avatarId={profile?.avatar_id} size="xs" className="w-5 h-5 shrink-0 ring-1 ring-slate-300" />
                 <span className="truncate">{displayName}</span>
                 <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-150 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -137,11 +136,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               {userMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 w-48 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute right-0 mt-2 w-52 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
                 >
-                  <div className="px-3 py-2 border-b border-slate-100 text-xs text-slate-500 truncate">
-                    {user.email}
+                  <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2.5">
+                    <Avatar avatarId={profile?.avatar_id} size="sm" className="w-7 h-7 shrink-0 ring-1 ring-slate-200" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-semibold text-slate-800 truncate">{displayName}</div>
+                      <div className="text-[11px] text-slate-500 truncate">{user.email}</div>
+                    </div>
                   </div>
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      onNavigate('profile');
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs sm:text-sm text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-2 transition-colors font-medium mt-1"
+                  >
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span>{t('viewProfile')}</span>
+                  </button>
+
                   <button
                     role="menuitem"
                     onClick={handleLogout}

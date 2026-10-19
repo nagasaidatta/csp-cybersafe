@@ -4,13 +4,13 @@ import {
   ArrowLeft,
   Check,
   CheckCircle2,
-  Circle,
   Eye,
   EyeOff,
   KeyRound,
   Lock,
   Mail,
   User,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -26,8 +26,9 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
   const { user, profile, updateAvatar, updateDisplayName } = useAuth();
   const { t } = useLanguage();
 
+  const currentSavedName = profile?.name || user?.user_metadata?.name || '';
   const [avatarId, setAvatarId] = useState<AvatarId>((profile?.avatar_id as AvatarId) || 'avatar-1');
-  const [displayName, setDisplayName] = useState(profile?.name || user?.user_metadata?.name || '');
+  const [displayName, setDisplayName] = useState(currentSavedName);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -41,19 +42,28 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
     }
   }, [profile?.avatar_id]);
 
+  useEffect(() => {
+    if (currentSavedName && !displayName) {
+      setDisplayName(currentSavedName);
+    }
+  }, [currentSavedName, displayName]);
+
   // Password criteria verification
   const hasMinLength = newPassword.length >= 8;
   const hasUppercase = /[A-Z]/.test(newPassword);
   const hasLowercase = /[a-z]/.test(newPassword);
   const hasNumber = /\d/.test(newPassword);
   const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
-  const passwordReady = hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+  const passedCriteriaCount = [hasMinLength, hasUppercase, hasLowercase, hasNumber, hasSpecial].filter(Boolean).length;
+  const passwordReady = passedCriteriaCount === 5;
   const passwordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
+
+  const isNameChanged = displayName.trim().length >= 2 && displayName.trim() !== currentSavedName;
 
   const clearMessage = () => setMessage(null);
   const notify = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
-    window.setTimeout(() => setMessage(null), 4500);
+    window.setTimeout(() => setMessage(null), 4000);
   };
 
   const handleSaveName = async (event: React.FormEvent) => {
@@ -115,66 +125,126 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 pb-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-5 sm:space-y-6">
-        {/* Navigation Breadcrumb */}
-        <div className="mb-1 sm:mb-2">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
+        {/* Navigation & Header */}
+        <div className="space-y-2">
           <button
             type="button"
             onClick={() => onNavigate('profile')}
-            className="inline-flex items-center gap-1.5 py-1 text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-700 transition-colors cursor-pointer group"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer group"
           >
-            <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
             <span>{t('viewProfile')}</span>
           </button>
-        </div>
-
-        {/* Page Header */}
-        <div>
           <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             {t('profileEditAction')}
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
-            {t('profileAccountSubtitle')}
-          </p>
         </div>
 
         {/* Global Feedback Alert */}
         {message && (
           <div
             role={message.type === 'error' ? 'alert' : 'status'}
-            className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium shadow-2xs transition-all ${
+            className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium shadow-xs transition-all ${
               message.type === 'success'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                 : 'border-red-200 bg-red-50 text-red-800'
             }`}
           >
-            {message.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-emerald-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-red-600" />
-            )}
-            <span>{message.text}</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              {message.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-emerald-600" />
+              ) : (
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-red-600" />
+              )}
+              <span className="truncate">{message.text}</span>
+            </div>
+            <button
+              type="button"
+              onClick={clearMessage}
+              className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
-        {/* 1. Profile Information Section */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
-          <div className="border-b border-slate-100 p-4 sm:p-6 flex items-center gap-3">
-            <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700 border border-blue-100/80">
-              <User className="w-4 h-4 sm:w-5 sm:h-5" />
+        {/* 1. Profile Information & Avatar Card */}
+        <section className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6">
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100/80">
+              <User className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="text-sm sm:text-lg font-bold text-slate-900">
-                {t('profileInfoSection')}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
-                Update your display name shown on certificates and leaderboards.
-              </p>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+              {t('profileInfoSection')}
+            </h2>
+          </div>
+
+          {/* Avatar Selector: Big selected avatar on left, 10 small avatars on right */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 p-5 sm:p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+            {/* Big Selected Avatar on Left */}
+            <div className="flex flex-col items-center shrink-0 sm:border-r sm:border-slate-200/80 sm:pr-8">
+              <div className="relative">
+                <Avatar
+                  avatarId={avatarId}
+                  className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-white shadow-sm rounded-full"
+                />
+                {saving === 'avatar' && (
+                  <div className="absolute inset-0 rounded-full bg-slate-900/30 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <span className="mt-2 text-xs font-semibold text-slate-700 text-center max-w-[110px] truncate">
+                {t(AVATAR_OPTIONS.find((a) => a.id === avatarId)?.nameKey as never)}
+              </span>
+            </div>
+
+            {/* 10 Small Avatars on Right */}
+            <div className="flex-1 min-w-0 w-full">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-slate-600">
+                  {t('profileAvatarSection')}
+                </span>
+                {saving === 'avatar' && (
+                  <span className="text-xs text-blue-600 font-medium animate-pulse">Saving...</span>
+                )}
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-2.5 lg:gap-3 w-full">
+                {AVATAR_OPTIONS.map((avatar) => {
+                  const isSelected = avatar.id === avatarId;
+                  const avatarName = t(avatar.nameKey as never);
+                  return (
+                    <button
+                      key={avatar.id}
+                      type="button"
+                      disabled={saving === 'avatar'}
+                      onClick={() => handleSelectAvatar(avatar.id)}
+                      title={avatarName}
+                      aria-label={avatarName}
+                      className={`group relative rounded-full p-0.5 transition-all cursor-pointer focus:outline-none flex items-center justify-center ${
+                        isSelected
+                          ? 'ring-2 ring-blue-600 ring-offset-2 scale-105'
+                          : 'hover:scale-110 hover:opacity-100 opacity-70'
+                      }`}
+                    >
+                      <Avatar avatarId={avatar.id} className="w-10 h-10 sm:w-11 sm:h-11 rounded-full" />
+                      {isSelected && (
+                        <span className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full bg-blue-600 text-white shadow-xs ring-1 ring-white">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <form onSubmit={handleSaveName} className="p-4 sm:p-6 space-y-4 sm:space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+          {/* Personal Info Form */}
+          <form onSubmit={handleSaveName} className="space-y-5 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Display Name Input */}
               <div className="space-y-1.5">
                 <label htmlFor="display-name" className="block text-xs sm:text-sm font-semibold text-slate-700">
@@ -188,21 +258,21 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
                     id="display-name"
                     type="text"
                     value={displayName}
-                    onChange={(event) => setDisplayName(event.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 placeholder:text-slate-400"
                     placeholder={t('profileDisplayNamePlaceholder')}
                   />
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Visible on your profile, certificates, and learning records.
-                </p>
               </div>
 
               {/* Read-Only Email Field */}
               <div className="space-y-1.5">
-                <label htmlFor="user-email" className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Email Address
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="user-email" className="block text-xs sm:text-sm font-semibold text-slate-700">
+                    Email Address
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Read-only</span>
+                </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <Mail className="w-4 h-4" />
@@ -213,21 +283,21 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
                     disabled
                     readOnly
                     value={user?.email || ''}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50/90 pl-10 pr-3.5 py-2.5 text-sm text-slate-500 cursor-not-allowed select-none"
+                    className="w-full rounded-xl border border-slate-200/80 bg-slate-50 pl-10 pr-9 py-2.5 text-sm text-slate-500 cursor-not-allowed select-none"
                   />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {t('profileEmailNote')}
-                </p>
               </div>
             </div>
 
-            {/* Save Name Action Footer */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
+            {/* Save Button */}
+            <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={saving === 'name' || !displayName.trim()}
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                disabled={saving === 'name' || !isNameChanged}
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {saving === 'name' ? t('profileUpdatingName') : t('profileUpdateNameBtn')}
               </button>
@@ -235,95 +305,19 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
           </form>
         </section>
 
-        {/* 2. Choose Avatar Section */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
-          <div className="border-b border-slate-100 p-4 sm:p-6 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Avatar avatarId={avatarId} size="sm" className="h-9 w-9 sm:h-10 sm:w-10 ring-2 ring-slate-100 shrink-0" />
-              <div>
-                <h2 className="text-sm sm:text-lg font-bold text-slate-900">
-                  {t('profileAvatarSection')}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  {t('profileAvatarSubtitle')}
-                </p>
-              </div>
+        {/* 2. Password & Security Card */}
+        <section className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-5">
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100/80">
+              <KeyRound className="w-4 h-4" />
             </div>
-            {saving === 'avatar' && (
-              <span className="text-xs font-semibold text-blue-600 animate-pulse shrink-0">
-                Saving...
-              </span>
-            )}
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+              {t('profileSecuritySection')}
+            </h2>
           </div>
 
-          <div className="p-4 sm:p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-4">
-              {AVATAR_OPTIONS.map((avatar) => {
-                const isSelected = avatar.id === avatarId;
-                return (
-                  <button
-                    key={avatar.id}
-                    type="button"
-                    disabled={saving === 'avatar'}
-                    onClick={() => handleSelectAvatar(avatar.id)}
-                    className={`group relative flex flex-col items-center justify-between rounded-xl p-2.5 sm:p-4 text-center transition-all cursor-pointer min-h-[114px] sm:min-h-[136px] ${
-                      isSelected
-                        ? 'border-2 border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/10'
-                        : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70'
-                    }`}
-                    aria-pressed={isSelected}
-                  >
-                    {/* Selected Checkmark */}
-                    {isSelected && (
-                      <span className="absolute right-1.5 top-1.5 sm:right-2 sm:top-2 grid h-5 w-5 place-items-center rounded-full bg-blue-600 text-white shadow-xs">
-                        <Check className="w-3 h-3 stroke-[2.5]" />
-                      </span>
-                    )}
-
-                    {/* Avatar Graphic */}
-                    <div className="my-auto transition-transform group-hover:scale-105">
-                      <Avatar avatarId={avatar.id} size="md" className="h-12 w-12 sm:h-16 sm:w-16 mx-auto" />
-                    </div>
-
-                    {/* Role Title */}
-                    <span
-                      className={`mt-1.5 block w-full text-center text-[11px] sm:text-xs font-semibold leading-tight line-clamp-2 px-0.5 ${
-                        isSelected ? 'text-blue-900 font-bold' : 'text-slate-700'
-                      }`}
-                    >
-                      {t(avatar.nameKey as never)}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-start sm:items-center gap-2 text-xs text-slate-500">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 sm:mt-0" />
-              <span>Selected avatar is automatically saved to your profile across all devices.</span>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. Password & Security Section */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
-          <div className="border-b border-slate-100 p-4 sm:p-6 flex items-center gap-3">
-            <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700 border border-amber-100/80">
-              <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div>
-              <h2 className="text-sm sm:text-lg font-bold text-slate-900">
-                {t('profileSecuritySection')}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
-                Manage your login credentials and maintain a strong password.
-              </p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSavePassword} className="p-4 sm:p-6 space-y-4 sm:space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-              {/* New Password */}
+          <form onSubmit={handleSavePassword} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <PasswordField
                 id="new-password"
                 label={t('profileNewPassword')}
@@ -334,7 +328,6 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
                 placeholder="Enter new password"
               />
 
-              {/* Confirm New Password */}
               <PasswordField
                 id="confirm-password"
                 label={t('profileConfirmNewPassword')}
@@ -342,33 +335,70 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
                 onChange={setConfirmPassword}
                 shown={showConfirmation}
                 onToggle={() => setShowConfirmation(!showConfirmation)}
-                placeholder="Re-enter new password"
+                placeholder="Confirm new password"
+                matchState={
+                  confirmPassword.length > 0
+                    ? passwordsMatch
+                      ? 'matched'
+                      : 'mismatched'
+                    : undefined
+                }
               />
             </div>
 
-            {/* Password Validation Checklist */}
-            <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 sm:p-4">
-              <p className="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                Password Security Requirements
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <RequirementItem met={hasMinLength} label="At least 8 characters" />
-                <RequirementItem met={hasUppercase} label="At least one uppercase letter (A-Z)" />
-                <RequirementItem met={hasLowercase} label="At least one lowercase letter (a-z)" />
-                <RequirementItem met={hasNumber} label="At least one numeric digit (0-9)" />
-                <RequirementItem met={hasSpecial} label="At least one special character (!@#$...)" />
-                {confirmPassword.length > 0 && (
-                  <RequirementItem met={passwordsMatch} label="Passwords match exactly" />
-                )}
-              </div>
-            </div>
+            {/* Dynamic Strength Indicator (Revealed only while typing) */}
+            {newPassword.length > 0 && (
+              <div className="space-y-2.5 pt-2">
+                {/* Strength Meter Bar */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Password Strength</span>
+                    <span
+                      className={`font-semibold ${
+                        passedCriteriaCount <= 2
+                          ? 'text-red-500'
+                          : passedCriteriaCount <= 4
+                          ? 'text-amber-500'
+                          : 'text-emerald-600'
+                      }`}
+                    >
+                      {passedCriteriaCount <= 2 ? 'Weak' : passedCriteriaCount <= 4 ? 'Moderate' : 'Strong'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-1.5 h-1.5">
+                    {[1, 2, 3, 4, 5].map((level) => {
+                      const isActive = passedCriteriaCount >= level;
+                      let color = 'bg-slate-200';
+                      if (isActive) {
+                        color =
+                          passedCriteriaCount <= 2
+                            ? 'bg-red-500'
+                            : passedCriteriaCount <= 4
+                            ? 'bg-amber-500'
+                            : 'bg-emerald-500';
+                      }
+                      return <div key={level} className={`rounded-full h-full transition-all ${color}`} />;
+                    })}
+                  </div>
+                </div>
 
-            {/* Save Password Action Footer */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
+                {/* Compact Requirements Chips */}
+                <div className="flex flex-wrap gap-1.5 text-[11px]">
+                  <RequirementChip met={hasMinLength} label="8+ chars" />
+                  <RequirementChip met={hasUppercase} label="Uppercase" />
+                  <RequirementChip met={hasLowercase} label="Lowercase" />
+                  <RequirementChip met={hasNumber} label="Number" />
+                  <RequirementChip met={hasSpecial} label="Special char" />
+                </div>
+              </div>
+            )}
+
+            {/* Update Password Action */}
+            <div className="flex justify-end pt-3 border-t border-slate-100">
               <button
                 type="submit"
                 disabled={saving === 'password' || !passwordReady || !passwordsMatch}
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {saving === 'password' ? t('profileUpdatingPassword') : t('profileUpdatePasswordBtn')}
               </button>
@@ -388,6 +418,7 @@ interface PasswordFieldProps {
   onChange: (value: string) => void;
   shown: boolean;
   onToggle: () => void;
+  matchState?: 'matched' | 'mismatched';
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
@@ -398,11 +429,22 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   onChange,
   shown,
   onToggle,
+  matchState,
 }) => (
   <div className="space-y-1.5">
-    <label htmlFor={id} className="block text-xs sm:text-sm font-semibold text-slate-700">
-      {label}
-    </label>
+    <div className="flex items-center justify-between">
+      <label htmlFor={id} className="block text-xs sm:text-sm font-semibold text-slate-700">
+        {label}
+      </label>
+      {matchState === 'matched' && (
+        <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
+          <Check className="w-3 h-3" /> Matches
+        </span>
+      )}
+      {matchState === 'mismatched' && (
+        <span className="text-[11px] font-medium text-red-500">Does not match</span>
+      )}
+    </div>
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
         <Lock className="w-4 h-4" />
@@ -411,14 +453,18 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
         id={id}
         type={shown ? 'text' : 'password'}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-200 pl-10 pr-10 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+        className={`w-full rounded-xl border pl-10 pr-10 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 ${
+          matchState === 'mismatched'
+            ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+            : 'border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10'
+        }`}
       />
       <button
         type="button"
         onClick={onToggle}
-        className="absolute inset-y-0 right-0 w-10 flex items-center justify-center text-slate-400 hover:text-slate-600 active:text-slate-800 cursor-pointer"
+        className="absolute inset-y-0 right-0 w-10 flex items-center justify-center text-slate-400 hover:text-slate-600 cursor-pointer"
         aria-label={shown ? 'Hide password' : 'Show password'}
       >
         {shown ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -427,15 +473,15 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   </div>
 );
 
-const RequirementItem: React.FC<{ met: boolean; label: string }> = ({ met, label }) => (
-  <div className="flex items-start gap-2">
-    {met ? (
-      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-    ) : (
-      <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0 mt-0.5" />
-    )}
-    <span className={`leading-snug ${met ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-      {label}
-    </span>
-  </div>
+const RequirementChip: React.FC<{ met: boolean; label: string }> = ({ met, label }) => (
+  <span
+    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-medium transition-colors ${
+      met
+        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+        : 'bg-slate-100 text-slate-500 border border-transparent'
+    }`}
+  >
+    {met && <Check className="w-3 h-3 stroke-[2.5]" />}
+    <span>{label}</span>
+  </span>
 );

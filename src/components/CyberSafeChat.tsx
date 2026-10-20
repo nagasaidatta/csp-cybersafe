@@ -32,6 +32,10 @@ interface CyberSafeChatProps {
 }
 
 const STORAGE_KEY_POS = 'csp_ai_logo_pos';
+const DESKTOP_CHAT_WIDTH = 410;
+const DESKTOP_CHAT_HEIGHT = 560;
+const MOBILE_CHAT_WIDTH = 360;
+const MOBILE_CHAT_HEIGHT = 460;
 
 const computeInitialWindowPos = (buttonPos: { x: number; y: number }): { x: number; y: number } => {
   if (typeof window === 'undefined') {
@@ -45,8 +49,10 @@ const computeInitialWindowPos = (buttonPos: { x: number; y: number }): { x: numb
   const buttonSize = 48;
   const edgeMargin = isMobile ? 12 : 20;
 
-  const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
-  const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+  const chatWidth = isMobile ? Math.min(MOBILE_CHAT_WIDTH, screenWidth - 24) : DESKTOP_CHAT_WIDTH;
+  const chatHeight = isMobile
+    ? Math.min(MOBILE_CHAT_HEIGHT, screenHeight * 0.72)
+    : Math.min(DESKTOP_CHAT_HEIGHT, screenHeight - 32);
 
   const isLeft = buttonPos.x < screenWidth / 2;
   const isTop = buttonPos.y < screenHeight / 2;
@@ -215,8 +221,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
 
       setWindowPos((prev) => {
         if (!prev) return null;
-        const chatWidth = isMobileNow ? Math.min(360, screenWidth - 24) : 410;
-        const chatHeight = isMobileNow ? Math.min(460, screenHeight * 0.72) : 520;
+        const chatWidth = isMobileNow ? Math.min(MOBILE_CHAT_WIDTH, screenWidth - 24) : DESKTOP_CHAT_WIDTH;
+        const chatHeight = isMobileNow
+          ? Math.min(MOBILE_CHAT_HEIGHT, screenHeight * 0.72)
+          : Math.min(DESKTOP_CHAT_HEIGHT, screenHeight - 32);
         return {
           x: Math.max(0, Math.min(prev.x, screenWidth - chatWidth)),
           y: Math.max(0, Math.min(prev.y, screenHeight - chatHeight))
@@ -379,8 +387,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       const isMobile = screenWidth < 640;
-      const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
-      const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+      const chatWidth = isMobile ? Math.min(MOBILE_CHAT_WIDTH, screenWidth - 24) : DESKTOP_CHAT_WIDTH;
+      const chatHeight = isMobile
+        ? Math.min(MOBILE_CHAT_HEIGHT, screenHeight * 0.72)
+        : Math.min(DESKTOP_CHAT_HEIGHT, screenHeight - 32);
 
       const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
       const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
@@ -449,8 +459,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
         const dx = moveTouch.clientX - windowDragStartRef.current.startX;
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const chatWidth = 410;
-        const chatHeight = 520;
+        const chatWidth = DESKTOP_CHAT_WIDTH;
+        const chatHeight = Math.min(DESKTOP_CHAT_HEIGHT, screenHeight - 32);
 
         const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
         const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
@@ -855,13 +865,17 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
                   position: 'fixed',
                   left: `${(windowPos ?? computeInitialWindowPos(position)).x}px`,
                   top: `${(windowPos ?? computeInitialWindowPos(position)).y}px`,
+                  width: `${DESKTOP_CHAT_WIDTH}px`,
+                  height: `${Math.min(DESKTOP_CHAT_HEIGHT, typeof window !== 'undefined' ? window.innerHeight - 32 : DESKTOP_CHAT_HEIGHT)}px`,
+                  maxHeight: 'calc(100vh - 32px)',
+                  maxWidth: 'calc(100vw - 32px)',
                   zIndex: 99999
                 }
           }
           className={`flex flex-col bg-white overflow-hidden ${
             isFullscreen
-              ? 'fixed inset-0 w-full rounded-none shadow-none z-[99999]'
-              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] md:w-[420px] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
+              ? 'fixed inset-0 w-full h-full rounded-none shadow-none z-[99999]'
+              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] sm:h-[560px] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
           }`}
         >
           {/* Header - Acts as drag handle when not fullscreen */}
@@ -1000,7 +1014,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           </div>
 
           {/* ChatGPT Style Minimal Input Bar */}
-          <div className="p-2.5 sm:p-3 sm:px-4 bg-white border-t border-slate-100">
+          <div className="p-2.5 sm:p-3 sm:px-4 bg-white border-t border-slate-100 shrink-0">
             <div className={isFullscreen ? 'max-w-3xl mx-auto w-full' : ''}>
               <form
                 onSubmit={(e) => {

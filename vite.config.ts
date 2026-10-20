@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => {
   if (env.ADMIN_PASSWORD && !process.env.ADMIN_PASSWORD) {
     process.env.ADMIN_PASSWORD = env.ADMIN_PASSWORD;
   }
+  if (env.GROQ_API_KEY && !process.env.GROQ_API_KEY) {
+    process.env.GROQ_API_KEY = env.GROQ_API_KEY;
+  }
+  if (env.GROQ_MODEL && !process.env.GROQ_MODEL) {
+    process.env.GROQ_MODEL = env.GROQ_MODEL;
+  }
 
 
   return {
@@ -135,6 +141,39 @@ export default defineConfig(({ mode }) => {
 
                 try {
                   const module = await import('./api/dashboard-progress.js');
+                  await module.default(req, mockRes);
+                } catch (err: any) {
+                  res.statusCode = 500;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify({ error: err.message || 'Internal dev server error' }));
+                }
+              });
+              return;
+            }
+
+            if (urlPath === '/api/chat') {
+              let bodyStr = '';
+              req.on('data', (chunk) => {
+                bodyStr += chunk;
+              });
+              req.on('end', async () => {
+                try {
+                  (req as any).body = bodyStr ? JSON.parse(bodyStr) : {};
+                } catch {
+                  (req as any).body = bodyStr;
+                }
+                const mockRes = res as any;
+                mockRes.status = (code: number) => {
+                  res.statusCode = code;
+                  return mockRes;
+                };
+                mockRes.json = (data: any) => {
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify(data));
+                };
+
+                try {
+                  const module = await import('./api/chat.js');
                   await module.default(req, mockRes);
                 } catch (err: any) {
                   res.statusCode = 500;

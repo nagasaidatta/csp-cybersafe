@@ -13,6 +13,7 @@ import { PasswordCheckerPage } from './pages/PasswordCheckerPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EditProfilePage } from './pages/EditProfilePage';
+import { CyberSafeChat } from './components/CyberSafeChat';
 import { ViewState } from './types';
 
 const VALID_VIEWS: ViewState[] = [
@@ -250,6 +251,9 @@ const AppContent: React.FC = () => {
 
       {/* Portal Footer */}
       <Footer onNavigate={handleNavigate} />
+
+      {/* Floating Movable AI Assistant (CyberSafe AI powered by Groq) */}
+      <CyberSafeChat onNavigate={handleNavigate} currentView={currentView} />
     </div>
   );
 };

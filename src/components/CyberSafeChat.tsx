@@ -873,10 +873,6 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
               isFullscreen ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
             }`}
           >
-            {/* Visual drag pull indicator for mobile */}
-            {!isFullscreen && (
-              <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-slate-300 rounded-full sm:hidden pointer-events-none" />
-            )}
 
             <div className="flex items-center gap-2 sm:gap-2.5">
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 select-none">

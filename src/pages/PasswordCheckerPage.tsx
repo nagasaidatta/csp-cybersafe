@@ -94,7 +94,7 @@ export const PasswordCheckerPage: React.FC<PasswordCheckerPageProps> = ({ onNavi
         </div>
 
         {/* Password Input & Real-Time Meter Card */}
-        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 shadow-sm max-w-3xl mx-auto">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl shadow-md max-w-3xl mx-auto">
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -191,66 +191,66 @@ export const PasswordCheckerPage: React.FC<PasswordCheckerPageProps> = ({ onNavi
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${
-                    criteria.minLength ? 'text-emerald-900 bg-emerald-50/70 border-emerald-200/80 font-medium' : 'text-slate-500 bg-slate-50/80 border-slate-200/60'
+                  className={`flex items-center gap-2 p-2.5 rounded-xl transition-colors ${
+                    criteria.minLength ? 'text-emerald-900 bg-emerald-100/80 font-medium' : 'text-slate-600 bg-slate-100/90'
                   }`}
                 >
                   {criteria.minLength ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-300 shrink-0" />
+                    <XCircle className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <span>{t('pwdCritMinLength')}</span>
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${
-                    criteria.uppercase ? 'text-emerald-900 bg-emerald-50/70 border-emerald-200/80 font-medium' : 'text-slate-500 bg-slate-50/80 border-slate-200/60'
+                  className={`flex items-center gap-2 p-2.5 rounded-xl transition-colors ${
+                    criteria.uppercase ? 'text-emerald-900 bg-emerald-100/80 font-medium' : 'text-slate-600 bg-slate-100/90'
                   }`}
                 >
                   {criteria.uppercase ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-300 shrink-0" />
+                    <XCircle className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <span>{t('pwdCritUppercase')}</span>
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${
-                    criteria.lowercase ? 'text-emerald-900 bg-emerald-50/70 border-emerald-200/80 font-medium' : 'text-slate-500 bg-slate-50/80 border-slate-200/60'
+                  className={`flex items-center gap-2 p-2.5 rounded-xl transition-colors ${
+                    criteria.lowercase ? 'text-emerald-900 bg-emerald-100/80 font-medium' : 'text-slate-600 bg-slate-100/90'
                   }`}
                 >
                   {criteria.lowercase ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-300 shrink-0" />
+                    <XCircle className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <span>{t('pwdCritLowercase')}</span>
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${
-                    criteria.number ? 'text-emerald-900 bg-emerald-50/70 border-emerald-200/80 font-medium' : 'text-slate-500 bg-slate-50/80 border-slate-200/60'
+                  className={`flex items-center gap-2 p-2.5 rounded-xl transition-colors ${
+                    criteria.number ? 'text-emerald-900 bg-emerald-100/80 font-medium' : 'text-slate-600 bg-slate-100/90'
                   }`}
                 >
                   {criteria.number ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-300 shrink-0" />
+                    <XCircle className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <span>{t('pwdCritNumber')}</span>
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 p-2.5 rounded-xl border transition-colors sm:col-span-2 ${
-                    criteria.symbol ? 'text-emerald-900 bg-emerald-50/70 border-emerald-200/80 font-medium' : 'text-slate-500 bg-slate-50/80 border-slate-200/60'
+                  className={`flex items-center gap-2 p-2.5 rounded-xl transition-colors sm:col-span-2 ${
+                    criteria.symbol ? 'text-emerald-900 bg-emerald-100/80 font-medium' : 'text-slate-600 bg-slate-100/90'
                   }`}
                 >
                   {criteria.symbol ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-300 shrink-0" />
+                    <XCircle className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <span>{t('pwdCritSymbol')}</span>
                 </div>
@@ -261,7 +261,7 @@ export const PasswordCheckerPage: React.FC<PasswordCheckerPageProps> = ({ onNavi
 
         {/* SUGGESTIONS DISPLAY: DISPLAY ONLY AFTER IT BECOMES STRONG */}
         {isStrong && (
-          <div className="mt-8 bg-white rounded-2xl border border-emerald-200 shadow-sm max-w-3xl mx-auto overflow-hidden animate-in fade-in">
+          <div className="mt-8 bg-white rounded-2xl shadow-md max-w-3xl mx-auto overflow-hidden animate-in fade-in">
             {/* Strong Banner */}
             <div className="bg-emerald-50/80 p-6 border-b border-emerald-100 flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -284,7 +284,7 @@ export const PasswordCheckerPage: React.FC<PasswordCheckerPageProps> = ({ onNavi
                   {contextualSuggestions.map((sug) => (
                     <div
                       key={sug.id}
-                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/70 text-xs sm:text-sm text-slate-800 leading-relaxed"
+                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-100/80 text-xs sm:text-sm text-slate-800 leading-relaxed"
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-600 shrink-0 mt-2" />
                       <span className="flex-1">{getSuggestionText(sug, language)}</span>

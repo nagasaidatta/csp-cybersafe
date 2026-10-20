@@ -46,7 +46,7 @@ const computeInitialWindowPos = (buttonPos: { x: number; y: number }): { x: numb
   const screenHeight = window.innerHeight;
   const isMobile = screenWidth < 640;
 
-  const buttonSize = 48;
+  const buttonSize = 56;
   const edgeMargin = isMobile ? 12 : 20;
 
   const chatWidth = isMobile ? Math.min(MOBILE_CHAT_WIDTH, screenWidth - 24) : DESKTOP_CHAT_WIDTH;
@@ -118,8 +118,8 @@ export const CyberSafeChat: React.FC<CyberSafeChatProps> = ({ onNavigate }) => {
           const parsed = JSON.parse(saved);
           if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
             const screenWidth = window.innerWidth;
-            const buttonWidth = 48;
-            const edgeMargin = 16;
+            const buttonWidth = 56;
+            const edgeMargin = screenWidth < 640 ? 20 : 32;
             const targetX = parsed.x < screenWidth / 2 ? edgeMargin : screenWidth - buttonWidth - edgeMargin;
             const targetY = Math.min(Math.max(edgeMargin, parsed.y), window.innerHeight - buttonWidth - edgeMargin);
             return { x: targetX, y: targetY };
@@ -128,9 +128,11 @@ export const CyberSafeChat: React.FC<CyberSafeChatProps> = ({ onNavigate }) => {
       } catch {
         // ignore
       }
+      const buttonWidth = 56;
+      const edgeMargin = window.innerWidth < 640 ? 20 : 32;
       return {
-        x: Math.max(16, window.innerWidth - 64),
-        y: Math.max(16, window.innerHeight - 80)
+        x: Math.max(edgeMargin, window.innerWidth - buttonWidth - edgeMargin),
+        y: Math.max(edgeMargin, window.innerHeight - buttonWidth - edgeMargin - 16)
       };
     }
     return { x: 500, y: 500 };
@@ -212,8 +214,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       setIsMobile(isMobileNow);
 
       setPosition((prev) => {
-        const buttonWidth = 48;
-        const edgeMargin = 16;
+        const buttonWidth = 56;
+        const edgeMargin = screenWidth < 640 ? 20 : 32;
         const targetX = prev.x < screenWidth / 2 ? edgeMargin : screenWidth - buttonWidth - edgeMargin;
         const targetY = Math.min(Math.max(edgeMargin, prev.y), screenHeight - buttonWidth - edgeMargin);
         return { x: targetX, y: targetY };
@@ -552,8 +554,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       }
 
       if (isDraggingRef.current) {
-        const nextX = Math.min(Math.max(12, dragStartRef.current.initialX + dx), window.innerWidth - 60);
-        const nextY = Math.min(Math.max(12, dragStartRef.current.initialY + dy), window.innerHeight - 60);
+        const buttonWidth = 56;
+        const dragMargin = window.innerWidth < 640 ? 20 : 32;
+        const nextX = Math.min(Math.max(dragMargin, dragStartRef.current.initialX + dx), window.innerWidth - buttonWidth - dragMargin);
+        const nextY = Math.min(Math.max(dragMargin, dragStartRef.current.initialY + dy), window.innerHeight - buttonWidth - dragMargin);
         latestPosRef.current = { x: nextX, y: nextY };
 
         if (!buttonRafRef.current) {
@@ -589,8 +593,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
         // Snap smoothly to nearest side (left or right)
         const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 800;
         const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 600;
-        const buttonWidth = 48; // w-12 is 48px
-        const edgeMargin = 16;
+        const buttonWidth = 56; // w-14 is 56px
+        const edgeMargin = screenWidth < 640 ? 20 : 32;
 
         const currentCenterX = latestPosRef.current.x + buttonWidth / 2;
         const snapLeftX = edgeMargin;
@@ -790,14 +794,14 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           }}
           aria-label="Open CyberSafe AI Chat"
           title="CyberSafe AI"
-          className={`w-12 h-12 rounded-full aspect-square bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.5)] flex items-center justify-center transition-all cursor-grab active:cursor-grabbing border-2 border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
+          className={`relative w-14 h-14 rounded-full aspect-square bg-blue-600 hover:bg-blue-700 text-white shadow-[0_0_25px_rgba(37,99,235,0.45)] hover:shadow-[0_0_32px_rgba(37,99,235,0.6)] flex items-center justify-center transition-all cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
             isOpen ? 'ring-2 ring-blue-600 ring-offset-2' : ''
           }`}
         >
-          <div className="flex flex-col items-center justify-center select-none leading-none">
-            <Bot className="w-4.5 h-4.5 text-white" />
-            <span className="text-[9px] font-black tracking-widest text-white mt-0.5">AI</span>
-          </div>
+          <Bot className="w-10 h-10 text-white shrink-0" strokeWidth={2.2} />
+          <span className="absolute top-0 right-0 w-[18px] h-[18px] rounded-full aspect-square bg-white text-blue-700 text-[10px] font-black tracking-tight shadow-md flex items-center justify-center select-none leading-none pointer-events-none">
+            AI
+          </span>
         </button>
       </div>
 
@@ -875,7 +879,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           className={`flex flex-col bg-white overflow-hidden ${
             isFullscreen
               ? 'fixed inset-0 w-full h-full rounded-none shadow-none z-[99999]'
-              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] sm:h-[560px] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
+              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] sm:h-[560px] rounded-2xl shadow-[0_0_35px_0_rgba(0,0,0,0.18)]'
           }`}
         >
           {/* Header - Acts as drag handle when not fullscreen */}
@@ -889,8 +893,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           >
 
             <div className="flex items-center gap-2 sm:gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 select-none">
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 select-none">
+                <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" strokeWidth={2} />
               </div>
               <div className="flex flex-col justify-center">
                 <div className="flex items-center">
@@ -964,8 +968,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
                   ) : (
                     /* Assistant message */
                     <div className="flex items-start gap-2 sm:gap-3 max-w-[95%] sm:max-w-[92%]">
-                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
-                        <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
+                        <Bot className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" strokeWidth={2.2} />
                       </div>
 
                       <div className="flex-1 space-y-1.5 sm:space-y-2">
@@ -998,8 +1002,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
               {/* Loading Indicator */}
               {isLoading && (
                 <div className="flex items-start gap-2 sm:gap-3">
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
-                    <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
+                    <Bot className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" strokeWidth={2.2} />
                   </div>
                   <div className="flex items-center gap-1.5 py-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]" />

@@ -124,7 +124,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 pb-16">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-200 pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
         {/* Navigation & Header */}
         <div className="space-y-2">
@@ -145,10 +145,10 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
         {message && (
           <div
             role={message.type === 'error' ? 'alert' : 'status'}
-            className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium shadow-xs transition-all ${
+            className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-xs sm:text-sm font-medium shadow-xs transition-all ${
               message.type === 'success'
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                : 'border-red-200 bg-red-50 text-red-800'
+                ? 'bg-emerald-100 text-emerald-900'
+                : 'bg-red-100 text-red-900'
             }`}
           >
             <div className="flex items-center gap-2.5 min-w-0">
@@ -171,9 +171,9 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
         )}
 
         {/* 1. Profile Information & Avatar Card */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-6">
+        <section className="rounded-2xl bg-white p-5 sm:p-7 shadow-sm space-y-6">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100/80">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-100/70 text-blue-700">
               <User className="w-4 h-4" />
             </div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900">
@@ -182,7 +182,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
           </div>
 
           {/* Avatar Selector: Big selected avatar on left, 10 small avatars on right */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 p-5 sm:p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 p-5 sm:p-6 rounded-2xl bg-slate-100/80">
             {/* Big Selected Avatar on Left */}
             <div className="flex flex-col items-center shrink-0 sm:border-r sm:border-slate-200/80 sm:pr-8">
               <div className="relative">
@@ -306,9 +306,9 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
         </section>
 
         {/* 2. Password & Security Card */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-5">
+        <section className="rounded-2xl bg-white p-5 sm:p-7 shadow-sm space-y-5">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100/80">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100/70 text-amber-800">
               <KeyRound className="w-4 h-4" />
             </div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900">
@@ -477,8 +477,8 @@ const RequirementChip: React.FC<{ met: boolean; label: string }> = ({ met, label
   <span
     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-medium transition-colors ${
       met
-        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
-        : 'bg-slate-100 text-slate-500 border border-transparent'
+        ? 'bg-emerald-100 text-emerald-800'
+        : 'bg-slate-100 text-slate-500'
     }`}
   >
     {met && <Check className="w-3 h-3 stroke-[2.5]" />}

@@ -82,6 +82,7 @@ export interface Translations {
   clearUrlAria: string;
 
   // Password Checker
+  pwdBtnCheck: string;
   pwdCheckerBadge: string;
   pwdCheckerTitle: string;
   pwdCheckerDesc: string;
@@ -532,6 +533,7 @@ export const translations: Record<Language, Translations> = {
     clearUrlAria: 'Clear URL',
 
     // Password Checker
+    pwdBtnCheck: 'Check Password Strength',
     pwdCheckerBadge: 'Real-Time Cryptographic Evaluation',
     pwdCheckerTitle: 'Password Strength Checker',
     pwdCheckerDesc: 'Evaluate your password strength in real-time. Check entropy, complexity criteria, and instant security tips.',
@@ -988,6 +990,7 @@ export const translations: Record<Language, Translations> = {
     clearUrlAria: 'URL క్లియర్ చేయండి',
 
     // Password Checker
+    pwdBtnCheck: 'పాస్‌వర్డ్ బలాన్ని తనిఖీ చేయండి',
     pwdCheckerBadge: 'రియల్-టైమ్ భద్రతా మూల్యాంకనం',
     pwdCheckerTitle: 'పాస్‌వర్డ్ బలం తనిఖీ',
     pwdCheckerDesc: 'మీ పాస్‌వర్డ్ బలాన్ని నిజ సమయంలో అంచనా వేయండి. ఎంట్రోపీ, సంక్లిష్టత నిబంధనలు మరియు తక్షణ చిట్కాలను పొందండి.',
@@ -1444,6 +1447,7 @@ export const translations: Record<Language, Translations> = {
     clearUrlAria: 'URL हटाएं',
 
     // Password Checker
+    pwdBtnCheck: 'पासवर्ड की मजबूती जांचें',
     pwdCheckerBadge: 'रीयल-टाइम सुरक्षा मूल्यांकन',
     pwdCheckerTitle: 'पासवर्ड मजबूती चेकर',
     pwdCheckerDesc: 'रीयल-टाइम में अपने पासवर्ड की मजबूती जांचें। एंट्रॉपी स्कोर, जटिलता के नियम और उपयोगी सुरक्षा सुझाव प्राप्त करें।',

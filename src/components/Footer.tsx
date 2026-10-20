@@ -129,7 +129,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {/* Official 1930 Helpline */}
               <a
                 href="tel:1930"
-                className="flex items-start gap-2 p-2 rounded-lg bg-amber-50 hover:bg-amber-100/90 border border-amber-200/90 text-amber-900 transition-colors shadow-2xs group"
+                className="flex items-start gap-2 p-2 rounded-lg bg-amber-100/70 hover:bg-amber-100 text-amber-900 transition-colors shadow-2xs group"
                 title="National Cyber Crime Reporting Helpline (Toll-Free 24x7)"
               >
                 <PhoneCall className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
@@ -148,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 href="https://cybercrime.gov.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-1.5 px-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-700 transition-colors group"
+                className="flex items-center justify-between p-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 transition-colors group"
                 title="Official National Cyber Crime Reporting Portal"
               >
                 <span className="font-mono text-2xs font-medium group-hover:text-blue-700">

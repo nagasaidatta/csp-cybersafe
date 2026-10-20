@@ -162,35 +162,35 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
     switch (level) {
       case 'Critical':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
             <AlertOctagon className="w-3.5 h-3.5" />
             {t('riskCritical')}
           </span>
         );
       case 'High':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
             <XCircle className="w-3.5 h-3.5" />
             {t('riskHigh')}
           </span>
         );
       case 'Medium':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
             <AlertTriangle className="w-3.5 h-3.5" />
             {t('riskMedium')}
           </span>
         );
       case 'Low':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
             <CheckCircle2 className="w-3.5 h-3.5" />
             {t('riskLow')}
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 border border-slate-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800">
             <Info className="w-3.5 h-3.5" />
             {t('riskUnknown')}
           </span>
@@ -230,7 +230,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
         </div>
 
         {/* Input Card */}
-        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/90 shadow-sm max-w-3xl mx-auto">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl shadow-md max-w-3xl mx-auto">
           <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-4">
             <div>
               <label htmlFor="url-input" className="block text-sm font-semibold text-slate-800 mb-2">
@@ -276,7 +276,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
             {cooldownNotice && (
               <div
                 role="alert"
-                className="flex items-center gap-2.5 p-3.5 bg-amber-50/90 border border-amber-200 text-amber-900 rounded-xl text-sm animate-in fade-in"
+                className="flex items-center gap-2.5 p-3.5 bg-amber-100 text-amber-900 rounded-xl text-sm animate-in fade-in"
               >
                 <Clock className="w-4 h-4 shrink-0 text-amber-600" />
                 <span>{cooldownNotice}</span>
@@ -287,7 +287,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
             {errorMessage && (
               <div
                 role="alert"
-                className="flex items-start gap-2.5 p-3.5 bg-red-50/90 border border-red-200 text-red-900 rounded-xl text-sm animate-in fade-in"
+                className="flex items-start gap-2.5 p-3.5 bg-red-100 text-red-900 rounded-xl text-sm animate-in fade-in"
               >
                 <AlertTriangle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
                 <div className="flex-1">
@@ -324,7 +324,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
         {isLoading && (
           <div
             aria-live="polite"
-            className="mt-8 bg-white p-8 rounded-2xl border border-blue-100 shadow-sm max-w-3xl mx-auto text-center animate-in fade-in"
+            className="mt-8 bg-white p-8 rounded-2xl shadow-md max-w-3xl mx-auto text-center animate-in fade-in"
           >
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 mb-4 animate-pulse motion-reduce:animate-none">
               <ShieldAlert className="w-7 h-7" />
@@ -341,9 +341,9 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
 
         {/* Structured Results Display */}
         {result && !isLoading && (
-          <div className="mt-8 bg-white rounded-2xl border border-slate-200/90 shadow-sm max-w-3xl mx-auto overflow-hidden animate-in fade-in">
+          <div className="mt-8 bg-white rounded-2xl shadow-md max-w-3xl mx-auto overflow-hidden animate-in fade-in">
             {/* Top Bar with Cached Badge & Refresh */}
-            <div className="bg-slate-50/80 px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div className="bg-slate-100/90 px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                   {t('lsReportTitle')}
@@ -394,7 +394,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
                     {result.categories.map((cat, i) => (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-medium border border-slate-200/70"
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-medium"
                       >
                         {translateCategory(cat, language)}
                       </span>
@@ -408,7 +408,7 @@ export const LinkSafetyPage: React.FC<LinkSafetyPageProps> = ({ onNavigate }) =>
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
                   {t('lsSummaryTitle')}
                 </h4>
-                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50/80 p-4 rounded-xl border border-slate-200/70">
+                <p className="text-sm text-slate-700 leading-relaxed bg-slate-100/80 p-4 rounded-xl">
                   {getLocalizedExplanation(result, language)}
                 </p>
               </div>

@@ -253,11 +253,11 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Minimal Progress Indicator */}
-          <div className="shrink-0 flex items-center gap-3 bg-white px-3.5 py-2 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="shrink-0 flex items-center gap-3 bg-white px-3.5 py-2 rounded-xl shadow-sm">
             <div className="text-xs font-semibold text-slate-700 whitespace-nowrap">
               {completedCount} / {totalModules} {t('badgeCompleted')}
             </div>
-            <div className="w-28 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/80">
+            <div className="w-28 bg-slate-200/70 rounded-full h-2 overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 rounded-full ${
                   isAllCompleted ? 'bg-emerald-600' : 'bg-blue-600'
@@ -271,7 +271,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
 
       {/* Sync Notice */}
       {syncNote && (
-        <div className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
+        <div className="mb-5 p-3 bg-amber-100 text-amber-900 rounded-xl text-xs flex items-center justify-between">
           <span>{syncNote}</span>
           <button
             type="button"
@@ -296,10 +296,10 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
               key={item.id}
               type="button"
               onClick={() => setActiveModuleId(item.id)}
-              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
+              className={`p-3 rounded-xl text-left transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
                 isActive
-                  ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
-                  : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                  ? 'bg-blue-700 text-white shadow-sm'
+                  : 'bg-white text-slate-800 shadow-sm hover:shadow-md hover:bg-slate-50'
               }`}
             >
               <div className="truncate">
@@ -322,7 +322,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
       </div>
 
       {/* Active Module Focused Card */}
-      <article className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <article className="bg-white rounded-2xl shadow-md overflow-hidden">
         {/* Module Title Header Bar */}
         <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-white">
           <div className="flex items-center gap-2.5">
@@ -334,7 +334,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
             </h2>
           </div>
           {isCurrentCompleted && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full shrink-0">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-full shrink-0">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>{t('badgeCompleted')}</span>
             </span>
@@ -346,7 +346,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
 
           {/* Left Column: Video */}
           <div className="lg:col-span-7">
-            <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-950 shadow-xs border border-slate-900/10">
+            <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-950 shadow-xs">
               {isCurrentVideoActive ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${currentModule.videoId}?autoplay=1`}
@@ -395,7 +395,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
               </div>
 
               {/* Collapsible Transcript */}
-              <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5">
+              <div className="rounded-xl bg-slate-100/80 p-3.5">
                 <button
                   type="button"
                   onClick={() => toggleTranscript(currentModule.id)}
@@ -432,7 +432,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
                 title={isCurrentCompleted ? t('btnCompletedTooltip') : t('btnComplete')}
                 className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
                   isCurrentCompleted
-                    ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    ? 'bg-emerald-100/80 hover:bg-emerald-200/80 text-emerald-900'
                     : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
                 } ${updatingModule === currentModule.id ? 'opacity-70 cursor-wait' : ''}`}
               >
@@ -459,7 +459,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Step Navigation Bar */}
-        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3">
+        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-100/70 flex items-center justify-between gap-3">
           <button
             type="button"
             disabled={activeModuleId === 1}
@@ -518,7 +518,7 @@ export const ModulesPage: React.FC<ModulesPageProps> = ({ onNavigate }) => {
               type="button"
               disabled
               title={t('btnTakeQuizDisabledNotice')}
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed"
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 bg-slate-200/60 cursor-not-allowed"
             >
               <span>{t('btnTakeQuiz')}</span>
               <ArrowRight className="w-3.5 h-3.5" />

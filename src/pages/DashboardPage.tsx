@@ -427,7 +427,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             <span>{t('btnBackToHome')}</span>
           </button>
 
-          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-2xs">
+          <div className="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm">
             <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
             {languages.map((lang) => (
               <button
@@ -447,7 +447,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Minimal Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7">
+        <div className="bg-white rounded-2xl shadow-md p-6 sm:p-7">
           <div className="mb-5">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">{t('adminLoginTitle')}</h1>
           </div>
@@ -456,7 +456,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           {loginError && (
             <div
               role="alert"
-              className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-900 text-xs sm:text-sm flex items-start gap-2"
+              className="mb-4 p-3 rounded-lg bg-red-100 text-red-900 text-xs sm:text-sm flex items-start gap-2"
             >
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <span>{loginError}</span>
@@ -574,7 +574,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           {/* Action Buttons: Language, Refresh & Logout */}
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             {/* Language Switcher */}
-            <div className="inline-flex items-center gap-1 bg-white border border-slate-300 rounded-lg p-1 shadow-2xs">
+            <div className="inline-flex items-center gap-1 bg-white rounded-lg p-1 shadow-xs">
               <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
               {languages.map((lang) => (
                 <button
@@ -619,7 +619,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       {fetchError && (
         <div
           role="alert"
-          className="mb-6 p-3.5 rounded-xl bg-red-50/90 border border-red-200 text-red-900 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-2xs"
+          className="mb-6 p-3.5 rounded-xl bg-red-100 text-red-900 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-2xs"
         >
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
@@ -640,7 +640,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         <h2 id="summary-heading" className="sr-only">{t('adminSummaryHeading')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Card 1: Total Users */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               {t('adminTotalUsers')}
             </span>
@@ -650,7 +650,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Card 2: Fully Completed Users */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               {t('adminFullyCompletedUsers')}
             </span>
@@ -660,7 +660,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Card 3: Avg Highest Quiz Score */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
               {t('adminAvgQuizScore')}
             </span>
@@ -699,7 +699,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold text-slate-600 border border-slate-200">
+            <div className="inline-flex rounded-lg bg-slate-200/80 p-0.5 text-xs font-semibold text-slate-600">
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
@@ -749,7 +749,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Minimal Responsive Table */}
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
           {loading && !data ? (
             /* Loading State */
             <div className="py-12 text-center space-y-3">
@@ -916,7 +916,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
                             {/* Minimal visual progress bar matching ModulesPage */}
                             <div
-                              className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/80"
+                              className="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden"
                               role="progressbar"
                               aria-valuenow={item.percentage}
                               aria-valuemin={0}

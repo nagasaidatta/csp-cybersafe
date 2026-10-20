@@ -90,7 +90,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 pb-16">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-200 pb-16">
       <div className="max-w-5xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 space-y-5 sm:space-y-7">
         {/* Navigation Breadcrumb */}
         <div className="mb-1 sm:mb-2">
@@ -105,7 +105,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Profile Header Card */}
-        <section className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-7 shadow-xs">
+        <section className="rounded-2xl bg-white p-4 sm:p-7 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
               {/* Avatar */}
@@ -177,11 +177,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             {/* Card 1: Quiz Score */}
             <div
               onClick={() => onNavigate('quiz')}
-              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-5 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl bg-white p-3 sm:p-5 shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               <div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-blue-50 text-blue-700 border border-blue-100/80 shrink-0">
+                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-blue-100/70 text-blue-700 shrink-0">
                     <Award className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                   </span>
                   <p className="text-[11px] sm:text-xs md:text-sm font-semibold text-slate-600 line-clamp-1 leading-tight">
@@ -208,11 +208,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             {/* Card 2: Total Modules */}
             <div
               onClick={() => onNavigate('modules')}
-              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-5 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-all cursor-pointer"
+              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl bg-white p-3 sm:p-5 shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               <div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100/80 shrink-0">
+                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-emerald-100/70 text-emerald-700 shrink-0">
                     <BookOpen className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                   </span>
                   <p className="text-[11px] sm:text-xs md:text-sm font-semibold text-slate-600 line-clamp-1 leading-tight">
@@ -237,11 +237,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             {/* Card 3: Course Completion */}
             <div
               onClick={() => onNavigate('modules')}
-              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-5 shadow-xs hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer"
+              className="flex flex-col justify-between h-full rounded-xl sm:rounded-2xl bg-white p-3 sm:p-5 shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               <div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100/80 shrink-0">
+                  <span className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg bg-indigo-100/70 text-indigo-700 shrink-0">
                     <CheckCircle2 className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                   </span>
                   <p className="text-[11px] sm:text-xs md:text-sm font-semibold text-slate-600 line-clamp-1 leading-tight">
@@ -273,7 +273,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => onNavigate('quiz')}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200/90 bg-white px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-white px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm hover:shadow hover:bg-slate-50 transition-all cursor-pointer"
             >
               <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
               <span className="truncate">{highestQuizScore !== null ? t('profileRetakeQuiz') : t('profileTakeQuiz')}</span>
@@ -292,7 +292,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
 
         {/* Course Activity Breakdown Section */}
         <section
-          className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs"
+          className="overflow-hidden rounded-2xl bg-white shadow-sm"
           aria-labelledby="modules-heading"
         >
           <div className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-6 gap-3">
@@ -304,7 +304,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
                 Learning curriculum and completion records
               </p>
             </div>
-            <span className="text-xs font-semibold text-slate-600 shrink-0 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200/60">
+            <span className="text-xs font-semibold text-slate-600 shrink-0 bg-slate-100 px-2.5 py-1 rounded-full">
               {completedCount} / {totalModules} Completed
             </span>
           </div>
@@ -321,8 +321,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
                     <span
                       className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold ${
                         done
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          ? 'bg-emerald-100/80 text-emerald-800'
+                          : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {done ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : index + 1}

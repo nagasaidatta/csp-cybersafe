@@ -70,7 +70,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('link-safety')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('link-safety')}
               aria-label={`Open ${t('navLinkSafety')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-blue-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">
@@ -87,11 +87,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-blue-700 group-hover:text-blue-800">
-                <span>{t('lsBtnCheck')}</span>
-                <div className="w-7 h-7 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate('link-safety');
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                >
+                  <span>{t('lsBtnCheck')}</span>
                   <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                </div>
+                </button>
               </div>
             </div>
 
@@ -102,7 +109,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('message-safety')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('message-safety')}
               aria-label={`Open ${t('navMessageSafety')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-amber-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">
@@ -119,11 +126,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-amber-700 group-hover:text-amber-800">
-                <span>{t('msBtnCheck')}</span>
-                <div className="w-7 h-7 rounded-full bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center transition-colors">
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate('message-safety');
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.98] rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
+                >
+                  <span>{t('msBtnCheck')}</span>
                   <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                </div>
+                </button>
               </div>
             </div>
 
@@ -134,7 +148,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('password-checker')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('password-checker')}
               aria-label={`Open ${t('navPasswordChecker')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl border border-slate-200/90 hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">
@@ -151,11 +165,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-semibold text-emerald-700 group-hover:text-emerald-800">
-                <span>{t('navPasswordChecker')}</span>
-                <div className="w-7 h-7 rounded-full bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate('password-checker');
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] rounded-xl shadow-xs transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                >
+                  <span>{t('pwdBtnCheck')}</span>
                   <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -175,7 +196,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-semibold mb-3">
                   <GraduationCap className="w-3.5 h-3.5" />
                   {t('navModules')}
                 </span>
@@ -211,7 +232,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               className="group cursor-pointer bg-slate-900 text-white rounded-2xl p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-semibold mb-3 border border-indigo-400/30">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-semibold mb-3">
                   <HelpCircle className="w-3.5 h-3.5" />
                   {t('footerQuizAssessment')}
                 </span>
@@ -250,7 +271,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </h2>
           </div>
 
-          <div className="bg-slate-50/90 border border-slate-200/90 rounded-2xl p-6 sm:p-8">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 md:divide-x md:divide-slate-200">
               {/* Stat 1 */}
               <div className="flex flex-col justify-between">

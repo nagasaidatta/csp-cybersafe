@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {langMenuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 mt-2 w-36 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-lg p-1 z-50 animate-in fade-in zoom-in-95 duration-100"
               >
                 {languages.map((item) => (
                   <button
@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {userMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 w-52 bg-white border border-slate-200/90 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
                 >
                   <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2.5">
                     <Avatar avatarId={profile?.avatar_id} size="sm" className="w-7 h-7 shrink-0 ring-1 ring-slate-200" />

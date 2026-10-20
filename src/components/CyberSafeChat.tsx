@@ -153,6 +153,18 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [windowPos, setWindowPos] = useState<{ x: number; y: number } | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth < 640 : false);
+  const [viewportData, setViewportData] = useState<{ height: number; offsetTop: number; keyboardHeight: number }>(() => {
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      const vh = window.visualViewport.height;
+      const kh = Math.max(0, window.innerHeight - vh);
+      return { height: vh, offsetTop: window.visualViewport.offsetTop, keyboardHeight: kh > 80 ? kh : 0 };
+    }
+    return {
+      height: typeof window !== 'undefined' ? window.innerHeight : 800,
+      offsetTop: 0,
+      keyboardHeight: 0
+    };
+  });
   const isWindowDraggingRef = useRef(false);
   const windowActivePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const windowRafRef = useRef<number | null>(null);
@@ -217,18 +229,68 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
 
   // Handle mobile visual viewport resize (keyboard open/close)
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.visualViewport) return;
+    if (typeof window === 'undefined') return;
 
-    const visualViewport = window.visualViewport;
-    const handleViewportChange = () => {
+    const updateViewport = () => {
+      if (window.visualViewport) {
+        const vh = window.visualViewport.height;
+        const offsetTop = window.visualViewport.offsetTop;
+        const kh = Math.max(0, window.innerHeight - vh);
+        setViewportData({
+          height: vh,
+          offsetTop,
+          keyboardHeight: kh > 80 ? kh : 0
+        });
+      } else {
+        setViewportData({
+          height: window.innerHeight,
+          offsetTop: 0,
+          keyboardHeight: 0
+        });
+      }
+
       if (isOpen) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     };
 
-    visualViewport.addEventListener('resize', handleViewportChange);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateViewport);
+      window.visualViewport.addEventListener('scroll', updateViewport);
+    }
+    window.addEventListener('resize', updateViewport);
+
     return () => {
-      visualViewport.removeEventListener('resize', handleViewportChange);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateViewport);
+        window.visualViewport.removeEventListener('scroll', updateViewport);
+      }
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, [isOpen]);
+
+  // Prevent background page from scrolling on mobile while chat is open
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 640) return;
+
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+    const originalOverflow = document.body.style.overflow;
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.width = originalWidth;
+      document.body.style.overflow = originalOverflow;
+      window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
 
@@ -763,18 +825,31 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           aria-label="CyberSafe AI"
           style={
             isFullscreen
-              ? { position: 'fixed', inset: 0, zIndex: 99999 }
+              ? isMobile
+                ? {
+                    position: 'fixed',
+                    top: `${viewportData.offsetTop}px`,
+                    left: 0,
+                    right: 0,
+                    width: '100%',
+                    height: `${viewportData.height}px`,
+                    zIndex: 99999
+                  }
+                : { position: 'fixed', inset: 0, zIndex: 99999 }
               : isMobile
               ? {
                   position: 'fixed',
-                  bottom: '12px',
+                  bottom: `${viewportData.keyboardHeight > 0 ? viewportData.keyboardHeight + 8 : 12}px`,
                   left: '12px',
                   right: '12px',
                   margin: '0 auto',
                   maxWidth: '360px',
-                  height: 'min(460px, calc(100dvh - 24px))',
-                  maxHeight: 'calc(100dvh - 24px)',
-                  zIndex: 99999
+                  height: `${Math.min(460, Math.max(260, viewportData.height - 24))}px`,
+                  maxHeight: `${Math.max(260, viewportData.height - 24)}px`,
+                  zIndex: 99999,
+                  transition: isWindowDraggingRef.current
+                    ? 'none'
+                    : 'bottom 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), height 0.25s cubic-bezier(0.2, 0.9, 0.3, 1)'
                 }
               : {
                   position: 'fixed',
@@ -785,8 +860,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           }
           className={`flex flex-col bg-white overflow-hidden ${
             isFullscreen
-              ? 'fixed inset-0 w-full h-[100dvh] rounded-none shadow-none z-[99999]'
-              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] md:w-[420px] h-[460px] sm:h-[520px] max-h-[75dvh] sm:max-h-[calc(100vh-80px)] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
+              ? 'fixed inset-0 w-full rounded-none shadow-none z-[99999]'
+              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] md:w-[420px] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
           }`}
         >
           {/* Header - Acts as drag handle when not fullscreen */}

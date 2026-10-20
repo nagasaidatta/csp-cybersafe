@@ -152,9 +152,12 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   // Fullscreen & Draggable Window States
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [windowPos, setWindowPos] = useState<{ x: number; y: number } | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth < 640 : false);
   const isWindowDraggingRef = useRef(false);
   const windowActivePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const windowRafRef = useRef<number | null>(null);
+  const lastOpenTimeRef = useRef<number>(0);
+  const dragStartTimeRef = useRef<number>(0);
   const windowDragStartRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number }>({
     startX: 0,
     startY: 0,
@@ -185,22 +188,23 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   // Keep button and window within screen boundaries on resize
   useEffect(() => {
     const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isMobileNow = screenWidth < 640;
+      setIsMobile(isMobileNow);
+
       setPosition((prev) => {
-        const screenWidth = window.innerWidth;
         const buttonWidth = 48;
         const edgeMargin = 16;
         const targetX = prev.x < screenWidth / 2 ? edgeMargin : screenWidth - buttonWidth - edgeMargin;
-        const targetY = Math.min(Math.max(edgeMargin, prev.y), window.innerHeight - buttonWidth - edgeMargin);
+        const targetY = Math.min(Math.max(edgeMargin, prev.y), screenHeight - buttonWidth - edgeMargin);
         return { x: targetX, y: targetY };
       });
 
       setWindowPos((prev) => {
         if (!prev) return null;
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const isMobile = screenWidth < 640;
-        const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
-        const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+        const chatWidth = isMobileNow ? Math.min(360, screenWidth - 24) : 410;
+        const chatHeight = isMobileNow ? Math.min(460, screenHeight * 0.72) : 520;
         return {
           x: Math.max(0, Math.min(prev.x, screenWidth - chatWidth)),
           y: Math.max(0, Math.min(prev.y, screenHeight - chatHeight))
@@ -210,6 +214,23 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle mobile visual viewport resize (keyboard open/close)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+
+    const visualViewport = window.visualViewport;
+    const handleViewportChange = () => {
+      if (isOpen) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    visualViewport.addEventListener('resize', handleViewportChange);
+    return () => {
+      visualViewport.removeEventListener('resize', handleViewportChange);
+    };
+  }, [isOpen]);
 
   // Smooth scroll to bottom on new messages
   useEffect(() => {
@@ -231,6 +252,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
 
     const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
       if (isWindowDraggingRef.current) return;
+      if (Date.now() - lastOpenTimeRef.current < 450) return;
       const target = event.target as Node;
       if (
         chatWindowRef.current &&
@@ -334,10 +356,12 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     if (isFullscreen || e.touches.length === 0) return;
     if ((e.target as HTMLElement).closest('button, input, a, textarea')) return;
 
+    const isMobileNow = window.innerWidth < 640;
     isWindowDraggingRef.current = true;
     document.body.style.userSelect = 'none';
 
     const touch = e.touches[0];
+    const startTouchY = touch.clientY;
     const currentX = windowPos ? windowPos.x : computeInitialWindowPos(position).x;
     const currentY = windowPos ? windowPos.y : computeInitialWindowPos(position).y;
     windowActivePosRef.current = { x: currentX, y: currentY };
@@ -352,41 +376,71 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     const handleTouchMove = (moveEvent: TouchEvent) => {
       if (!isWindowDraggingRef.current || moveEvent.touches.length === 0) return;
       const moveTouch = moveEvent.touches[0];
-      const dx = moveTouch.clientX - windowDragStartRef.current.startX;
-      const dy = moveTouch.clientY - windowDragStartRef.current.startY;
+      const dy = moveTouch.clientY - startTouchY;
 
-      const screenWidth = window.innerWidth;
-      const screenHeight = window.innerHeight;
-      const isMobile = screenWidth < 640;
-      const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
-      const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+      if (isMobileNow) {
+        // On mobile, dragging the header down pulls the sheet down
+        if (dy > 0 && chatWindowRef.current) {
+          chatWindowRef.current.style.transform = `translateY(${dy}px)`;
+        }
+      } else {
+        const dx = moveTouch.clientX - windowDragStartRef.current.startX;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const chatWidth = 410;
+        const chatHeight = 520;
 
-      const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
-      const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
+        const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
+        const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
 
-      windowActivePosRef.current = { x: nextX, y: nextY };
+        windowActivePosRef.current = { x: nextX, y: nextY };
 
-      if (!windowRafRef.current) {
-        windowRafRef.current = requestAnimationFrame(() => {
-          if (chatWindowRef.current) {
-            chatWindowRef.current.style.left = `${windowActivePosRef.current.x}px`;
-            chatWindowRef.current.style.top = `${windowActivePosRef.current.y}px`;
-          }
-          windowRafRef.current = null;
-        });
+        if (!windowRafRef.current) {
+          windowRafRef.current = requestAnimationFrame(() => {
+            if (chatWindowRef.current) {
+              chatWindowRef.current.style.left = `${windowActivePosRef.current.x}px`;
+              chatWindowRef.current.style.top = `${windowActivePosRef.current.y}px`;
+            }
+            windowRafRef.current = null;
+          });
+        }
       }
     };
 
-    const handleTouchEnd = () => {
-      if (windowRafRef.current) {
-        cancelAnimationFrame(windowRafRef.current);
-        windowRafRef.current = null;
-      }
+    const handleTouchEnd = (endEvent: TouchEvent) => {
       isWindowDraggingRef.current = false;
       document.body.style.userSelect = '';
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
-      setWindowPos(windowActivePosRef.current);
+
+      if (isMobileNow) {
+        const endTouchY = endEvent.changedTouches[0]?.clientY ?? startTouchY;
+        const dy = endTouchY - startTouchY;
+        if (dy > 70) {
+          // Pulled down by more than 70px -> close chat
+          if (chatWindowRef.current) {
+            chatWindowRef.current.style.transform = '';
+          }
+          setIsOpen(false);
+        } else {
+          // Spring back
+          if (chatWindowRef.current) {
+            chatWindowRef.current.style.transition = 'transform 0.2s ease-out';
+            chatWindowRef.current.style.transform = 'translateY(0)';
+            setTimeout(() => {
+              if (chatWindowRef.current) {
+                chatWindowRef.current.style.transition = '';
+              }
+            }, 200);
+          }
+        }
+      } else {
+        if (windowRafRef.current) {
+          cancelAnimationFrame(windowRafRef.current);
+          windowRafRef.current = null;
+        }
+        setWindowPos(windowActivePosRef.current);
+      }
     };
 
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -397,6 +451,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   const handlePointerDown = (clientX: number, clientY: number) => {
     isDraggingRef.current = false;
     setIsDragging(false);
+    dragStartTimeRef.current = Date.now();
     latestPosRef.current = { x: position.x, y: position.y };
     dragStartRef.current = {
       startX: clientX,
@@ -411,7 +466,11 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       const dx = currentX - dragStartRef.current.startX;
       const dy = currentY - dragStartRef.current.startY;
 
-      if (!isDraggingRef.current && Math.hypot(dx, dy) > 5) {
+      // On touch devices, use a 15px threshold to prevent natural finger rolling from being detected as a drag
+      const isTouch = 'touches' in e;
+      const threshold = isTouch ? 15 : 6;
+
+      if (!isDraggingRef.current && Math.hypot(dx, dy) > threshold) {
         isDraggingRef.current = true;
         setIsDragging(true);
         if (buttonRef.current) {
@@ -448,7 +507,12 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
 
-      if (isDraggingRef.current) {
+      const elapsed = Date.now() - dragStartTimeRef.current;
+      const dx = latestPosRef.current.x - dragStartRef.current.initialX;
+      const dy = latestPosRef.current.y - dragStartRef.current.initialY;
+      const isTap = elapsed < 350 && Math.hypot(dx, dy) < 20;
+
+      if (isDraggingRef.current && !isTap) {
         setIsDragging(false);
         // Snap smoothly to nearest side (left or right)
         const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 800;
@@ -478,6 +542,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
         }
       } else {
         setIsDragging(false);
+        lastOpenTimeRef.current = Date.now();
         setIsOpen((prev) => !prev);
       }
       isDraggingRef.current = false;
@@ -647,6 +712,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
               handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
             }
           }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           aria-label="Open CyberSafe AI Chat"
           title="CyberSafe AI"
           className={`w-12 h-12 rounded-full aspect-square bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.5)] flex items-center justify-center transition-all cursor-grab active:cursor-grabbing border-2 border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
@@ -666,9 +735,23 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       {/* Backdrop overlay: touching/clicking anywhere outside closes chat (only when not fullscreen) */}
       {isOpen && !isFullscreen && (
         <div
-          className="fixed inset-0 z-[99998] bg-black/20 sm:bg-black/5 backdrop-blur-[0.5px] transition-opacity cursor-pointer animate-in fade-in duration-150"
-          onClick={() => setIsOpen(false)}
-          onTouchEnd={() => setIsOpen(false)}
+          className="fixed inset-0 z-[99998] bg-black/25 sm:bg-black/5 backdrop-blur-[0.5px] cursor-pointer touch-none select-none animate-in fade-in duration-150"
+          onTouchStart={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (Date.now() - lastOpenTimeRef.current < 450) return;
+            setIsOpen(false);
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (Date.now() - lastOpenTimeRef.current < 450) return;
+            setIsOpen(false);
+          }}
           aria-hidden="true"
         />
       )}
@@ -681,6 +764,18 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           style={
             isFullscreen
               ? { position: 'fixed', inset: 0, zIndex: 99999 }
+              : isMobile
+              ? {
+                  position: 'fixed',
+                  bottom: '12px',
+                  left: '12px',
+                  right: '12px',
+                  margin: '0 auto',
+                  maxWidth: '360px',
+                  height: 'min(460px, calc(100dvh - 24px))',
+                  maxHeight: 'calc(100dvh - 24px)',
+                  zIndex: 99999
+                }
               : {
                   position: 'fixed',
                   left: `${(windowPos ?? computeInitialWindowPos(position)).x}px`,

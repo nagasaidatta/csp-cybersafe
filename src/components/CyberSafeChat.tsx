@@ -5,6 +5,8 @@ import {
   X,
   RotateCcw,
   ArrowRight,
+  Maximize2,
+  Minimize2,
   ExternalLink,
   Link2,
   MessageSquareWarning,
@@ -30,6 +32,73 @@ interface CyberSafeChatProps {
 }
 
 const STORAGE_KEY_POS = 'csp_ai_logo_pos';
+
+const computeInitialWindowPos = (buttonPos: { x: number; y: number }): { x: number; y: number } => {
+  if (typeof window === 'undefined') {
+    return { x: 100, y: 100 };
+  }
+
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  const isMobile = screenWidth < 640;
+
+  const buttonSize = 48;
+  const edgeMargin = isMobile ? 12 : 20;
+
+  const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
+  const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+
+  const isLeft = buttonPos.x < screenWidth / 2;
+  const isTop = buttonPos.y < screenHeight / 2;
+
+  let x: number;
+  let y: number;
+
+  // Horizontal placement
+  if (isLeft) {
+    if (!isMobile && buttonPos.x + buttonSize + 12 + chatWidth <= screenWidth - edgeMargin) {
+      x = buttonPos.x + buttonSize + 12;
+    } else {
+      x = Math.max(edgeMargin, Math.min(buttonPos.x, screenWidth - chatWidth - edgeMargin));
+    }
+  } else {
+    const distFromRight = screenWidth - (buttonPos.x + buttonSize);
+    if (distFromRight <= 36 || isMobile) {
+      x = screenWidth - chatWidth - edgeMargin;
+    } else if (!isMobile && buttonPos.x - 12 - chatWidth >= edgeMargin) {
+      x = buttonPos.x - 12 - chatWidth;
+    } else {
+      x = screenWidth - chatWidth - edgeMargin;
+    }
+  }
+
+  // Vertical placement
+  if (isTop) {
+    const idealTop = buttonPos.y + buttonSize + 8;
+    if (idealTop + chatHeight <= screenHeight - edgeMargin) {
+      y = idealTop;
+    } else {
+      y = Math.max(edgeMargin, Math.min(buttonPos.y, screenHeight - chatHeight - edgeMargin));
+    }
+  } else {
+    const distFromBottom = screenHeight - (buttonPos.y + buttonSize);
+    if (distFromBottom <= 40 || isMobile) {
+      y = screenHeight - chatHeight - edgeMargin;
+    } else {
+      const idealBottom = distFromBottom + buttonSize + 8;
+      if (idealBottom + chatHeight <= screenHeight - edgeMargin) {
+        y = screenHeight - chatHeight - idealBottom;
+      } else {
+        y = Math.max(edgeMargin, Math.min(screenHeight - chatHeight - distFromBottom, screenHeight - chatHeight - edgeMargin));
+      }
+    }
+  }
+
+  return {
+    x: Math.max(8, Math.min(x, screenWidth - chatWidth - 8)),
+    y: Math.max(8, Math.min(y, screenHeight - chatHeight - 8))
+  };
+};
 
 export const CyberSafeChat: React.FC<CyberSafeChatProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
@@ -80,8 +149,22 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
-  // Dragging state references
+  // Fullscreen & Draggable Window States
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [windowPos, setWindowPos] = useState<{ x: number; y: number } | null>(null);
+  const isWindowDraggingRef = useRef(false);
+  const windowActivePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const windowRafRef = useRef<number | null>(null);
+  const windowDragStartRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number }>({
+    startX: 0,
+    startY: 0,
+    initialX: 0,
+    initialY: 0
+  });
+
+  // Dragging state references for floating button
   const isDraggingRef = useRef(false);
+  const buttonRafRef = useRef<number | null>(null);
   const latestPosRef = useRef<{ x: number; y: number }>({ x: position.x, y: position.y });
   const dragStartRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number }>({
     startX: 0,
@@ -90,7 +173,16 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     initialY: position.y
   });
 
-  // Keep button snapped within window on resize
+  // Calculate and sync position whenever window is opened
+  useEffect(() => {
+    if (isOpen) {
+      setWindowPos(computeInitialWindowPos(position));
+    } else {
+      setIsFullscreen(false);
+    }
+  }, [isOpen]);
+
+  // Keep button and window within screen boundaries on resize
   useEffect(() => {
     const handleResize = () => {
       setPosition((prev) => {
@@ -100,6 +192,19 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
         const targetX = prev.x < screenWidth / 2 ? edgeMargin : screenWidth - buttonWidth - edgeMargin;
         const targetY = Math.min(Math.max(edgeMargin, prev.y), window.innerHeight - buttonWidth - edgeMargin);
         return { x: targetX, y: targetY };
+      });
+
+      setWindowPos((prev) => {
+        if (!prev) return null;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const isMobile = screenWidth < 640;
+        const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
+        const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+        return {
+          x: Math.max(0, Math.min(prev.x, screenWidth - chatWidth)),
+          y: Math.max(0, Math.min(prev.y, screenHeight - chatHeight))
+        };
       });
     };
     window.addEventListener('resize', handleResize);
@@ -125,6 +230,7 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     if (!isOpen) return;
 
     const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (isWindowDraggingRef.current) return;
       const target = event.target as Node;
       if (
         chatWindowRef.current &&
@@ -138,7 +244,11 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setIsOpen(false);
+        if (isFullscreen) {
+          setIsFullscreen(false);
+        } else {
+          setIsOpen(false);
+        }
       }
     };
 
@@ -155,9 +265,135 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       document.removeEventListener('touchstart', handleOutsideClick);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, isFullscreen]);
 
-  // Pointer drag start handler
+  // Chat Window Drag Handlers (60-120fps hardware accelerated via requestAnimationFrame)
+  const handleWindowDragStart = (e: React.MouseEvent) => {
+    if (isFullscreen) return;
+    if ((e.target as HTMLElement).closest('button, input, a, textarea')) return;
+
+    e.preventDefault();
+    isWindowDraggingRef.current = true;
+    document.body.style.userSelect = 'none';
+
+    const currentX = windowPos ? windowPos.x : computeInitialWindowPos(position).x;
+    const currentY = windowPos ? windowPos.y : computeInitialWindowPos(position).y;
+    windowActivePosRef.current = { x: currentX, y: currentY };
+
+    windowDragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: currentX,
+      initialY: currentY
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isWindowDraggingRef.current) return;
+      const dx = moveEvent.clientX - windowDragStartRef.current.startX;
+      const dy = moveEvent.clientY - windowDragStartRef.current.startY;
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isMobile = screenWidth < 640;
+      const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
+      const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+
+      const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
+      const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
+
+      windowActivePosRef.current = { x: nextX, y: nextY };
+
+      if (!windowRafRef.current) {
+        windowRafRef.current = requestAnimationFrame(() => {
+          if (chatWindowRef.current) {
+            chatWindowRef.current.style.left = `${windowActivePosRef.current.x}px`;
+            chatWindowRef.current.style.top = `${windowActivePosRef.current.y}px`;
+          }
+          windowRafRef.current = null;
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (windowRafRef.current) {
+        cancelAnimationFrame(windowRafRef.current);
+        windowRafRef.current = null;
+      }
+      isWindowDraggingRef.current = false;
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      setWindowPos(windowActivePosRef.current);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleWindowTouchStart = (e: React.TouchEvent) => {
+    if (isFullscreen || e.touches.length === 0) return;
+    if ((e.target as HTMLElement).closest('button, input, a, textarea')) return;
+
+    isWindowDraggingRef.current = true;
+    document.body.style.userSelect = 'none';
+
+    const touch = e.touches[0];
+    const currentX = windowPos ? windowPos.x : computeInitialWindowPos(position).x;
+    const currentY = windowPos ? windowPos.y : computeInitialWindowPos(position).y;
+    windowActivePosRef.current = { x: currentX, y: currentY };
+
+    windowDragStartRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      initialX: currentX,
+      initialY: currentY
+    };
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      if (!isWindowDraggingRef.current || moveEvent.touches.length === 0) return;
+      const moveTouch = moveEvent.touches[0];
+      const dx = moveTouch.clientX - windowDragStartRef.current.startX;
+      const dy = moveTouch.clientY - windowDragStartRef.current.startY;
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isMobile = screenWidth < 640;
+      const chatWidth = isMobile ? Math.min(360, screenWidth - 24) : 410;
+      const chatHeight = isMobile ? Math.min(460, screenHeight * 0.72) : 520;
+
+      const nextX = Math.max(0, Math.min(windowDragStartRef.current.initialX + dx, screenWidth - chatWidth));
+      const nextY = Math.max(0, Math.min(windowDragStartRef.current.initialY + dy, screenHeight - chatHeight));
+
+      windowActivePosRef.current = { x: nextX, y: nextY };
+
+      if (!windowRafRef.current) {
+        windowRafRef.current = requestAnimationFrame(() => {
+          if (chatWindowRef.current) {
+            chatWindowRef.current.style.left = `${windowActivePosRef.current.x}px`;
+            chatWindowRef.current.style.top = `${windowActivePosRef.current.y}px`;
+          }
+          windowRafRef.current = null;
+        });
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (windowRafRef.current) {
+        cancelAnimationFrame(windowRafRef.current);
+        windowRafRef.current = null;
+      }
+      isWindowDraggingRef.current = false;
+      document.body.style.userSelect = '';
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      setWindowPos(windowActivePosRef.current);
+    };
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
+  };
+
+  // Pointer drag start handler for floating button
   const handlePointerDown = (clientX: number, clientY: number) => {
     isDraggingRef.current = false;
     setIsDragging(false);
@@ -178,17 +414,35 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       if (!isDraggingRef.current && Math.hypot(dx, dy) > 5) {
         isDraggingRef.current = true;
         setIsDragging(true);
+        if (buttonRef.current) {
+          buttonRef.current.style.transition = 'none';
+        }
+        document.body.style.userSelect = 'none';
       }
 
       if (isDraggingRef.current) {
         const nextX = Math.min(Math.max(12, dragStartRef.current.initialX + dx), window.innerWidth - 60);
         const nextY = Math.min(Math.max(12, dragStartRef.current.initialY + dy), window.innerHeight - 60);
         latestPosRef.current = { x: nextX, y: nextY };
-        setPosition({ x: nextX, y: nextY });
+
+        if (!buttonRafRef.current) {
+          buttonRafRef.current = requestAnimationFrame(() => {
+            if (buttonRef.current) {
+              buttonRef.current.style.left = `${latestPosRef.current.x}px`;
+              buttonRef.current.style.top = `${latestPosRef.current.y}px`;
+            }
+            buttonRafRef.current = null;
+          });
+        }
       }
     };
 
     const handlePointerUp = () => {
+      if (buttonRafRef.current) {
+        cancelAnimationFrame(buttonRafRef.current);
+        buttonRafRef.current = null;
+      }
+      document.body.style.userSelect = '';
       window.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
       window.removeEventListener('touchmove', handlePointerMove);
@@ -210,6 +464,11 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
 
         const snapped = { x: targetX, y: targetY };
         latestPosRef.current = snapped;
+        if (buttonRef.current) {
+          buttonRef.current.style.transition = 'left 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.35s ease-out';
+          buttonRef.current.style.left = `${snapped.x}px`;
+          buttonRef.current.style.top = `${snapped.y}px`;
+        }
         setPosition(snapped);
 
         try {
@@ -321,82 +580,6 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     onNavigate(view);
   };
 
-  // Dynamically compute chat window position relative to the floating AI button
-  const getChatWindowPosition = (): React.CSSProperties => {
-    if (typeof window === 'undefined') {
-      return { bottom: '16px', right: '16px' };
-    }
-
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const isMobile = screenWidth < 640;
-
-    const buttonSize = 48;
-    const edgeMargin = isMobile ? 12 : 20;
-
-    const chatWidth = isMobile ? Math.min(320, screenWidth * 0.82) : 410;
-    const chatHeight = isMobile ? Math.min(390, screenHeight * 0.65) : 520;
-
-    const isLeft = position.x < screenWidth / 2;
-    const isTop = position.y < screenHeight / 2;
-
-    const style: React.CSSProperties = {};
-
-    // Horizontal placement
-    if (isLeft) {
-      if (!isMobile && position.x + buttonSize + 12 + chatWidth <= screenWidth - edgeMargin) {
-        style.left = `${position.x + buttonSize + 12}px`;
-      } else {
-        style.left = `${Math.max(edgeMargin, Math.min(position.x, screenWidth - chatWidth - edgeMargin))}px`;
-      }
-      style.right = 'auto';
-    } else {
-      // Right side (default side)
-      const distFromRight = screenWidth - (position.x + buttonSize);
-      if (distFromRight <= 36 || isMobile) {
-        // Default place or near right edge
-        style.right = `${edgeMargin}px`;
-      } else if (!isMobile && position.x - 12 - chatWidth >= edgeMargin) {
-        style.right = `${Math.max(edgeMargin, distFromRight + buttonSize + 12)}px`;
-      } else {
-        style.right = `${edgeMargin}px`;
-      }
-      style.left = 'auto';
-    }
-
-    // Vertical placement
-    if (isTop) {
-      // Near top: position window below or aligned with the logo
-      const idealTop = position.y + buttonSize + 8;
-      if (idealTop + chatHeight <= screenHeight - edgeMargin) {
-        style.top = `${idealTop}px`;
-        style.bottom = 'auto';
-      } else {
-        style.top = `${Math.max(edgeMargin, Math.min(position.y, screenHeight - chatHeight - edgeMargin))}px`;
-        style.bottom = 'auto';
-      }
-    } else {
-      // Near bottom (default place): position window at the bottom edge or above button
-      const distFromBottom = screenHeight - (position.y + buttonSize);
-      if (distFromBottom <= 40 || isMobile) {
-        // Default place is at the bottom margin
-        style.bottom = `${edgeMargin}px`;
-        style.top = 'auto';
-      } else {
-        const idealBottom = distFromBottom + buttonSize + 8;
-        if (idealBottom + chatHeight <= screenHeight - edgeMargin) {
-          style.bottom = `${idealBottom}px`;
-          style.top = 'auto';
-        } else {
-          style.bottom = `${Math.max(edgeMargin, Math.min(distFromBottom, screenHeight - chatHeight - edgeMargin))}px`;
-          style.top = 'auto';
-        }
-      }
-    }
-
-    return style;
-  };
-
   const renderContent = (text: string) => {
     const lines = text.split('\n');
 
@@ -465,9 +648,9 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
             }
           }}
           aria-label="Open CyberSafe AI Chat"
-          title="CyberSafe AI (Drag to move)"
-          className={`w-12 h-12 rounded-full aspect-square bg-slate-900 hover:bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.25)] flex items-center justify-center transition-all cursor-grab active:cursor-grabbing border border-slate-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 ${
-            isOpen ? 'ring-2 ring-slate-900 ring-offset-2' : ''
+          title="CyberSafe AI"
+          className={`w-12 h-12 rounded-full aspect-square bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-[0_8px_25px_rgba(37,99,235,0.4)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.5)] flex items-center justify-center transition-all cursor-grab active:cursor-grabbing border-2 border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
+            isOpen ? 'ring-2 ring-blue-600 ring-offset-2' : ''
           }`}
         >
           <div className="flex flex-col items-center justify-center select-none leading-none">
@@ -480,8 +663,8 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       {/* ========================================================================= */}
       {/* 2. CHATGPT / GEMINI MINIMAL CHAT WINDOW & BACKDROP                        */}
       {/* ========================================================================= */}
-      {/* Backdrop overlay: touching/clicking anywhere outside closes chat */}
-      {isOpen && (
+      {/* Backdrop overlay: touching/clicking anywhere outside closes chat (only when not fullscreen) */}
+      {isOpen && !isFullscreen && (
         <div
           className="fixed inset-0 z-[99998] bg-black/20 sm:bg-black/5 backdrop-blur-[0.5px] transition-opacity cursor-pointer animate-in fade-in duration-150"
           onClick={() => setIsOpen(false)}
@@ -495,14 +678,39 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           ref={chatWindowRef}
           role="dialog"
           aria-label="CyberSafe AI"
-          style={getChatWindowPosition()}
-          className="fixed z-[99999] flex flex-col w-[82vw] max-w-[320px] sm:max-w-none sm:w-[410px] md:w-[420px] h-[390px] sm:h-[520px] max-h-[65dvh] sm:max-h-[calc(100vh-80px)] bg-white border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)] overflow-hidden transition-all duration-150 animate-in fade-in"
+          style={
+            isFullscreen
+              ? { position: 'fixed', inset: 0, zIndex: 99999 }
+              : {
+                  position: 'fixed',
+                  left: `${(windowPos ?? computeInitialWindowPos(position)).x}px`,
+                  top: `${(windowPos ?? computeInitialWindowPos(position)).y}px`,
+                  zIndex: 99999
+                }
+          }
+          className={`flex flex-col bg-white overflow-hidden ${
+            isFullscreen
+              ? 'fixed inset-0 w-full h-[100dvh] rounded-none shadow-none z-[99999]'
+              : 'fixed z-[99999] w-[92vw] max-w-[360px] sm:max-w-none sm:w-[410px] md:w-[420px] h-[460px] sm:h-[520px] max-h-[75dvh] sm:max-h-[calc(100vh-80px)] border border-slate-200/90 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.22)]'
+          }`}
         >
-          {/* Minimal Header */}
-          <div className="h-11 sm:h-14 px-3 sm:px-5 bg-white border-b border-slate-100 flex items-center justify-between gap-2 sm:gap-3 shrink-0">
+          {/* Header - Acts as drag handle when not fullscreen */}
+          <div
+            onMouseDown={handleWindowDragStart}
+            onTouchStart={handleWindowTouchStart}
+            style={{ touchAction: isFullscreen ? 'auto' : 'none' }}
+            className={`relative h-12 sm:h-14 px-3.5 sm:px-5 bg-white border-b border-slate-100 flex items-center justify-between gap-2 sm:gap-3 shrink-0 select-none ${
+              isFullscreen ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
+            }`}
+          >
+            {/* Visual drag pull indicator for mobile */}
+            {!isFullscreen && (
+              <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-slate-300 rounded-full sm:hidden pointer-events-none" />
+            )}
+
             <div className="flex items-center gap-2 sm:gap-2.5">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0 select-none">
-                <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 select-none">
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="flex flex-col justify-center">
                 <div className="flex items-center">
@@ -518,115 +726,147 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
               <button
                 type="button"
                 onClick={handleClearChat}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 title="Restart chat"
                 aria-label="Restart chat"
-                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:bg-slate-200 active:scale-95 rounded-full transition-all cursor-pointer"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsFullscreen((prev) => !prev);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                title={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                aria-label={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                className="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:bg-slate-200 active:scale-95 rounded-full transition-all cursor-pointer"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                ) : (
+                  <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 title="Close chat"
                 aria-label="Close chat"
-                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:bg-slate-200 active:scale-95 rounded-full transition-all cursor-pointer"
               >
-                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Messages Body */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-2.5 sm:space-y-4 bg-white">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.role === 'user' ? (
-                  /* ChatGPT / Gemini style user pill */
-                  <div className="bg-[#f4f4f5] text-slate-900 rounded-2xl sm:rounded-3xl rounded-br-xs px-3 py-2 sm:px-4 sm:py-2.5 max-w-[88%] sm:max-w-[85%] text-xs sm:text-sm leading-relaxed">
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                  </div>
-                ) : (
-                  /* Assistant message */
-                  <div className="flex items-start gap-2 sm:gap-3 max-w-[95%] sm:max-w-[92%]">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
-                      <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+          <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3 sm:space-y-4 bg-white">
+            <div className={`space-y-3 sm:space-y-4 ${isFullscreen ? 'max-w-3xl mx-auto w-full' : ''}`}>
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.role === 'user' ? (
+                    /* ChatGPT / Gemini style user pill */
+                    <div className="bg-[#f4f4f5] text-slate-900 rounded-2xl sm:rounded-3xl rounded-br-xs px-3 py-2 sm:px-4 sm:py-2.5 max-w-[88%] sm:max-w-[85%] text-xs sm:text-sm leading-relaxed">
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
-
-                    <div className="flex-1 space-y-1.5 sm:space-y-2">
-                      <div className="text-slate-800 text-xs sm:text-sm leading-relaxed">
-                        {renderContent(msg.content)}
+                  ) : (
+                    /* Assistant message */
+                    <div className="flex items-start gap-2 sm:gap-3 max-w-[95%] sm:max-w-[92%]">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
+                        <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
                       </div>
 
-                      {/* Action Redirection Buttons */}
-                      {msg.redirects && msg.redirects.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
-                          {msg.redirects.map((redir, rIdx) => (
-                            <button
-                              key={rIdx}
-                              type="button"
-                              onClick={() => handleNavigateTo(redir.view)}
-                              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs font-medium text-slate-800 bg-[#f4f4f5] hover:bg-slate-200/80 rounded-xl transition-colors group cursor-pointer"
-                            >
-                              <span>{redir.label}</span>
-                              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                          ))}
+                      <div className="flex-1 space-y-1.5 sm:space-y-2">
+                        <div className="text-slate-800 text-xs sm:text-sm leading-relaxed">
+                          {renderContent(msg.content)}
                         </div>
-                      )}
+
+                        {/* Action Redirection Buttons */}
+                        {msg.redirects && msg.redirects.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
+                            {msg.redirects.map((redir, rIdx) => (
+                              <button
+                                key={rIdx}
+                                type="button"
+                                onClick={() => handleNavigateTo(redir.view)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-800 bg-[#f4f4f5] hover:bg-slate-200/80 active:scale-95 rounded-xl transition-all group cursor-pointer"
+                              >
+                                <span>{redir.label}</span>
+                                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading Indicator */}
+              {isLoading && (
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
+                    <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
                   </div>
-                )}
-              </div>
-            ))}
-
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div className="flex items-start gap-2 sm:gap-3">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-2xs shrink-0 mt-0.5 select-none">
-                  <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                  <div className="flex items-center gap-1.5 py-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 py-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
-                </div>
-              </div>
-            )}
+              )}
 
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} />
+            </div>
           </div>
 
           {/* ChatGPT Style Minimal Input Bar */}
-          <div className="p-2 sm:p-3 sm:px-4 bg-white border-t border-slate-100">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}
-              className="flex items-center gap-1.5 sm:gap-2 bg-[#f4f4f5] focus-within:bg-[#f0f0f2] rounded-3xl px-3 sm:px-4 py-1 sm:py-1.5 transition-all"
-            >
-              <input
-                ref={chatInputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Message CyberSafe AI..."
-                className="flex-1 bg-transparent py-1 sm:py-1.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
-              />
-
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                aria-label="Send"
-                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white disabled:text-slate-400 flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+          <div className="p-2.5 sm:p-3 sm:px-4 bg-white border-t border-slate-100">
+            <div className={isFullscreen ? 'max-w-3xl mx-auto w-full' : ''}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+                className="flex items-center gap-2 bg-[#f4f4f5] focus-within:bg-[#f0f0f2] focus-within:ring-2 focus-within:ring-blue-600/25 rounded-3xl px-3.5 sm:px-4 py-1.5 transition-all"
               >
-                <ArrowUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
-              </button>
-            </form>
+                <input
+                  ref={chatInputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onFocus={() => {
+                    setTimeout(() => {
+                      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                  }}
+                  placeholder="Message CyberSafe AI..."
+                  className="flex-1 bg-transparent py-1 text-base sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+                />
+
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  aria-label="Send"
+                  className="w-8 h-8 sm:w-7 sm:h-7 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-90 disabled:bg-slate-300 text-white disabled:text-slate-400 flex items-center justify-center transition-all shrink-0 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                >
+                  <ArrowUp className="w-4 h-4 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}

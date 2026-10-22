@@ -53,19 +53,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs transition-colors">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Logo */}
         <button
           onClick={() => onNavigate('home')}
-          className="flex items-center gap-2 text-left group shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded-lg"
+          className="flex items-center gap-2.5 text-left group shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded-lg"
           aria-label="Cyber Safe Home"
         >
-          <div className="w-9 h-9 rounded-lg bg-blue-700 text-white flex items-center justify-center shadow-xs group-hover:bg-blue-800 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-xs group-hover:bg-blue-800 transition-colors">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-700 transition-colors block leading-tight">
+            <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-700 transition-colors block leading-tight">
               {t('siteTitle')}
             </span>
           </div>

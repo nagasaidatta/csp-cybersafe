@@ -289,16 +289,14 @@ export const QuizPage: React.FC<QuizPageProps> = ({ onNavigate, returnTo = 'modu
             <div
               key={q.id}
               id={`question-${q.id}`}
-              className={`p-5 sm:p-6 rounded-2xl transition-all ${
+              className={`p-5 sm:p-6 rounded-2xl bg-white border shadow-sm transition-all ${
                 submitted
                   ? isCorrect
-                    ? 'bg-emerald-50/90 shadow-sm'
+                    ? 'border-emerald-300'
                     : isAnswered
-                    ? 'bg-red-50/90 shadow-sm'
-                    : 'bg-slate-100/70 shadow-none'
-                  : isAnswered
-                  ? 'bg-blue-50/40 shadow-md ring-1 ring-blue-500/20'
-                  : 'bg-white shadow-sm hover:shadow-md'
+                    ? 'border-red-300'
+                    : 'border-slate-200/80'
+                  : 'border-slate-200/80'
               }`}
             >
               {/* Question Number & Text */}

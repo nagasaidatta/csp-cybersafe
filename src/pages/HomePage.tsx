@@ -39,13 +39,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="py-8 sm:py-12 md:py-14">
+    <div className="py-10 sm:py-14 md:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
 
         {/* ========================================================= */}
         {/* 1. HERO SECTION                                           */}
         {/* ========================================================= */}
-        <section aria-labelledby="hero-title" className="text-center max-w-3xl mx-auto pt-2">
+        <section aria-labelledby="hero-title" className="text-center max-w-3xl mx-auto pt-3 sm:pt-5">
           <h1
             id="hero-title"
             className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight"
@@ -70,7 +70,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('link-safety')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('link-safety')}
               aria-label={`Open ${t('navLinkSafety')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-6 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">
@@ -109,7 +109,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('message-safety')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('message-safety')}
               aria-label={`Open ${t('navMessageSafety')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-6 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">
@@ -148,7 +148,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('password-checker')}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNavigate('password-checker')}
               aria-label={`Open ${t('navPasswordChecker')}`}
-              className="group cursor-pointer bg-white p-5 sm:p-5.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group cursor-pointer bg-white p-5 sm:p-6 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <div>
                 <div className="flex items-center gap-3 mb-2.5">

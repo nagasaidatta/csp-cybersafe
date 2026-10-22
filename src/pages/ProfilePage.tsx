@@ -90,7 +90,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-200 pb-16">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 pb-16">
       <div className="max-w-5xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 space-y-5 sm:space-y-7">
         {/* Navigation Breadcrumb */}
         <div className="mb-1 sm:mb-2">

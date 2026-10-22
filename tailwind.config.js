@@ -18,14 +18,14 @@ export default {
         }
       },
       boxShadow: {
-        '2xs': '0 0 4px 0 rgba(0, 0, 0, 0.08)',
-        'xs': '0 0 6px 1px rgba(0, 0, 0, 0.08)',
-        'sm': '0 0 12px 1px rgba(0, 0, 0, 0.09), 0 0 4px 0 rgba(0, 0, 0, 0.05)',
-        DEFAULT: '0 0 16px 2px rgba(0, 0, 0, 0.10), 0 0 5px 0 rgba(0, 0, 0, 0.05)',
-        'md': '0 0 22px 3px rgba(0, 0, 0, 0.12), 0 0 7px 0 rgba(0, 0, 0, 0.05)',
-        'lg': '0 0 30px 4px rgba(0, 0, 0, 0.14), 0 0 9px 0 rgba(0, 0, 0, 0.06)',
-        'xl': '0 0 40px 6px rgba(0, 0, 0, 0.16), 0 0 12px 0 rgba(0, 0, 0, 0.07)',
-        '2xl': '0 0 52px 8px rgba(0, 0, 0, 0.18), 0 0 14px 0 rgba(0, 0, 0, 0.08)',
+        '2xs': '0 1px 2px rgba(15, 23, 42, 0.04)',
+        'xs': '0 1px 3px rgba(15, 23, 42, 0.05)',
+        'sm': '0 2px 7px rgba(15, 23, 42, 0.06)',
+        DEFAULT: '0 5px 14px rgba(15, 23, 42, 0.07)',
+        'md': '0 8px 22px rgba(15, 23, 42, 0.08)',
+        'lg': '0 12px 30px rgba(15, 23, 42, 0.10)',
+        'xl': '0 18px 42px rgba(15, 23, 42, 0.12)',
+        '2xl': '0 24px 54px rgba(15, 23, 42, 0.14)',
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],

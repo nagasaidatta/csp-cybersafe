@@ -124,7 +124,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({ onNavigate }) 
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-200 pb-16">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
         {/* Navigation & Header */}
         <div className="space-y-2">

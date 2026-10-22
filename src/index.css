@@ -4,7 +4,6 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
@@ -12,9 +11,37 @@
   }
 
   body {
-    background-color: #e2e8f0;
-    color: #0f172a;
+    background-color: #f8fafc;
+    color: #172033;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    background: #dbeafe;
+    color: #172033;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer base {
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition-duration: 160ms;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8;
   }
 }
 
@@ -28,32 +55,4 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-@keyframes clickMePulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 24px 4px rgba(0, 0, 0, 0.22);
-  }
-}
-
-@keyframes arrowNudge {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-}
-
-.group:hover .animate-click-me {
-  animation: clickMePulse 1.2s ease-in-out infinite;
-}
-
-.group:hover .animate-arrow-nudge {
-  animation: arrowNudge 1.2s ease-in-out infinite;
 }

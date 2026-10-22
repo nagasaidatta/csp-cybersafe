@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   Bot,
   ArrowUp,
@@ -153,6 +153,9 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
   ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevIsOpenRef = useRef(false);
+  const prevMessagesLengthRef = useRef(messages.length);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -260,7 +263,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
       }
 
       if (isOpen) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+        messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
       }
     };
 
@@ -304,11 +310,40 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
     };
   }, [isOpen]);
 
-  // Smooth scroll to bottom on new messages
+  // Scroll management: instant to bottom on open (no top-to-bottom scroll), smooth on new messages
+  useLayoutEffect(() => {
+    if (isOpen && !prevIsOpenRef.current) {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    }
+  }, [isOpen]);
+
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      prevIsOpenRef.current = false;
+      return;
+    }
+
+    const wasJustOpened = !prevIsOpenRef.current;
+    prevIsOpenRef.current = true;
+
+    if (wasJustOpened) {
+      // Just opened: keep instant at bottom, no animated scroll from top
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+      prevMessagesLengthRef.current = messages.length;
+      return;
+    }
+
+    // New messages added while chat was already open: smooth scroll down
+    if (messages.length > prevMessagesLengthRef.current || isLoading) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
+    prevMessagesLengthRef.current = messages.length;
   }, [messages, isOpen, isLoading]);
 
   // Focus input when opened
@@ -953,7 +988,10 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
           </div>
 
           {/* Messages Body */}
-          <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3 sm:space-y-4 bg-white">
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3 sm:space-y-4 bg-white"
+          >
             <div className={`space-y-3 sm:space-y-4 ${isFullscreen ? 'max-w-3xl mx-auto w-full' : ''}`}>
               {messages.map((msg) => (
                 <div
@@ -1034,8 +1072,11 @@ Ask any question about **cybersecurity**, **spotting scams**, or using our **por
                   onChange={(e) => setInput(e.target.value)}
                   onFocus={() => {
                     setTimeout(() => {
-                      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                    }, 300);
+                      if (messagesContainerRef.current) {
+                        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+                      }
+                      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+                    }, 100);
                   }}
                   placeholder="Message CyberSafe AI..."
                   className="flex-1 bg-transparent py-1 text-base sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
